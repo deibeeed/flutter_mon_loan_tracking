@@ -10,5 +10,5 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  bootstrap(() => const App());
+  bootstrap(() => App());
 }
