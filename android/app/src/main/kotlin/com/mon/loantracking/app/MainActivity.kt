@@ -1,4 +1,4 @@
-package com.mon.loantracking.app.flutter_mon_loan_tracking
+package com.mon.loantracking.app
 
 import io.flutter.embedding.android.FlutterActivity
 

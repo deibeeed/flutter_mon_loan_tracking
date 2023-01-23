@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "516428407645",
+    "project_id": "loan-tracking-system-dev-stg",
+    "storage_bucket": "loan-tracking-system-dev-stg.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:516428407645:android:faa0ce9f499560a4fcbeb4",
+        "android_client_info": {
+          "package_name": "com.mon.loantracking.app.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "516428407645-ve26fpbqp78ncjfg4sjtgbl72g0cjtcn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7KESzwfHY_uuR2gfd8eIi4QdH1d9Xb7A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "516428407645-ve26fpbqp78ncjfg4sjtgbl72g0cjtcn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "516428407645-8eh5mvfio6m7o32ked3ktv7rsvqqc90k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mon.loantracking.app.dev"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:516428407645:android:038827b417f26e5ffcbeb4",
+        "android_client_info": {
+          "package_name": "com.mon.loantracking.app.stg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "516428407645-ve26fpbqp78ncjfg4sjtgbl72g0cjtcn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7KESzwfHY_uuR2gfd8eIi4QdH1d9Xb7A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "516428407645-ve26fpbqp78ncjfg4sjtgbl72g0cjtcn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "516428407645-8eh5mvfio6m7o32ked3ktv7rsvqqc90k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mon.loantracking.app.dev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

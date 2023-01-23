@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mon.loantracking.app.flutter_mon_loan_tracking">
+    package="com.mon.loantracking.app">
    <application
         android:label="${appName}"
         android:icon="@mipmap/ic_launcher">
