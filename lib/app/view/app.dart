@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/screen/authentication_screen.dart';
-import 'package:flutter_mon_loan_tracking/features/dashboard/screens/dashboard_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/loan_dashboard/screens/loan_dashboard_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/lot_dashboard/screens/lot_dashboard_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/settings/screens/settings_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/splash/bloc/splash_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/splash/screens/splash_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/user_list_screen.dart';
 import 'package:flutter_mon_loan_tracking/l10n/l10n.dart';
 import 'package:flutter_mon_loan_tracking/utils/color_schemes.g.dart';
+import 'package:flutter_mon_loan_tracking/utils/no_transition_route.dart';
 import 'package:go_router/go_router.dart';
 
 class App extends StatelessWidget {
@@ -39,18 +44,26 @@ class App extends StatelessWidget {
           return MainScreen(content: child);
         },
         routes: [
-          GoRoute(
-            path: '/dashboard',
-            builder: (context, state) {
-              return const DashboardScreen();
-            },
+          RouteUtils.buildNoTransitionRoute(
+            path: '/loan-dashboard',
+            child: const LoanDashboardScreen(),
           ),
-          GoRoute(
+          RouteUtils.buildNoTransitionRoute(
+            path: '/lot-dashboard',
+            child: const LotDashboardScreen(),
+          ),
+          RouteUtils.buildNoTransitionRoute(
             path: '/users',
-            builder: (context, state) {
-              return UserListScreen();
-            },
-          )
+            child: UserListScreen(),
+          ),
+          RouteUtils.buildNoTransitionRoute(
+            path: '/settings',
+            child: const SettingsScreen(),
+          ),
+          RouteUtils.buildNoTransitionRoute(
+            path: '/loan-calculator',
+            child: const LoanCalculatorScreen(),
+          ),
         ],
       )
     ],
@@ -60,7 +73,8 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<SplashBloc>.value(value: SplashBloc())
+        BlocProvider<SplashBloc>.value(value: SplashBloc()),
+        BlocProvider<MenuSelectionCubit>.value(value: MenuSelectionCubit())
       ],
       child: MaterialApp.router(
         routerConfig: _rootRouter,

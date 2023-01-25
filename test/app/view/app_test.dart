@@ -6,7 +6,7 @@ void main() {
   group('App', () {
     testWidgets('renders CounterPage', (tester) async {
       await tester.pumpWidget(const App());
-      expect(find.byType(DashboardScreen), findsOneWidget);
+      expect(find.byType(LoanDashboardScreen), findsOneWidget);
     });
   });
 }
