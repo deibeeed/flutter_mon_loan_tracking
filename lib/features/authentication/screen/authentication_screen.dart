@@ -11,7 +11,7 @@ class AuthenticationScreen extends StatelessWidget {
         children: [
           Text('auth screen here'),
           ElevatedButton(
-              onPressed: () => GoRouter.of(context).go('/lot-dashboard'),
+              onPressed: () => GoRouter.of(context).go('/loan-dashboard'),
               child: Text('go to dashboard'))
         ],
       ),

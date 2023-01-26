@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/screen/authentication_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/loan_dashboard/bloc/general_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_dashboard/screens/loan_dashboard_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/lot_dashboard/screens/lot_dashboard_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
@@ -73,8 +74,15 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<SplashBloc>.value(value: SplashBloc()),
-        BlocProvider<MenuSelectionCubit>.value(value: MenuSelectionCubit())
+        BlocProvider<SplashBloc>.value(
+          value: SplashBloc(),
+        ),
+        BlocProvider<MenuSelectionCubit>.value(
+          value: MenuSelectionCubit(),
+        ),
+        BlocProvider<GeneralFilterSelectionCubit>.value(
+          value: GeneralFilterSelectionCubit(),
+        ),
       ],
       child: MaterialApp.router(
         routerConfig: _rootRouter,
