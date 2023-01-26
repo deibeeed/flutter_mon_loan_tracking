@@ -12,4 +12,12 @@ class Constants {
     MenuItemSeparator(),
     MenuItemModel(name: 'Loan Calculator', goPath: '/loan-calculator'),
   ];
+
+  static const loan_dashboard_table_columns = [
+    'Name',
+    'Block No.  / Lot No.',
+    'Payment Status',
+    'Amount',
+    'Agent',
+  ];
 }
