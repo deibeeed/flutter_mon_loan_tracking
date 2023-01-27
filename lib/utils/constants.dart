@@ -31,4 +31,11 @@ class Constants {
     'Available',
     'Unavailable',
   ];
+
+  static const user_list_table_colums = [
+    'Name',
+    'Type',
+    'Contact Number',
+    'Date Added'
+  ];
 }

@@ -1,11 +1,157 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/utils/constants.dart';
+import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 
 class UserListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final defaultBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(32),
+      borderSide: const BorderSide(
+        color: Colors.transparent,
+        width: 0,
+        style: BorderStyle.none,
+      ),
+    );
+    const defaultTableTextStyle = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+    );
+
     return Scaffold(
-      body: Center(
-        child: Text('Hello user list screene'),
+      body: Column(
+        children: [
+          Expanded(
+            child: Card(
+              color: Colors.white,
+              shadowColor: Colors.black,
+              elevation: 16,
+              child: Column(
+                children: [
+                  Padding(
+                    padding:
+                    const EdgeInsets.only(left: 24, top: 24, bottom: 24),
+                    child: Row(
+                      children: [
+                        OutlinedButton(
+                          onPressed: () => printd('hello'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.all(22),
+                            foregroundColor: Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(0.8),
+                            side: BorderSide(
+                              width: 1.5,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondary
+                                  .withOpacity(0.8),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.filter_alt_rounded),
+                              Text(
+                                'FILTER',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 32,
+                        ),
+                        SizedBox(
+                          width: screenSize.width * 0.3,
+                          child: TextFormField(
+                            // style: TextStyle(fontSize: 16, ),
+                            decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.only(
+                                    left: 32, right: 32, top: 20, bottom: 20),
+                                label:
+                                const Text('Search users by name or email'),
+                                floatingLabelBehavior:
+                                FloatingLabelBehavior.never,
+                                filled: true,
+                                fillColor: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryContainer,
+                                border: defaultBorder,
+                                enabledBorder: defaultBorder,
+                                focusedBorder: defaultBorder),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: SizedBox.expand(
+                      child: DataTable(
+                        dataRowHeight: 72,
+                        headingRowColor: MaterialStateColor.resolveWith(
+                              (states) => Theme.of(context)
+                              .colorScheme
+                              .secondaryContainer
+                              .withOpacity(0.32),
+                        ),
+                        columns: [
+                          for (String name
+                          in Constants.user_list_table_colums)
+                            DataColumn(
+                                label: Text(
+                                  name.toUpperCase(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.apply(
+                                    fontWeightDelta: 3,
+                                    color:
+                                    Theme.of(context).colorScheme.secondary,
+                                  ),
+                                ))
+                        ],
+                        rows: [
+                          DataRow(
+                            cells: [
+                              DataCell(
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _defaultCellText(text: 'David Andrew Francis Duldulao'),
+                                    Text('dafduldulao@gmail.com')
+                                  ],
+                                ),
+                              ),
+                              DataCell(_defaultCellText(text: 'Customer'),),
+                              DataCell(
+                                _defaultCellText(text: '09221234567'),
+                              ),
+                              DataCell(_defaultCellText(text: '2023-01-27'))
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Text _defaultCellText({ required String text }) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
       ),
     );
   }
