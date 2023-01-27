@@ -22,9 +22,26 @@ class MainWebScreenMenu extends StatelessWidget {
       child: BlocBuilder<MenuSelectionCubit, MenuSelectionState>(
         builder: (context, state) {
           var page = 0;
+          String addButtonTitle = 'Add Loan';
+          String addButtonPath = '/add-loan';
 
           if (state is MenuPageSelected) {
             page = state.page;
+          }
+
+          switch (page) {
+            case 0:
+              addButtonTitle = 'Add Loan';
+              addButtonPath = '/add-loan';
+              break;
+            case 1:
+              addButtonTitle = 'Add Lot';
+              addButtonPath = '/add-lot';
+              break;
+            case 2:
+              addButtonTitle = 'Add User';
+              addButtonPath = '/add-user';
+              break;
           }
 
           return ListView(
@@ -33,7 +50,7 @@ class MainWebScreenMenu extends StatelessWidget {
                 margin: EdgeInsets.only(right: 24),
                 padding: EdgeInsets.all(48),
                 child: InkWell(
-                  onTap: () => printd('add loan pressed'),
+                  onTap: () => GoRouter.of(context).go(addButtonPath),
                   child: DottedBorder(
                     borderType: BorderType.RRect,
                     color: Colors.white,
@@ -51,7 +68,7 @@ class MainWebScreenMenu extends StatelessWidget {
                         ),
                         const SizedBox(width: 16,),
                         Text(
-                          'Add Loan',
+                          addButtonTitle,
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge
