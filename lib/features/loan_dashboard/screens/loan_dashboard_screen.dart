@@ -41,7 +41,7 @@ class LoanDashboardScreen extends StatelessWidget {
               return Row(
                 children: [
                   for (var i = 0;
-                      i < Constants.load_dashboard_general_filters.length;
+                      i < Constants.loan_dashboard_general_filters.length;
                       i++)
                     Column(
                       children: [
@@ -49,7 +49,7 @@ class LoanDashboardScreen extends StatelessWidget {
                           onPressed: () =>
                               generalFilterCubit.select(position: i),
                           child: Text(
-                            Constants.load_dashboard_general_filters[i],
+                            Constants.loan_dashboard_general_filters[i],
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -86,6 +86,7 @@ class LoanDashboardScreen extends StatelessWidget {
             child: Card(
               color: Colors.white,
               shadowColor: Colors.black,
+              elevation: 16,
               child: Column(
                 children: [
                   Padding(

@@ -4,6 +4,7 @@ import 'package:flutter_mon_loan_tracking/features/authentication/screen/authent
 import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_dashboard/bloc/general_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_dashboard/screens/loan_dashboard_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/lot_dashboard/bloc/general_lot_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/lot_dashboard/screens/lot_dashboard_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_screen.dart';
@@ -82,6 +83,9 @@ class App extends StatelessWidget {
         ),
         BlocProvider<GeneralFilterSelectionCubit>.value(
           value: GeneralFilterSelectionCubit(),
+        ),
+        BlocProvider<GeneralLotFilterSelectionCubit>.value(
+          value: GeneralLotFilterSelectionCubit(),
         ),
       ],
       child: MaterialApp.router(

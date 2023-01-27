@@ -19,10 +19,16 @@ class Constants {
     'Amount',
     'Agent',
   ];
-  static const load_dashboard_general_filters = [
+  static const loan_dashboard_general_filters = [
     'All',
     'Paid',
     'Unpaid',
     'Overdue'
+  ];
+
+  static const lot_dashbaord_general_filters = [
+    'All',
+    'Available',
+    'Unavailable',
   ];
 }
