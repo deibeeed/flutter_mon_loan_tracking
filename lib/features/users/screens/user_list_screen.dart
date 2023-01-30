@@ -121,16 +121,16 @@ class UserListScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    _defaultCellText(text: 'David Andrew Francis Duldulao'),
+                                    defaultCellText(text: 'David Andrew Francis Duldulao'),
                                     Text('dafduldulao@gmail.com')
                                   ],
                                 ),
                               ),
-                              DataCell(_defaultCellText(text: 'Customer'),),
+                              DataCell(defaultCellText(text: 'Customer'),),
                               DataCell(
-                                _defaultCellText(text: '09221234567'),
+                                defaultCellText(text: '09221234567'),
                               ),
-                              DataCell(_defaultCellText(text: '2023-01-27'))
+                              DataCell(defaultCellText(text: '2023-01-27'))
                             ],
                           ),
                         ],
@@ -146,7 +146,7 @@ class UserListScreen extends StatelessWidget {
     );
   }
 
-  Text _defaultCellText({ required String text }) {
+  Text defaultCellText({ required String text }) {
     return Text(
       text,
       style: const TextStyle(

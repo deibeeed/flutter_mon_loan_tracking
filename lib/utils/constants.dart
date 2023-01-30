@@ -38,4 +38,13 @@ class Constants {
     'Contact Number',
     'Date Added'
   ];
+
+  static const loan_schedule_table_columns = [
+    'Date',
+    'Outstanding balance',
+    'Monthly amortization',
+    'Principal payment',
+    'Interest payment',
+    'Incidental fees'
+  ];
 }

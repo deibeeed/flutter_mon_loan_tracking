@@ -22,8 +22,8 @@ class MainWebScreenMenu extends StatelessWidget {
       child: BlocBuilder<MenuSelectionCubit, MenuSelectionState>(
         builder: (context, state) {
           var page = 0;
-          String addButtonTitle = 'Add Loan';
-          String addButtonPath = '/add-loan';
+          var addButtonTitle = 'Add Loan';
+          var addButtonPath = '/add-loan';
 
           if (state is MenuPageSelected) {
             page = state.page;

@@ -180,12 +180,12 @@ class LoanDashboardScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    _defaultCellText(text: 'David Andrew Francis Duldulao'),
+                                    defaultCellText(text: 'David Andrew Francis Duldulao'),
                                     Text('dafduldulao@gmail.com')
                                   ],
                                 ),
                               ),
-                              DataCell(_defaultCellText(text: 'Blk 1 Lot 1'),),
+                              DataCell(defaultCellText(text: 'Blk 1 Lot 1'),),
                               DataCell(
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,9 +210,9 @@ class LoanDashboardScreen extends StatelessWidget {
                                 ),
                               ),
                               DataCell(
-                                _defaultCellText(text: '₱ 100.00'),
+                                defaultCellText(text: '₱ 100.00'),
                               ),
-                              DataCell(_defaultCellText(text: 'PEDRO MALAKI'))
+                              DataCell(defaultCellText(text: 'PEDRO MALAKI'))
                             ],
                           ),
                         ],
@@ -228,7 +228,7 @@ class LoanDashboardScreen extends StatelessWidget {
     );
   }
   
-  Text _defaultCellText({ required String text }) {
+  Text defaultCellText({ required String text }) {
     return Text(
       text,
       style: const TextStyle(
