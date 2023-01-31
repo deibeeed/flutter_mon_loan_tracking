@@ -42,7 +42,7 @@ class AddUserScreen extends StatelessWidget {
               Expanded(
                 child: TextFormField(
                   decoration: InputDecoration(
-                    label: Text('Civil statusdddd'),
+                    label: Text('Civil status'),
                     border: OutlineInputBorder(),),
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
