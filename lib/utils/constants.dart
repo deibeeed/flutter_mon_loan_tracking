@@ -1,8 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
+import 'package:flutter_mon_loan_tracking/services/environments.dart';
 
 class Constants {
+  static Environments currentEnvironment = Environments.dev;
+  static const String NO_ID = 'no_id_available';
   static const defaultRadius = Radius.circular(120);
   static const menuItems = [
     MenuItemModel(name: 'Loan Dashboard', goPath: '/loan-dashboard'),

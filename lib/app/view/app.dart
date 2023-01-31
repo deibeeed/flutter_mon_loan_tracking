@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/screen/authentication_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/screens/add_loan_screen.dart';
@@ -16,6 +17,9 @@ import 'package:flutter_mon_loan_tracking/features/splash/screens/splash_screen.
 import 'package:flutter_mon_loan_tracking/features/users/screens/add_user_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/user_list_screen.dart';
 import 'package:flutter_mon_loan_tracking/l10n/l10n.dart';
+import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
+import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
+import 'package:flutter_mon_loan_tracking/services/user_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/utils/color_schemes.g.dart';
 import 'package:flutter_mon_loan_tracking/utils/no_transition_route.dart';
 import 'package:go_router/go_router.dart';
@@ -40,7 +44,7 @@ class App extends StatelessWidget {
       GoRoute(
         path: '/login',
         builder: (context, state) {
-          return const AuthenticationScreen();
+          return AuthenticationScreen();
         },
       ),
       ShellRoute(
@@ -88,28 +92,52 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiRepositoryProvider(
       providers: [
-        BlocProvider<SplashBloc>.value(
-          value: SplashBloc(),
+        RepositoryProvider<AuthenticationService>.value(
+          value: AuthenticationService(),
         ),
-        BlocProvider<MenuSelectionCubit>.value(
-          value: MenuSelectionCubit(),
-        ),
-        BlocProvider<GeneralFilterSelectionCubit>.value(
-          value: GeneralFilterSelectionCubit(),
-        ),
-        BlocProvider<GeneralLotFilterSelectionCubit>.value(
-          value: GeneralLotFilterSelectionCubit(),
+        RepositoryProvider<UsersRepository>.value(
+          value: UsersRepository(
+            firestoreService: UserFirestoreService(),
+          ),
         ),
       ],
-      child: MaterialApp.router(
-        routerConfig: _rootRouter,
-        theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-        darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        // home: const MainScreen(),
+      child: Builder(
+        builder: (context) {
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<SplashBloc>.value(
+                value: SplashBloc(),
+              ),
+              BlocProvider<MenuSelectionCubit>.value(
+                value: MenuSelectionCubit(),
+              ),
+              BlocProvider<GeneralFilterSelectionCubit>.value(
+                value: GeneralFilterSelectionCubit(),
+              ),
+              BlocProvider<GeneralLotFilterSelectionCubit>.value(
+                value: GeneralLotFilterSelectionCubit(),
+              ),
+              BlocProvider<AuthenticationBloc>.value(
+                value: AuthenticationBloc(
+                  authenticationService: AuthenticationService(),
+                  usersRepository: context.read<UsersRepository>(),
+                ),
+              )
+            ],
+            child: MaterialApp.router(
+              routerConfig: _rootRouter,
+              theme:
+                  ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
+              darkTheme:
+                  ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              // home: const MainScreen(),
+            ),
+          );
+        },
       ),
     );
   }
