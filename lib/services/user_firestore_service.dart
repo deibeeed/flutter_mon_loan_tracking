@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mon_loan_tracking/exceptions/user_not_found_exception.dart';
 import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/services/base_firebase_service.dart';
@@ -47,12 +46,11 @@ class UserFirestoreService extends BaseFirebaseService<User> {
 
   @override
   Future<User> update({required User data}) async {
-    final doc = root.doc();
-    final updatedUser = User.updateId(id: doc.id, user: data);
+    final doc = root.doc(data.id);
 
-    await doc.set(updatedUser.toJson());
+    await doc.set(data.toJson());
 
-    return updatedUser;
+    return data;
   }
 
   @override

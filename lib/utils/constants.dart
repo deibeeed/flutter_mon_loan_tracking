@@ -4,6 +4,7 @@ import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/services/environments.dart';
 
 class Constants {
+  static const currency = '₱';
   static Environments currentEnvironment = Environments.dev;
   static const String NO_ID = 'no_id_available';
   static const defaultRadius = Radius.circular(120);

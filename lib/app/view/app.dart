@@ -11,14 +11,17 @@ import 'package:flutter_mon_loan_tracking/features/lot/screens/add_lot_screen.da
 import 'package:flutter_mon_loan_tracking/features/lot/screens/lot_dashboard_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/settings/bloc/settings_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/settings/screens/settings_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/splash/bloc/splash_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/splash/screens/splash_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/add_user_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/user_list_screen.dart';
 import 'package:flutter_mon_loan_tracking/l10n/l10n.dart';
+import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
+import 'package:flutter_mon_loan_tracking/services/settings_firestre_service.dart';
 import 'package:flutter_mon_loan_tracking/services/user_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/utils/color_schemes.g.dart';
 import 'package:flutter_mon_loan_tracking/utils/no_transition_route.dart';
@@ -67,7 +70,7 @@ class App extends StatelessWidget {
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/settings',
-            child: const SettingsScreen(),
+            child: SettingsScreen(),
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/loan-calculator',
@@ -102,6 +105,11 @@ class App extends StatelessWidget {
             firestoreService: UserFirestoreService(),
           ),
         ),
+        RepositoryProvider<SettingsRepository>.value(
+          value: SettingsRepository(
+            firestoreService: SettingsFireStoreService(),
+          ),
+        ),
       ],
       child: Builder(
         builder: (context) {
@@ -124,7 +132,14 @@ class App extends StatelessWidget {
                   authenticationService: AuthenticationService(),
                   usersRepository: context.read<UsersRepository>(),
                 ),
-              )
+              ),
+              BlocProvider<SettingsBloc>.value(
+                value: SettingsBloc(
+                  settingsRepository: SettingsRepository(
+                    firestoreService: SettingsFireStoreService()
+                  ),
+                ),
+              ),
             ],
             child: MaterialApp.router(
               routerConfig: _rootRouter,

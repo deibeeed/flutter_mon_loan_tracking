@@ -13,7 +13,7 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       birthDate: json['birthDate'] as String,
       civilStatus: json['civilStatus'] as String,
       mobileNumber: json['mobileNumber'] as String,
-      id: json['id'] as String,
+      id: json['id'] as String? ?? Constants.NO_ID,
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{

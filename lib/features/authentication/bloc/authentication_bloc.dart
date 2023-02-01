@@ -58,6 +58,8 @@ class AuthenticationBloc
       );
     } on UserNotFoundException catch (err) {
       printd(err);
+    } catch(err) {
+      emit(const LoginLoadingState());
     }
   }
 }
