@@ -33,14 +33,14 @@ class App extends StatelessWidget {
 
   final GoRouter _rootRouter = GoRouter(
     navigatorKey: rootNavigatorKey,
-    initialLocation: '/splash',
+    initialLocation: '/login',
     routes: [
-      GoRoute(
-        path: '/splash',
-        builder: (context, state) {
-          return const SplashScreen();
-        },
-      ),
+      // GoRoute(
+      //   path: '/splash',
+      //   builder: (context, state) {
+      //     return const SplashScreen();
+      //   },
+      // ),
       GoRoute(
         path: '/login',
         builder: (context, state) {
