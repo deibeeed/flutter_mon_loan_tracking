@@ -7,6 +7,7 @@ class Constants {
   static const currency = '₱';
   static Environments currentEnvironment = Environments.dev;
   static const String NO_ID = 'no_id_available';
+  static const num NO_DATE = -1;
   static const defaultRadius = Radius.circular(120);
   static const menuItems = [
     MenuItemModel(name: 'Loan Dashboard', goPath: '/loan-dashboard'),

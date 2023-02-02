@@ -7,6 +7,7 @@ import 'package:flutter_mon_loan_tracking/features/loan/screens/add_loan_screen.
 import 'package:flutter_mon_loan_tracking/features/loan/screens/loan_dashboard_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/general_lot_filter_selection_cubit.dart';
+import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/screens/add_lot_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/screens/lot_dashboard_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
@@ -18,9 +19,11 @@ import 'package:flutter_mon_loan_tracking/features/splash/screens/splash_screen.
 import 'package:flutter_mon_loan_tracking/features/users/screens/add_user_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/user_list_screen.dart';
 import 'package:flutter_mon_loan_tracking/l10n/l10n.dart';
+import 'package:flutter_mon_loan_tracking/repositories/lot_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
+import 'package:flutter_mon_loan_tracking/services/lot_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/settings_firestre_service.dart';
 import 'package:flutter_mon_loan_tracking/services/user_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/utils/color_schemes.g.dart';
@@ -82,7 +85,7 @@ class App extends StatelessWidget {
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/add-lot',
-            child: const AddLotScreen(),
+            child: AddLotScreen(),
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/add-user',
@@ -110,6 +113,11 @@ class App extends StatelessWidget {
             firestoreService: SettingsFireStoreService(),
           ),
         ),
+        RepositoryProvider<LotRepository>.value(
+          value: LotRepository(
+            firestoreService: LotFirestoreService(),
+          ),
+        ),
       ],
       child: Builder(
         builder: (context) {
@@ -135,9 +143,13 @@ class App extends StatelessWidget {
               ),
               BlocProvider<SettingsBloc>.value(
                 value: SettingsBloc(
-                  settingsRepository: SettingsRepository(
-                    firestoreService: SettingsFireStoreService()
-                  ),
+                  settingsRepository: context.read<SettingsRepository>(),
+                ),
+              ),
+              BlocProvider<LotBloc>.value(
+                value: LotBloc(
+                  lotRepository: context.read<LotRepository>(),
+                  settingsRepository: context.read<SettingsRepository>(),
                 ),
               ),
             ],
