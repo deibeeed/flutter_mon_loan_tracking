@@ -39,9 +39,10 @@ class Constants {
 
   static const user_list_table_colums = [
     'Name',
+    'Civil status',
     'Type',
-    'Contact Number',
-    'Date Added'
+    'Contact number',
+    'Birth date'
   ];
 
   static const loan_schedule_table_columns = [

@@ -16,6 +16,7 @@ import 'package:flutter_mon_loan_tracking/features/settings/bloc/settings_bloc.d
 import 'package:flutter_mon_loan_tracking/features/settings/screens/settings_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/splash/bloc/splash_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/splash/screens/splash_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/add_user_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/user_list_screen.dart';
 import 'package:flutter_mon_loan_tracking/l10n/l10n.dart';
@@ -89,7 +90,7 @@ class App extends StatelessWidget {
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/add-user',
-            child: const AddUserScreen(),
+            child: AddUserScreen(),
           ),
         ],
       )
@@ -103,8 +104,8 @@ class App extends StatelessWidget {
         RepositoryProvider<AuthenticationService>.value(
           value: AuthenticationService(),
         ),
-        RepositoryProvider<UsersRepository>.value(
-          value: UsersRepository(
+        RepositoryProvider<UserRepository>.value(
+          value: UserRepository(
             firestoreService: UserFirestoreService(),
           ),
         ),
@@ -138,7 +139,7 @@ class App extends StatelessWidget {
               BlocProvider<AuthenticationBloc>.value(
                 value: AuthenticationBloc(
                   authenticationService: AuthenticationService(),
-                  usersRepository: context.read<UsersRepository>(),
+                  usersRepository: context.read<UserRepository>(),
                 ),
               ),
               BlocProvider<SettingsBloc>.value(
@@ -150,6 +151,11 @@ class App extends StatelessWidget {
                 value: LotBloc(
                   lotRepository: context.read<LotRepository>(),
                   settingsRepository: context.read<SettingsRepository>(),
+                ),
+              ),
+              BlocProvider<UserBloc>.value(
+                value: UserBloc(
+                  userRepository: context.read<UserRepository>(),
                 ),
               ),
             ],

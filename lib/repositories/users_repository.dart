@@ -2,8 +2,8 @@ import 'package:flutter_mon_loan_tracking/models/user.dart' as UserModel;
 import 'package:flutter_mon_loan_tracking/repositories/base_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/user_firestore_service.dart';
 
-class UsersRepository extends BaseRepository<UserModel.User>{
-  UsersRepository({
+class UserRepository extends BaseRepository<UserModel.User>{
+  UserRepository({
     required this.firestoreService,
 });
   final UserFirestoreService firestoreService;

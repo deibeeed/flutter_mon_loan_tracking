@@ -1,50 +1,78 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 
 class AddUserScreen extends StatelessWidget {
-  const AddUserScreen({super.key});
+  AddUserScreen({super.key});
+
+  final lastNameController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final mobileNumberController = TextEditingController();
+  final emailController = TextEditingController();
+  final civilStatusController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final birthDateController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
+
     return Scaffold(
       body: Column(
         children: [
           TextFormField(
-            decoration: InputDecoration(
-                label: Text('Last name'),
-                border: OutlineInputBorder()
-            ),
+            controller: lastNameController,
+            decoration: const InputDecoration(
+                label: Text('Last name'), border: OutlineInputBorder()),
           ),
-          SizedBox(
+          const SizedBox(
             height: 32,
           ),
           TextFormField(
-            decoration: InputDecoration(
-                label: Text('First name'),
-                border: OutlineInputBorder()
-            ),
+            controller: firstNameController,
+            decoration: const InputDecoration(
+                label: Text('First name'), border: OutlineInputBorder()),
           ),
-          SizedBox(
+          const SizedBox(
             height: 32,
           ),
           Row(
             children: [
               Expanded(
                 child: TextFormField(
-                  decoration: InputDecoration(
+                  controller: birthDateController,
+                  decoration: const InputDecoration(
                     label: Text('Birthdate'),
                     border: OutlineInputBorder(),
                   ),
                 ),
               ),
-              SizedBox(width: 32,),
+              const SizedBox(
+                width: 32,
+              ),
               Expanded(
                 child: TextFormField(
-                  decoration: InputDecoration(
+                  controller: civilStatusController,
+                  decoration: const InputDecoration(
                     label: Text('Civil status'),
-                    border: OutlineInputBorder(),),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 32,
+              ),
+              Expanded(
+                child: TextFormField(
+                  controller: mobileNumberController,
+                  decoration: const InputDecoration(
+                    label: Text('Mobile number'),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
@@ -52,33 +80,41 @@ class AddUserScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 32,
           ),
           Row(
             children: [
               Expanded(
                 child: TextFormField(
-                  decoration: InputDecoration(
+                  controller: emailController,
+                  decoration: const InputDecoration(
                     label: Text('Email'),
                     border: OutlineInputBorder(),
                   ),
                 ),
               ),
-              SizedBox(width: 32,),
+              const SizedBox(
+                width: 32,
+              ),
               Expanded(
                 child: TextFormField(
+                  controller: passwordController,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     label: Text('Password'),
-                    border: OutlineInputBorder(),),
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
-              SizedBox(width: 32,),
+              const SizedBox(
+                width: 32,
+              ),
               Expanded(
                 child: TextFormField(
+                  controller: confirmPasswordController,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     label: Text('Confirm password'),
                     border: OutlineInputBorder(),
                   ),
@@ -86,16 +122,24 @@ class AddUserScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 32,
           ),
           Row(
             children: [
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () => print('pressed'),
+                  onPressed: () => userBloc.addUser(
+                      lastName: lastNameController.text,
+                      firstName: firstNameController.text,
+                      birthDate: birthDateController.text,
+                      civilStatus: civilStatusController.text,
+                      mobileNumber: mobileNumberController.text,
+                      email: emailController.text,
+                      password: passwordController.text,
+                      confirmPassword: confirmPasswordController.text),
                   style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(24),
                       backgroundColor: Theme.of(context).colorScheme.primary),
                   child: Text(
                     'Add User',
@@ -112,5 +156,4 @@ class AddUserScreen extends StatelessWidget {
       ),
     );
   }
-
 }

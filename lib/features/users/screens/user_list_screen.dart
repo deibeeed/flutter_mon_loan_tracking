@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 
 class UserListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
     final screenSize = MediaQuery.of(context).size;
     final defaultBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(32),
@@ -20,6 +22,8 @@ class UserListScreen extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
 
+    userBloc.getAllUsers();
+
     return Scaffold(
       body: Column(
         children: [
@@ -32,7 +36,7 @@ class UserListScreen extends StatelessWidget {
                 children: [
                   Padding(
                     padding:
-                    const EdgeInsets.only(left: 24, top: 24, bottom: 24),
+                        const EdgeInsets.only(left: 24, top: 24, bottom: 24),
                     child: Row(
                       children: [
                         OutlinedButton(
@@ -72,9 +76,9 @@ class UserListScreen extends StatelessWidget {
                                 contentPadding: const EdgeInsets.only(
                                     left: 32, right: 32, top: 20, bottom: 20),
                                 label:
-                                const Text('Search users by name or email'),
+                                    const Text('Search users by name or email'),
                                 floatingLabelBehavior:
-                                FloatingLabelBehavior.never,
+                                    FloatingLabelBehavior.never,
                                 filled: true,
                                 fillColor: Theme.of(context)
                                     .colorScheme
@@ -92,48 +96,66 @@ class UserListScreen extends StatelessWidget {
                       child: DataTable(
                         dataRowHeight: 72,
                         headingRowColor: MaterialStateColor.resolveWith(
-                              (states) => Theme.of(context)
+                          (states) => Theme.of(context)
                               .colorScheme
                               .secondaryContainer
                               .withOpacity(0.32),
                         ),
                         columns: [
-                          for (String name
-                          in Constants.user_list_table_colums)
+                          for (String name in Constants.user_list_table_colums)
                             DataColumn(
                                 label: Text(
-                                  name.toUpperCase(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.apply(
+                              name.toUpperCase(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.apply(
                                     fontWeightDelta: 3,
                                     color:
-                                    Theme.of(context).colorScheme.secondary,
+                                        Theme.of(context).colorScheme.secondary,
                                   ),
-                                ))
+                            ))
                         ],
-                        rows: [
-                          DataRow(
-                            cells: [
-                              DataCell(
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    defaultCellText(text: 'David Andrew Francis Duldulao'),
-                                    Text('dafduldulao@gmail.com')
-                                  ],
-                                ),
+                        rows: userBloc.users
+                            .map(
+                              (user) => DataRow(
+                                cells: [
+                                  DataCell(
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        defaultCellText(
+                                          text: user.completeName,
+                                        ),
+                                        Text(
+                                          user.email,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  DataCell(
+                                    defaultCellText(
+                                      text: user.civilStatus.value,
+                                    ),
+                                  ),
+                                  DataCell(
+                                    defaultCellText(text: user.type.value),
+                                  ),
+                                  DataCell(
+                                    defaultCellText(text: user.mobileNumber),
+                                  ),
+                                  DataCell(
+                                    defaultCellText(
+                                      text: user.birthDate,
+                                    ),
+                                  )
+                                ],
                               ),
-                              DataCell(defaultCellText(text: 'Customer'),),
-                              DataCell(
-                                defaultCellText(text: '09221234567'),
-                              ),
-                              DataCell(defaultCellText(text: '2023-01-27'))
-                            ],
-                          ),
-                        ],
+                            )
+                            .toList(),
                       ),
                     ),
                   )
@@ -146,7 +168,7 @@ class UserListScreen extends StatelessWidget {
     );
   }
 
-  Text defaultCellText({ required String text }) {
+  Text defaultCellText({required String text}) {
     return Text(
       text,
       style: const TextStyle(
@@ -155,5 +177,4 @@ class UserListScreen extends StatelessWidget {
       ),
     );
   }
-
 }

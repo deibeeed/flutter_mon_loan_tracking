@@ -26,7 +26,7 @@ class AuthenticationBloc
   }
 
   final AuthenticationService authenticationService;
-  final UsersRepository usersRepository;
+  final UserRepository usersRepository;
 
   void login({required String email, required String password}) {
     add(LoginEvent(email: email, password: password));
