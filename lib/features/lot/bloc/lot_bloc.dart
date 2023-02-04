@@ -35,7 +35,6 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
   void addLot({
     required String lotCategory,
-    required String totalContractPrice,
     required String area,
     required String blockLotNos,
     required String description,
@@ -48,7 +47,6 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     add(
       AddLotEvent(
         lotCategory: lotCategory,
-        totalContractPrice: num.parse(totalContractPrice),
         area: num.parse(area),
         blockLotNos: blockLotNos,
         description: description,
@@ -113,7 +111,6 @@ class LotBloc extends Bloc<LotEvent, LotState> {
         return lotRepository.add(
           data: Lot.create(
             lotCategory: _selectedLotCategory!,
-            totalContractPrice: event.totalContractPrice,
             blockNo: blockNo,
             lotNo: lotNo,
             description: event.description,

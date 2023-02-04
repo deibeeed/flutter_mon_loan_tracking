@@ -2,7 +2,7 @@ import 'package:flutter_mon_loan_tracking/exceptions/settings_not_found_exceptio
 import 'package:flutter_mon_loan_tracking/models/settings.dart';
 import 'package:flutter_mon_loan_tracking/services/base_firebase_service.dart';
 
-class SettingsFireStoreService extends BaseFirebaseService<Settings> {
+class SettingsFireStoreService extends BaseFirestoreService<Settings> {
   @override
   Future<Settings> add({required Settings data}) async {
     final doc = root.doc();

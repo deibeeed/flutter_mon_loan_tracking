@@ -2,7 +2,7 @@ import 'package:flutter_mon_loan_tracking/exceptions/user_not_found_exception.da
 import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/services/base_firebase_service.dart';
 
-class UserFirestoreService extends BaseFirebaseService<User> {
+class UserFirestoreService extends BaseFirestoreService<User> {
 
   @override
   Future<User> add({required User data}) async {

@@ -14,12 +14,14 @@ Settings _$SettingsFromJson(Map<String, dynamic> json) => Settings(
           .map((e) => e as String)
           .toList(),
       id: json['id'] as String? ?? Constants.NO_ID,
+      perSquareMeterRate: json['perSquareMeterRate'] as num,
     );
 
 Map<String, dynamic> _$SettingsToJson(Settings instance) => <String, dynamic>{
       'loanInterestRate': instance.loanInterestRate,
       'incidentalFeeRate': instance.incidentalFeeRate,
       'reservationFee': instance.reservationFee,
+      'perSquareMeterRate': instance.perSquareMeterRate,
       'lotCategories': instance.lotCategories,
       'id': instance.id,
     };

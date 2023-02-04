@@ -14,6 +14,7 @@ class SettingsScreen extends StatelessWidget {
   final incidentalFeesRateController = TextEditingController();
   final reservationFeeController = TextEditingController();
   final lotCategoryController = TextEditingController();
+  final perSqmController = TextEditingController();
   bool allowTextControllerUpdate = true;
 
   @override
@@ -25,7 +26,6 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       body: BlocListener<SettingsBloc, SettingsState>(
         listener: (context, state) {
-
           if (state is SettingsSuccessState) {
             if (allowTextControllerUpdate) {
               loanInterestRateController.text =
@@ -34,11 +34,12 @@ class SettingsScreen extends StatelessWidget {
                   settingsBloc.settings.incidentalFeeRate.toString();
               reservationFeeController.text =
                   settingsBloc.settings.reservationFee.toString();
+              perSqmController.text =
+                  settingsBloc.settings.perSquareMeterRate.toString();
               allowTextControllerUpdate = false;
             }
           }
         },
-
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,6 +97,25 @@ class SettingsScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      const Text('Per square meter rate'),
+                      BlocBuilder<SettingsBloc, SettingsState>(
+                        buildWhen: (previousState, currentState) {
+                          return currentState is SettingsSuccessState;
+                        },
+                        builder: (context, state) {
+                          return Text(
+                            '${Constants.currency} ${settingsBloc.settings.perSquareMeterRate}',
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
                       const Text('Reservation fee'),
                       BlocBuilder<SettingsBloc, SettingsState>(
                         buildWhen: (previousState, currentState) {
@@ -127,7 +147,7 @@ class SettingsScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               for (var category
-                              in settingsBloc.settings.lotCategories) ...[
+                                  in settingsBloc.settings.lotCategories) ...[
                                 Text(category),
                                 const SizedBox(
                                   height: 4,
@@ -154,7 +174,7 @@ class SettingsScreen extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                     ],
@@ -182,12 +202,31 @@ class SettingsScreen extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                     ],
                     onChanged: (value) => settingsBloc.updateSettings(
                       field: SettingField.incidentalFeeRate,
+                      value: value,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  TextFormField(
+                    controller: perSqmController,
+                    decoration: const InputDecoration(
+                      label: Text('Per square meter rate'),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                    ],
+                    onChanged: (value) => settingsBloc.updateSettings(
+                      field: SettingField.perSquareMeterRate,
                       value: value,
                     ),
                   ),
@@ -201,7 +240,7 @@ class SettingsScreen extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                     ],
@@ -243,7 +282,7 @@ class SettingsScreen extends StatelessWidget {
                             runSpacing: 16,
                             children: [
                               for (var category
-                              in settingsBloc.settings.lotCategories)
+                                  in settingsBloc.settings.lotCategories)
                                 Chip(
                                   padding: const EdgeInsets.only(
                                       left: 8, top: 8, bottom: 8, right: 16),
@@ -269,7 +308,7 @@ class SettingsScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.all(24),
                               backgroundColor:
-                              Theme.of(context).colorScheme.primary),
+                                  Theme.of(context).colorScheme.primary),
                           child: Text(
                             'Update settings',
                             style: Theme.of(context)

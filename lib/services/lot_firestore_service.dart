@@ -2,7 +2,7 @@ import 'package:flutter_mon_loan_tracking/exceptions/lot_not_found_exception.dar
 import 'package:flutter_mon_loan_tracking/models/lot.dart';
 import 'package:flutter_mon_loan_tracking/services/base_firebase_service.dart';
 
-class LotFirestoreService extends BaseFirebaseService<Lot> {
+class LotFirestoreService extends BaseFirestoreService<Lot> {
   @override
   Future<Lot> add({required Lot data}) async {
     final doc = root.doc();

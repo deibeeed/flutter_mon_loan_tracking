@@ -5,14 +5,12 @@ abstract class LotEvent {}
 
 class AddLotEvent extends LotEvent {
   final String lotCategory;
-  final num totalContractPrice;
   final num area;
   final String blockLotNos;
   final String description;
 
   AddLotEvent({
     required this.lotCategory,
-    required this.totalContractPrice,
     required this.area,
     required this.blockLotNos,
     required this.description,

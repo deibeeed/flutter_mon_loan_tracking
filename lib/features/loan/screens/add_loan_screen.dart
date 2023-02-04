@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/widgets/widget_utils.dart';
 
@@ -9,6 +11,7 @@ class AddLoanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loanBloc = BlocProvider.of<LoanBloc>(context);
     return Scaffold(
       body: Column(
         children: [
@@ -93,13 +96,34 @@ class AddLoanScreen extends StatelessWidget {
           SizedBox(
             height: 32,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                onPressed: loanBloc.calculateLoan,
+                style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.all(24),
+                    backgroundColor: Theme.of(context).colorScheme.primary),
+                child: Text(
+                  'Calculate loan',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.apply(color: Colors.white),
+                ),
+              )
+            ],
+          ),
+          SizedBox(
+            height: 32,
+          ),
           Divider(thickness: 1.5,),
           SizedBox(
             height: 32,
           ),
           Row(
             children: [
-              Text('Lot description', style: Theme.of(context).textTheme.titleLarge,),
+              Text('Loan schedule', style: Theme.of(context).textTheme.titleLarge,),
             ],
           ),
           SizedBox(

@@ -9,7 +9,6 @@ class AddLotScreen extends StatelessWidget {
   AddLotScreen({super.key});
 
   final lotCategoryController = TextEditingController();
-  final tcpController = TextEditingController();
   final blockLotNumberController = TextEditingController();
   final lotDescriptionController = TextEditingController();
   final areaController = TextEditingController();
@@ -59,20 +58,6 @@ class AddLotScreen extends StatelessWidget {
             height: 32,
           ),
           TextFormField(
-            controller: tcpController,
-            decoration: InputDecoration(
-              label: Text('Total contract price'),
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-            ],
-          ),
-          const SizedBox(
-            height: 32,
-          ),
-          TextFormField(
             controller: areaController,
             decoration: InputDecoration(
               label: Text('Area'),
@@ -110,7 +95,6 @@ class AddLotScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => lotBloc.addLot(
                       lotCategory: lotCategoryController.text,
-                      totalContractPrice: tcpController.text,
                       area: areaController.text,
                       blockLotNos: blockLotNumberController.text,
                       description: lotDescriptionController.text),

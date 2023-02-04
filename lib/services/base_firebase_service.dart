@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mon_loan_tracking/services/environments.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 
-abstract class BaseFirebaseService<T> {
+abstract class BaseFirestoreService<T> {
   final _fs = FirebaseFirestore.instance;
 
   CollectionReference get root {

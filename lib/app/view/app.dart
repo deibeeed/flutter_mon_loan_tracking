@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/screen/authentication_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_selection_cubit.dart';
+import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/screens/add_loan_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/screens/loan_dashboard_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen.dart';
@@ -20,10 +21,14 @@ import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/add_user_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/user_list_screen.dart';
 import 'package:flutter_mon_loan_tracking/l10n/l10n.dart';
+import 'package:flutter_mon_loan_tracking/repositories/loan_repository.dart';
+import 'package:flutter_mon_loan_tracking/repositories/loan_schedule_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/lot_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
+import 'package:flutter_mon_loan_tracking/services/loan_firestore_service.dart';
+import 'package:flutter_mon_loan_tracking/services/loan_schedule_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/lot_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/settings_firestre_service.dart';
 import 'package:flutter_mon_loan_tracking/services/user_firestore_service.dart';
@@ -119,6 +124,16 @@ class App extends StatelessWidget {
             firestoreService: LotFirestoreService(),
           ),
         ),
+        RepositoryProvider<LoanRepository>.value(
+          value: LoanRepository(
+            firestoreService: LoanFirestoreService(),
+          ),
+        ),
+        RepositoryProvider<LoanScheduleRepository>.value(
+          value: LoanScheduleRepository(
+            firestoreService: LoanScheduleFirestoreService(),
+          ),
+        ),
       ],
       child: Builder(
         builder: (context) {
@@ -156,6 +171,15 @@ class App extends StatelessWidget {
               BlocProvider<UserBloc>.value(
                 value: UserBloc(
                   userRepository: context.read<UserRepository>(),
+                ),
+              ),
+              BlocProvider<LoanBloc>.value(
+                value: LoanBloc(
+                  loanRepository: context.read<LoanRepository>(),
+                  loanScheduleRepository: context.read<LoanScheduleRepository>(),
+                  lotRepository: context.read<LotRepository>(),
+                  userRepository: context.read<UserRepository>(),
+                  settingsRepository: context.read<SettingsRepository>(),
                 ),
               ),
             ],

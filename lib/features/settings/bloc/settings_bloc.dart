@@ -55,6 +55,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       case SettingField.lotCategory:
         _settings.lotCategories.add(value);
         break;
+      case SettingField.perSquareMeterRate:
+        _settings.perSquareMeterRate = num.parse(value);
+        break;
     }
 
     add(UpdateSettingsUiEvent(updatedSettings: _settings));
