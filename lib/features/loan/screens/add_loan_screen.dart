@@ -13,6 +13,8 @@ class AddLoanScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loanBloc = BlocProvider.of<LoanBloc>(context);
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       body: ListView(
         children: [
@@ -35,12 +37,26 @@ class AddLoanScreen extends StatelessWidget {
               Expanded(
                 child: TextFormField(
                   decoration: InputDecoration(
-                    label: Text('Loan interest rate'),
+                    label: Text('Block No.'),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 32,
+              ),
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    label: Text('Lot no.'),
                     suffixText: '%',
                     border: OutlineInputBorder(),
                   ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: TextInputType.number,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
@@ -51,9 +67,9 @@ class AddLoanScreen extends StatelessWidget {
               ),
               Expanded(
                 child: TextFormField(
+                  enabled: false,
                   decoration: InputDecoration(
-                    label: Text('Incidental fee rate'),
-                    suffixText: '%',
+                    label: Text('Lot Area'),
                     border: OutlineInputBorder(),
                   ),
                   keyboardType:
@@ -68,25 +84,147 @@ class AddLoanScreen extends StatelessWidget {
               ),
               Expanded(
                 child: TextFormField(
+                  enabled: false,
                   decoration: InputDecoration(
-                    label: Text('Reservation fee'),
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 32,
-              ),
-              Expanded(
-                child: TextFormField(
-                  decoration: InputDecoration(
-                      label: Text('Lot categories'),
+                      label: Text('Lot category'),
                       border: OutlineInputBorder()),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 32,
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  enabled: false,
+                  decoration: InputDecoration(
+                    label: Text('Price / sqm'),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 32,
+              ),
+              Expanded(
+                child: TextFormField(
+                  enabled: false,
+                  decoration: InputDecoration(
+                    label: Text('Total contract price'),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 32,
+              ),
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    label: Text('Loan duration (Years)'),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 32,
+              ),
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                      label: Text('Downpayment'),
+                      border: OutlineInputBorder(),),
+                  keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 32,
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    TextFormField(
+                      decoration: InputDecoration(
+                        label: Text('Discount'),
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                      ],
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    BlocBuilder<LoanBloc, LoanState>(
+                        buildWhen: (previous, current) =>
+                            current is LoanSuccessState,
+                        builder: (context, state) {
+                          return Row(
+                            children: [
+                              for (var i = 0;
+                                  i < loanBloc.discounts.length;
+                                  i++)
+                                Padding(
+                                  padding: EdgeInsets.only(right: 16),
+                                  child: Chip(
+                                    padding: const EdgeInsets.only(
+                                        left: 8, top: 8, bottom: 8, right: 16),
+                                    label: Text(
+                                      'Less: ${loanBloc.discounts[i].toCurrency()}',
+                                    ),
+                                    onDeleted: () =>
+                                        loanBloc.removeDiscount(position: i),
+                                    deleteIcon: const Icon(Icons.cancel),
+                                  ),
+                                )
+                            ],
+                          );
+                        }),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 16,
+              ),
+              ElevatedButton(
+                onPressed: loanBloc.calculateLoan,
+                style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.all(24),
+                    backgroundColor: Theme.of(context).colorScheme.primary),
+                child: Text(
+                  'Add discount',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.apply(color: Colors.white),
                 ),
               ),
             ],
@@ -133,6 +271,99 @@ class AddLoanScreen extends StatelessWidget {
             thickness: 1.5,
           ),
           SizedBox(
+            height: 16,
+          ),
+          Row(
+            children: [
+              Text(
+                'Computation',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 16,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: screenSize.width * 0.2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Lot area:'),
+                          Text(9000.toCurrency()),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Total contract price:'),
+                          Text(1000000.toCurrency()),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Loan duration:'),
+                          Text('5 years to pay (60 mos.)'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: screenSize.width * 0.2,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Less: Downpayment:'),
+                          Text(100000.toCurrency(isDeduction: true)),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Less: Reservation fee:'),
+                          Text(10000.toCurrency(isDeduction: true)),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Add: Incidental fee:'),
+                          Text(120000.toCurrency()),
+                        ],
+                      ),
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Monthly due:'),
+                          Text(25000.toCurrency()),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 32,
+          ),
+          Divider(
+            thickness: 1.5,
+          ),
+          SizedBox(
             height: 32,
           ),
           Row(
@@ -150,11 +381,11 @@ class AddLoanScreen extends StatelessWidget {
             buildWhen: (previous, current) {
               return current is LoanSuccessState;
             },
-              builder: (context, state) {
-            return DataTable(
+            builder: (context, state) {
+              return DataTable(
                 dataRowHeight: 72,
                 headingRowColor: MaterialStateColor.resolveWith(
-                      (states) => Theme.of(context)
+                  (states) => Theme.of(context)
                       .colorScheme
                       .secondaryContainer
                       .withOpacity(0.32),
@@ -163,103 +394,68 @@ class AddLoanScreen extends StatelessWidget {
                   for (String name in Constants.loan_schedule_table_columns)
                     DataColumn(
                         label: Text(
-                          name.toUpperCase(),
-                          style: Theme.of(context).textTheme.titleMedium?.apply(
+                      name.toUpperCase(),
+                      style: Theme.of(context).textTheme.titleMedium?.apply(
                             fontWeightDelta: 3,
                             color: Theme.of(context).colorScheme.secondary,
                           ),
-                        ))
+                    ))
                 ],
                 rows: loanBloc.clientLoanSchedules
                     .map(
                       (schedule) => DataRow(
-                    cells: [
-                      DataCell(
-                        defaultCellText(
-                          text: Constants.defaultDateFormat.format(
-                            DateTime.fromMillisecondsSinceEpoch(
-                              schedule.date.toInt(),
+                        cells: [
+                          DataCell(
+                            defaultCellText(
+                              text: Constants.defaultDateFormat.format(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                  schedule.date.toInt(),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                          child: defaultCellText(
-                            text:
-                            schedule.outstandingBalance.toCurrency(),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.outstandingBalance.toCurrency(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                          child: defaultCellText(
-                            text:
-                            schedule.monthlyAmortization.toCurrency(),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.monthlyAmortization.toCurrency(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                          child: defaultCellText(
-                            text: schedule.principalPayment.toCurrency(),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.principalPayment.toCurrency(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                          child: defaultCellText(
-                            text: schedule.interestPayment.toCurrency(),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.interestPayment.toCurrency(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                          child: defaultCellText(
-                            text: schedule.incidentalFee.toCurrency(),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.incidentalFee.toCurrency(),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
-                    .toList()
-              // rows: [
-              //   DataRow(
-              //     cells: [
-              //       DataCell(
-              //         defaultCellText(text: '2023-01-30'),
-              //       ),
-              //       DataCell(
-              //         Center(
-              //           child: defaultCellText(text: '₱ 100.00'),
-              //         ),
-              //       ),
-              //       DataCell(
-              //         Center(
-              //           child: defaultCellText(text: '₱ 100.00'),
-              //         ),
-              //       ),
-              //       DataCell(
-              //         Center(
-              //           child: defaultCellText(text: '₱ 100.00'),
-              //         ),
-              //       ),
-              //       DataCell(
-              //         Center(
-              //           child: defaultCellText(text: '₱ 100.00'),
-              //         ),
-              //       ),
-              //       DataCell(
-              //         Center(
-              //           child: defaultCellText(text: '₱ 100.00'),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ],
-            );
-          },),
+                    )
+                    .toList(),
+              );
+            },
+          ),
           SizedBox(
             height: 32,
           ),

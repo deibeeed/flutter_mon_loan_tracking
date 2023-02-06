@@ -11,6 +11,8 @@ class Constants {
   static const num NO_DATE = -1;
   static const defaultRadius = Radius.circular(120);
   static var defaultDateFormat = DateFormat('yyyy-MMM-dd');
+  static var defaultCurrencyFormat =
+      NumberFormat('${Constants.currency} ###,###,###,###,###,###.##');
   static const menuItems = [
     MenuItemModel(name: 'Loan Dashboard', goPath: '/loan-dashboard'),
     MenuItemModel(name: 'Lot Dashboard', goPath: '/lot-dashboard'),

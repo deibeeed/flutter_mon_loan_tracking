@@ -39,8 +39,22 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   List<LoanSchedule> get clientLoanSchedules => _clientLoanSchedules;
 
+  final List<num> _discounts = [
+    1000,
+    1000,
+    1000,
+    1000,
+  ];
+
+  List<num> get discounts => _discounts;
+
   void calculateLoan() {
     add(CalculateLoanEvent());
+  }
+
+  void removeDiscount({ required int position }) {
+    _discounts.removeAt(position);
+    emit(LoanSuccessState(message: 'Successfully removed discount'));
   }
 
   /// loan computation formula found here:
@@ -75,6 +89,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         printd('monthly: $monthlyAmortization');
         printd('interestPayment: $interestPayment');
         printd('principalPayment: $principalPayment');
+        printd('monthlyIncidentalFee: $monthlyIncidentalFee');
         printd('outstandingBalance: $outstandingBalance');
         printd('---------------------------------------------------');
         final schedule = LoanSchedule.create(
