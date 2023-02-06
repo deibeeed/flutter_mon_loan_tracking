@@ -49,48 +49,45 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       CalculateLoanEvent event, Emitter<LoanState> emit) async {
     try {
       emit(LoanLoadingState(isLoading: true));
-      // calculate here
-      // _clientLoanSchedules.add(LoanSchedule.create(
-      //     date: DateTime.now().millisecondsSinceEpoch,
-      //     outstandingBalance: outstandingBalance,
-      //     monthlyAmortization: monthlyAmortization,
-      //     principalPayment: principalPayment,
-      //     interestPayment: interestPayment,
-      //     incidentalFee: incidentalFee,
-      //     loanId: loanId));
 
+      _clientLoanSchedules.clear();
       var outstandingBalance = 789192.00;
       const annualInterestRate = 0.045;
+      const incidentalFeeRate = 0.1;
       const monthsToPay = 36;
+      final incidentalFee = outstandingBalance * incidentalFeeRate;
+      final monthlyIncidentalFee = incidentalFee / monthsToPay;
 
-      var monthly = _calculateMonthlyPayment(
+      final monthlyAmortization = _calculateMonthlyPayment(
         outstandingBalance: outstandingBalance,
         annualInterestRate: 0.045,
         yearsToPay: 3,
       );
       const monthlyInterestRate = annualInterestRate / 12;
       printd('starting outstanding balance: $outstandingBalance');
-      const List<LoanSchedule> tmpLoanSchedules = [];
       var currentDate = DateTime.now();
       printd('---------------------------------------------------');
       for (var i = 1; i <= monthsToPay; i++) {
-        var interestPayment = outstandingBalance * monthlyInterestRate;
-        var principalPayment = monthly - interestPayment;
+        final interestPayment = outstandingBalance * monthlyInterestRate;
+        final principalPayment = monthlyAmortization - interestPayment;
         outstandingBalance -= principalPayment;
         printd('month: $i');
-        printd('monthly: $monthly');
+        printd('monthly: $monthlyAmortization');
         printd('interestPayment: $interestPayment');
         printd('principalPayment: $principalPayment');
         printd('outstandingBalance: $outstandingBalance');
         printd('---------------------------------------------------');
-        LoanSchedule.create(
+        final schedule = LoanSchedule.create(
             date: currentDate.millisecondsSinceEpoch,
             outstandingBalance: outstandingBalance,
-            monthlyAmortization: monthlyAmortization,
+            monthlyAmortization: monthlyAmortization + monthlyAmortization,
             principalPayment: principalPayment,
             interestPayment: interestPayment,
-            incidentalFee: incidentalFee,
-            loanId: loanId);
+            incidentalFee: monthlyIncidentalFee,
+            loanId: 'loanId:$i',
+        );
+        _clientLoanSchedules.add(schedule);
+        currentDate = currentDate.add(const Duration(days: 30));
       }
 
       emit(LoanLoadingState());

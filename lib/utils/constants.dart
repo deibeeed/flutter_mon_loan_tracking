@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/services/environments.dart';
+import 'package:intl/intl.dart';
 
 class Constants {
   static const currency = '₱';
@@ -9,6 +10,7 @@ class Constants {
   static const String NO_ID = 'no_id_available';
   static const num NO_DATE = -1;
   static const defaultRadius = Radius.circular(120);
+  static var defaultDateFormat = DateFormat('yyyy-MMM-dd');
   static const menuItems = [
     MenuItemModel(name: 'Loan Dashboard', goPath: '/loan-dashboard'),
     MenuItemModel(name: 'Lot Dashboard', goPath: '/lot-dashboard'),
