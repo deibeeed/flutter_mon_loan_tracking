@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_mon_loan_tracking/models/discount.dart';
+import 'package:flutter_mon_loan_tracking/models/loan_status.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -36,6 +37,7 @@ class Loan extends Equatable {
   final num incidentalFees;
   final num downPayment;
   final num yearsToPay;
+  // final String agentId;
 
   Loan({
     required this.id,
@@ -53,6 +55,7 @@ class Loan extends Equatable {
     required this.incidentalFees,
     required this.downPayment,
     required this.yearsToPay,
+    // required this.agentId,
   });
 
   factory Loan.create({
@@ -68,6 +71,7 @@ class Loan extends Equatable {
     required num incidentalFees,
     required num downPayment,
     required num yearsToPay,
+    required List<Discount> deductions,
   }) =>
       Loan(
         id: Constants.NO_ID,
@@ -84,6 +88,7 @@ class Loan extends Equatable {
         totalContractPrice: totalContractPrice,
         downPayment: downPayment,
         yearsToPay: yearsToPay,
+        deductions: deductions,
       );
 
   factory Loan.updateId({
@@ -105,6 +110,7 @@ class Loan extends Equatable {
         totalContractPrice: loan.totalContractPrice,
         downPayment: loan.downPayment,
         yearsToPay: loan.yearsToPay,
+        deductions: loan.deductions,
       );
 
   factory Loan.fromJson(Map<String, dynamic> json) => _$LoanFromJson(json);

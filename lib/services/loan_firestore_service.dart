@@ -6,11 +6,11 @@ class LoanFirestoreService extends BaseFirestoreService<Loan> {
   @override
   Future<Loan> add({required Loan data}) async {
     final doc = root.doc();
-    final updatedUser = Loan.updateId(id: doc.id, loan: data);
+    final updatedLoan = Loan.updateId(id: doc.id, loan: data);
 
-    await doc.set(updatedUser.toJson());
+    await doc.set(updatedLoan.toJson());
 
-    return updatedUser;
+    return updatedLoan;
   }
 
   @override

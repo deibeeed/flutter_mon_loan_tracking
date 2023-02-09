@@ -377,6 +377,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         incidentalFees: incidentalFee,
         downPayment: event.downPayment,
         yearsToPay: event.yearsToPay,
+        deductions: _discounts
       );
       final loanWithId = await loanRepository.add(data: loan);
       final futureLoanSchedules = _clientLoanSchedules.map(
@@ -391,6 +392,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
       emit(LoanLoadingState());
       emit(LoanSuccessState(message: 'Adding loan successfully'));
+      // clear discounts once loan is been added
+      _discounts.clear();
     } catch (err) {
       printd(err);
       emit(LoanLoadingState());

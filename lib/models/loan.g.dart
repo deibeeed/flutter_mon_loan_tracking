@@ -37,7 +37,7 @@ Map<String, dynamic> _$LoanToJson(Loan instance) => <String, dynamic>{
       'reservationFee': instance.reservationFee,
       'createdAt': instance.createdAt,
       'perSquareMeterRate': instance.perSquareMeterRate,
-      'deductions': instance.deductions,
+      'deductions': instance.deductions.map((e) => e.toJson()).toList(),
       'outstandingBalance': instance.outstandingBalance,
       'totalContractPrice': instance.totalContractPrice,
       'incidentalFees': instance.incidentalFees,
