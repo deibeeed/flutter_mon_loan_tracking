@@ -87,7 +87,7 @@ class App extends StatelessWidget {
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/add-loan',
-            child: const AddLoanScreen(),
+            child: AddLoanScreen(),
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/add-lot',
@@ -153,7 +153,7 @@ class App extends StatelessWidget {
               ),
               BlocProvider<AuthenticationBloc>.value(
                 value: AuthenticationBloc(
-                  authenticationService: AuthenticationService(),
+                  authenticationService: context.read<AuthenticationService>(),
                   usersRepository: context.read<UserRepository>(),
                 ),
               ),
@@ -180,6 +180,7 @@ class App extends StatelessWidget {
                   lotRepository: context.read<LotRepository>(),
                   userRepository: context.read<UserRepository>(),
                   settingsRepository: context.read<SettingsRepository>(),
+                  authenticationService: context.read<AuthenticationService>(),
                 ),
               ),
             ],

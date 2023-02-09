@@ -43,7 +43,7 @@ class User extends Equatable {
 
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
-  String get completeName => '$firstName $lastName';
+  String get completeName => '$lastName, $firstName';
 
   @override
   List<Object?> get props => [

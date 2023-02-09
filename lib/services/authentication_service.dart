@@ -24,6 +24,8 @@ class AuthenticationService {
   }
 
   bool isLoggedIn() {
-    return _auth.currentUser != null;
+    return loggedInUser != null;
   }
+
+  User? get loggedInUser => _auth.currentUser;
 }

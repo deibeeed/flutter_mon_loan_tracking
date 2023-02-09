@@ -15,6 +15,7 @@ Settings _$SettingsFromJson(Map<String, dynamic> json) => Settings(
           .toList(),
       id: json['id'] as String? ?? Constants.NO_ID,
       perSquareMeterRate: json['perSquareMeterRate'] as num,
+      createdAt: json['createdAt'] as num? ?? Constants.NO_DATE,
     );
 
 Map<String, dynamic> _$SettingsToJson(Settings instance) => <String, dynamic>{
@@ -24,4 +25,5 @@ Map<String, dynamic> _$SettingsToJson(Settings instance) => <String, dynamic>{
       'perSquareMeterRate': instance.perSquareMeterRate,
       'lotCategories': instance.lotCategories,
       'id': instance.id,
+      'createdAt': instance.createdAt,
     };

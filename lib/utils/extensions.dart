@@ -6,7 +6,6 @@ extension CurrencyParsing on num {
     var formatted = Constants.defaultCurrencyFormat
         .format(num.parse(toStringAsFixed(2)));
     final diff = (formatted.length - 1) - formatted.indexOf('.');
-    printd('formatted: $formatted diff: $diff');
 
     if (formatted.startsWith('-')) {
       formatted = formatted.substring(1);

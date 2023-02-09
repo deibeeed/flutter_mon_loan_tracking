@@ -33,4 +33,7 @@ class SettingsRepository extends BaseRepository<Settings> {
     return firestoreService.update(data: data);
   }
 
+  Future<Settings> getLatest() async {
+    return firestoreService.getLatest();
+  }
 }

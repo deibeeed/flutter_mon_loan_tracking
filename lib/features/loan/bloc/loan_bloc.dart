@@ -2,12 +2,20 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/discount.dart';
+import 'package:flutter_mon_loan_tracking/models/loan.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
+import 'package:flutter_mon_loan_tracking/models/lot.dart';
+import 'package:flutter_mon_loan_tracking/models/settings.dart';
+import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/repositories/loan_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/loan_schedule_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/lot_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
+import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:meta/meta.dart';
 
@@ -22,11 +30,18 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required this.lotRepository,
     required this.userRepository,
     required this.settingsRepository,
+    required this.authenticationService,
   }) : super(LoanInitial()) {
     // on<LoanEvent>((event, emit) {
     //   // TODO: implement event handler
     // });
     on(_handleCalculateLoanEvent);
+    on(_handleSearchLotEvent);
+    on(_handleGetSettingsEvent);
+    on(_handleGetAllUsersEvent);
+    on(_handleAddLoanEvent);
+    getSettings();
+    getAllUsers();
   }
 
   final LoanRepository loanRepository;
@@ -34,76 +49,176 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   final LotRepository lotRepository;
   final UserRepository userRepository;
   final SettingsRepository settingsRepository;
+  final AuthenticationService authenticationService;
 
   final List<LoanSchedule> _clientLoanSchedules = [];
 
   List<LoanSchedule> get clientLoanSchedules => _clientLoanSchedules;
 
-  final List<num> _discounts = [
-    1000,
-    1000,
-    1000,
-    1000,
-  ];
+  final List<Discount> _discounts = [];
 
-  List<num> get discounts => _discounts;
+  List<Discount> get discounts => _discounts;
 
-  void calculateLoan() {
-    add(CalculateLoanEvent());
+  Settings? _settings;
+
+  Settings? get settings => _settings;
+
+  String? _blockNo;
+  String? _lotNo;
+  Lot? _selectedLot;
+
+  Lot? get selectedLot => _selectedLot;
+
+  num _yearsToPay = 0;
+
+  num _monthlyAmortization = 0;
+
+  num get monthlyAmortization => _monthlyAmortization;
+
+  List<User> _users = [];
+
+  List<User> get users => _users;
+
+  User? _selectedUser;
+
+  User? get selectedUser => _selectedUser;
+
+  num _outstandingBalance = 0;
+
+  num get outstandingBalance => _outstandingBalance;
+
+  void getSettings() {
+    add(GetSettingsEvent());
   }
 
-  void removeDiscount({ required int position }) {
+  void getAllUsers() {
+    add(GetAllUsersEvent());
+  }
+
+  void selectUser({required User user}) {
+    _selectedUser = user;
+    emit(LoanSuccessState(message: 'Successfully selected user'));
+  }
+
+  void calculateLoan({
+    required String yearsToPay,
+    required String downPayment,
+  }) {
+    try {
+      add(
+        CalculateLoanEvent(
+          downPayment: num.parse(downPayment),
+          yearsToPay: num.parse(yearsToPay),
+        ),
+      );
+    } catch (err) {
+      printd(err);
+    }
+  }
+
+  void addLoan({
+    required String yearsToPay,
+    required String downPayment,
+  }) {
+    try {
+      add(
+        AddLoanEvent(
+          downPayment: num.parse(downPayment),
+          yearsToPay: num.parse(yearsToPay),
+        ),
+      );
+    } catch (err) {
+      printd(err);
+    }
+  }
+
+  void addDiscount({required String discount, required String description}) {
+    printd('add discount');
+    if (discount.isEmpty || description.isEmpty) {
+      return;
+    }
+
+    _discounts.add(
+      Discount(
+        discount: num.parse(discount),
+        description: description,
+      ),
+    );
+    emit(LoanSuccessState(message: 'Successfully added discount'));
+  }
+
+  void removeDiscount({required int position}) {
     _discounts.removeAt(position);
     emit(LoanSuccessState(message: 'Successfully removed discount'));
   }
+
+  void setBlockAndLotNo({required String type, required String no}) {
+    if (type == 'blockNo') {
+      _blockNo = no;
+    } else if (type == 'lotNo') {
+      _lotNo = no;
+    }
+
+    if (_blockNo != null &&
+        _lotNo != null &&
+        _blockNo!.isNotEmpty &&
+        _lotNo!.isNotEmpty) {
+      add(SearchLotEvent(blockNo: _blockNo!, lotNo: _lotNo!));
+    }
+  }
+
+  num computeTCP() {
+    if (selectedLot == null || settings == null) {
+      return 0;
+    }
+
+    return selectedLot!.area * settings!.perSquareMeterRate;
+  }
+
+  num computeIncidentalFee() {
+    if (selectedLot == null || settings == null) {
+      return 0;
+    }
+
+    return (selectedLot!.area * settings!.perSquareMeterRate) *
+        (settings!.incidentalFeeRate / 100);
+  }
+
+  num yearsToMonths({required String years}) {
+    try {
+      return num.parse(years) * 12;
+    } catch (err) {
+      return 0;
+    }
+  }
+
+  /// PRIVATE METHODS
 
   /// loan computation formula found here:
   /// https://www.mymove.com/mortgage/mortgage-calculation/#:~:text=These%20factors%20include%20the%20total
   Future<void> _handleCalculateLoanEvent(
       CalculateLoanEvent event, Emitter<LoanState> emit) async {
     try {
-      emit(LoanLoadingState(isLoading: true));
-
-      _clientLoanSchedules.clear();
-      var outstandingBalance = 789192.00;
-      const annualInterestRate = 0.045;
-      const incidentalFeeRate = 0.1;
-      const monthsToPay = 36;
-      final incidentalFee = outstandingBalance * incidentalFeeRate;
-      final monthlyIncidentalFee = incidentalFee / monthsToPay;
-
-      final monthlyAmortization = _calculateMonthlyPayment(
-        outstandingBalance: outstandingBalance,
-        annualInterestRate: 0.045,
-        yearsToPay: 3,
-      );
-      const monthlyInterestRate = annualInterestRate / 12;
-      printd('starting outstanding balance: $outstandingBalance');
-      var currentDate = DateTime.now();
-      printd('---------------------------------------------------');
-      for (var i = 1; i <= monthsToPay; i++) {
-        final interestPayment = outstandingBalance * monthlyInterestRate;
-        final principalPayment = monthlyAmortization - interestPayment;
-        outstandingBalance -= principalPayment;
-        printd('month: $i');
-        printd('monthly: $monthlyAmortization');
-        printd('interestPayment: $interestPayment');
-        printd('principalPayment: $principalPayment');
-        printd('monthlyIncidentalFee: $monthlyIncidentalFee');
-        printd('outstandingBalance: $outstandingBalance');
-        printd('---------------------------------------------------');
-        final schedule = LoanSchedule.create(
-            date: currentDate.millisecondsSinceEpoch,
-            outstandingBalance: outstandingBalance,
-            monthlyAmortization: monthlyAmortization + monthlyAmortization,
-            principalPayment: principalPayment,
-            interestPayment: interestPayment,
-            incidentalFee: monthlyIncidentalFee,
-            loanId: 'loanId:$i',
-        );
-        _clientLoanSchedules.add(schedule);
-        currentDate = currentDate.add(const Duration(days: 30));
+      if (_selectedUser == null) {
+        emit(LoanErrorState(message: 'Please select user'));
+        return;
       }
+
+      if (_selectedLot == null) {
+        emit(LoanErrorState(message: 'Please select block and lot number'));
+        return;
+      }
+
+      if (_settings == null) {
+        emit(LoanErrorState(message: 'Please refresh page'));
+        return;
+      }
+
+      emit(LoanLoadingState(isLoading: true));
+      _calculateLoan(
+        downPayment: event.downPayment,
+        yearsToPay: event.yearsToPay,
+      );
 
       emit(LoanLoadingState());
       emit(LoanSuccessState(message: 'Successfully calculated loan'));
@@ -111,6 +226,175 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       printd(err);
       emit(LoanErrorState(
           message: 'Something went wrong when calculating loan'));
+    }
+  }
+
+  void _calculateLoan({
+    required num downPayment,
+    required num yearsToPay,
+  }) {
+    _clientLoanSchedules.clear();
+    var totalContractPrice = selectedLot!.area * _settings!.perSquareMeterRate;
+    var outstandingBalance = totalContractPrice;
+    var annualInterestRate = settings!.loanInterestRate / 100;
+
+    var totalDiscount = downPayment;
+
+    for (final discount in discounts) {
+      totalDiscount += discount.discount;
+    }
+    outstandingBalance -= totalDiscount;
+    _outstandingBalance = outstandingBalance;
+    var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
+    var monthsToPay = yearsToPay * 12;
+    final incidentalFee = totalContractPrice * incidentalFeeRate;
+    final monthlyIncidentalFee = incidentalFee / monthsToPay;
+
+    final loanMonthlyAmortization = _calculateMonthlyPayment(
+      outstandingBalance: outstandingBalance,
+      annualInterestRate: annualInterestRate,
+      yearsToPay: yearsToPay,
+    );
+    _monthlyAmortization = loanMonthlyAmortization + monthlyIncidentalFee;
+    var monthlyInterestRate = annualInterestRate / 12;
+    printd('starting outstanding balance: $outstandingBalance');
+    var nextMonthDate = DateTime.now().add(const Duration(days: 30));
+    printd('---------------------------------------------------');
+    for (var i = 1; i <= monthsToPay; i++) {
+      final interestPayment = outstandingBalance * monthlyInterestRate;
+      final principalPayment = loanMonthlyAmortization - interestPayment;
+      outstandingBalance -= principalPayment;
+      printd('month: $i');
+      printd('monthly: $loanMonthlyAmortization');
+      printd('interestPayment: $interestPayment');
+      printd('principalPayment: $principalPayment');
+      printd('monthlyIncidentalFee: $monthlyIncidentalFee');
+      printd('outstandingBalance: $outstandingBalance');
+      printd('---------------------------------------------------');
+      final schedule = LoanSchedule.create(
+        date: nextMonthDate.millisecondsSinceEpoch,
+        outstandingBalance: outstandingBalance,
+        monthlyAmortization: loanMonthlyAmortization + monthlyIncidentalFee,
+        principalPayment: principalPayment,
+        interestPayment: interestPayment,
+        incidentalFee: monthlyIncidentalFee,
+        loanId: 'loanId:$i',
+      );
+      _clientLoanSchedules.add(schedule);
+      nextMonthDate = nextMonthDate.add(const Duration(days: 30));
+    }
+  }
+
+  Future<void> _handleSearchLotEvent(
+      SearchLotEvent event, Emitter<LoanState> emit) async {
+    try {
+      final lot =
+          await lotRepository.searchLot(blockNo: _blockNo!, lotNo: _lotNo!);
+      _selectedLot = lot;
+      emit(
+        LoanSuccessState(
+          message: 'Successfully searched lot',
+          data: lot,
+        ),
+      );
+    } catch (err) {
+      emit(LoanErrorState(
+        message: 'Something went wrong while searching for lot',
+      ));
+    }
+  }
+
+  Future<void> _handleGetSettingsEvent(
+    GetSettingsEvent event,
+    Emitter<LoanState> emit,
+  ) async {
+    try {
+      _settings = await settingsRepository.getLatest();
+      emit(LoanSuccessState(message: 'Successfully retrieved latest settings'));
+    } catch (err) {
+      print(err);
+      emit(
+        LoanErrorState(
+          message: 'Something went wrong while getting settings',
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleGetAllUsersEvent(
+      GetAllUsersEvent event, Emitter<LoanState> emit) async {
+    try {
+      _users = await userRepository.all();
+      emit(LoanSuccessState(message: 'Successfully retrieved all users'));
+    } catch (err) {
+      printd(err);
+      emit(LoanErrorState(
+          message: 'Something went wrong while getting all users'));
+    }
+  }
+
+  Future<void> _handleAddLoanEvent(
+      AddLoanEvent event, Emitter<LoanState> emit) async {
+    try {
+      if (!authenticationService.isLoggedIn()) {
+        emit(LoanErrorState(message: 'User not logged in'));
+        return;
+      }
+
+      if (_selectedUser == null) {
+        emit(LoanErrorState(message: 'Please select user'));
+        return;
+      }
+
+      if (_selectedLot == null) {
+        emit(LoanErrorState(message: 'Please select block and lot number'));
+        return;
+      }
+
+      if (_settings == null) {
+        emit(LoanErrorState(message: 'Please refresh page'));
+        return;
+      }
+      emit(LoanLoadingState(isLoading: true));
+      _calculateLoan(
+        downPayment: event.downPayment,
+        yearsToPay: event.yearsToPay,
+      );
+      var totalContractPrice =
+          selectedLot!.area * _settings!.perSquareMeterRate;
+      var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
+      final incidentalFee = totalContractPrice * incidentalFeeRate;
+      final loan = Loan.create(
+        clientId: _selectedUser!.id,
+        preparedBy: authenticationService.loggedInUser!.uid,
+        lotId: _selectedLot!.id,
+        loanInterestRate: _settings!.loanInterestRate,
+        incidentalFeeRate: _settings!.incidentalFeeRate,
+        reservationFee: _settings!.reservationFee,
+        perSquareMeterRate: _settings!.perSquareMeterRate,
+        outstandingBalance: outstandingBalance,
+        totalContractPrice: totalContractPrice,
+        incidentalFees: incidentalFee,
+        downPayment: event.downPayment,
+        yearsToPay: event.yearsToPay,
+      );
+      final loanWithId = await loanRepository.add(data: loan);
+      final futureLoanSchedules = _clientLoanSchedules.map(
+        (schedule) {
+          final loanScheduleWithLoanId = LoanSchedule.setLoanId(
+              loanId: loanWithId.id, loanSchedule: schedule);
+          return loanScheduleRepository.add(data: loanScheduleWithLoanId);
+        },
+      ).toList();
+
+      await Future.wait(futureLoanSchedules);
+
+      emit(LoanLoadingState());
+      emit(LoanSuccessState(message: 'Adding loan successfully'));
+    } catch (err) {
+      printd(err);
+      emit(LoanLoadingState());
+      emit(LoanErrorState(message: 'Something went wrong while adding loan'));
     }
   }
 

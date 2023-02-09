@@ -55,15 +55,32 @@ class LoanSchedule extends Equatable {
     required LoanSchedule loanSchedule,
   }) =>
       LoanSchedule(
-          date: loanSchedule.date,
-          outstandingBalance: loanSchedule.outstandingBalance,
-          monthlyAmortization: loanSchedule.monthlyAmortization,
-          principalPayment: loanSchedule.principalPayment,
-          interestPayment: loanSchedule.interestPayment,
-          incidentalFee: loanSchedule.incidentalFee,
-          loanId: loanSchedule.loanId,
-          id: id,
-          createdAt: loanSchedule.createdAt);
+        date: loanSchedule.date,
+        outstandingBalance: loanSchedule.outstandingBalance,
+        monthlyAmortization: loanSchedule.monthlyAmortization,
+        principalPayment: loanSchedule.principalPayment,
+        interestPayment: loanSchedule.interestPayment,
+        incidentalFee: loanSchedule.incidentalFee,
+        loanId: loanSchedule.loanId,
+        id: id,
+        createdAt: loanSchedule.createdAt,
+      );
+
+  factory LoanSchedule.setLoanId({
+    required String loanId,
+    required LoanSchedule loanSchedule,
+  }) =>
+      LoanSchedule(
+        date: loanSchedule.date,
+        outstandingBalance: loanSchedule.outstandingBalance,
+        monthlyAmortization: loanSchedule.monthlyAmortization,
+        principalPayment: loanSchedule.principalPayment,
+        interestPayment: loanSchedule.interestPayment,
+        incidentalFee: loanSchedule.incidentalFee,
+        loanId: loanId,
+        id: loanSchedule.id,
+        createdAt: loanSchedule.createdAt,
+      );
 
   factory LoanSchedule.fromJson(Map<String, dynamic> json) =>
       _$LoanScheduleFromJson(json);

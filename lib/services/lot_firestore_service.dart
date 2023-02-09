@@ -52,6 +52,20 @@ class LotFirestoreService extends BaseFirestoreService<Lot> {
     return data;
   }
 
+  Future<Lot> searchLot({
+    required String blockNo,
+    required String lotNo,
+  }) async {
+    final data = await root
+        .where('blockNo', isEqualTo: blockNo)
+        .where('lotNo', isEqualTo: lotNo)
+        .limit(1)
+        .get();
+    return data.docs
+        .map((e) => Lot.fromJson(e.data() as Map<String, dynamic>))
+        .first;
+  }
+
   @override
   String get collectionName => 'lots';
 }

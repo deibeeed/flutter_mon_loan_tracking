@@ -5,6 +5,7 @@ import 'package:flutter_mon_loan_tracking/features/settings/bloc/setting_field.d
 import 'package:flutter_mon_loan_tracking/features/settings/bloc/settings_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/debounce.dart';
+import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -104,7 +105,8 @@ class SettingsScreen extends StatelessWidget {
                         },
                         builder: (context, state) {
                           return Text(
-                            '${Constants.currency} ${settingsBloc.settings.perSquareMeterRate}',
+                            settingsBloc.settings.perSquareMeterRate
+                                .toCurrency(),
                           );
                         },
                       ),
@@ -123,7 +125,7 @@ class SettingsScreen extends StatelessWidget {
                         },
                         builder: (context, state) {
                           return Text(
-                            '${Constants.currency} ${settingsBloc.settings.reservationFee}',
+                            settingsBloc.settings.reservationFee.toCurrency(),
                           );
                         },
                       ),
@@ -221,7 +223,7 @@ class SettingsScreen extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                     ],

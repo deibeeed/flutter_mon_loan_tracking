@@ -13,6 +13,7 @@ class Settings extends Equatable {
     required this.lotCategories,
     this.id = Constants.NO_ID,
     required this.perSquareMeterRate,
+    this.createdAt = Constants.NO_DATE,
   });
 
   factory Settings.fromJson(Map<String, dynamic> json) =>
@@ -20,12 +21,14 @@ class Settings extends Equatable {
 
   factory Settings.updateId({required String id, required Settings settings}) =>
       Settings(
-          loanInterestRate: settings.loanInterestRate,
-          incidentalFeeRate: settings.incidentalFeeRate,
-          reservationFee: settings.reservationFee,
-          lotCategories: settings.lotCategories,
-          id: id,
-          perSquareMeterRate: settings.perSquareMeterRate);
+        loanInterestRate: settings.loanInterestRate,
+        incidentalFeeRate: settings.incidentalFeeRate,
+        reservationFee: settings.reservationFee,
+        lotCategories: settings.lotCategories,
+        id: id,
+        perSquareMeterRate: settings.perSquareMeterRate,
+        createdAt: settings.createdAt,
+      );
 
   factory Settings.defaultSettings() => Settings(
         loanInterestRate: 7,
@@ -37,6 +40,7 @@ class Settings extends Equatable {
         ],
         reservationFee: 30000,
         perSquareMeterRate: 9000,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
       );
 
   num loanInterestRate;
@@ -45,6 +49,7 @@ class Settings extends Equatable {
   num perSquareMeterRate;
   List<String> lotCategories;
   final String id;
+  num createdAt;
 
   Map<String, dynamic> toJson() => _$SettingsToJson(this);
 

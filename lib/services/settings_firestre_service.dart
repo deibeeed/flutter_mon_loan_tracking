@@ -52,6 +52,15 @@ class SettingsFireStoreService extends BaseFirestoreService<Settings> {
     return data;
   }
 
+  Future<Settings> getLatest() async {
+    final data =
+        await root.orderBy('createdAt', descending: true).limit(1).get();
+
+    return data.docs
+        .map((e) => Settings.fromJson(e.data() as Map<String, dynamic>))
+        .first;
+  }
+
   @override
   String get collectionName => 'settings';
 }

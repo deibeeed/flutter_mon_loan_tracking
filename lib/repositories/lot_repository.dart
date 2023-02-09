@@ -6,6 +6,7 @@ class LotRepository extends BaseRepository<Lot> {
   LotRepository({
     required this.firestoreService,
   });
+
   final LotFirestoreService firestoreService;
 
   @override
@@ -31,5 +32,12 @@ class LotRepository extends BaseRepository<Lot> {
   @override
   Future<Lot> update({required Lot data}) {
     return firestoreService.update(data: data);
+  }
+
+  Future<Lot> searchLot({
+    required String blockNo,
+    required String lotNo,
+  }) {
+    return firestoreService.searchLot(blockNo: blockNo, lotNo: lotNo);
   }
 }

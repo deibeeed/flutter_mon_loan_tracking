@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_mon_loan_tracking/models/discount.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -24,7 +25,7 @@ class Loan extends Equatable {
   final num perSquareMeterRate;
   /// all deductions from tcp.
   /// deductions are amounts to deduct
-  final List<num> deductions;
+  final List<Discount> deductions;
   /// computed when everything from the
   /// tcp is deducted
   final num outstandingBalance;
@@ -33,6 +34,8 @@ class Loan extends Equatable {
   /// amount of additional fees.
   /// computed as = tcp * incidentalFeeRate
   final num incidentalFees;
+  final num downPayment;
+  final num yearsToPay;
 
   Loan({
     required this.id,
@@ -47,7 +50,9 @@ class Loan extends Equatable {
     required this.outstandingBalance,
     required this.totalContractPrice,
     this.deductions = const [],
-    required this.incidentalFees
+    required this.incidentalFees,
+    required this.downPayment,
+    required this.yearsToPay,
   });
 
   factory Loan.create({
@@ -61,6 +66,8 @@ class Loan extends Equatable {
     required num outstandingBalance,
     required num totalContractPrice,
     required num incidentalFees,
+    required num downPayment,
+    required num yearsToPay,
   }) =>
       Loan(
         id: Constants.NO_ID,
@@ -75,6 +82,8 @@ class Loan extends Equatable {
         incidentalFees: incidentalFees,
         outstandingBalance: outstandingBalance,
         totalContractPrice: totalContractPrice,
+        downPayment: downPayment,
+        yearsToPay: yearsToPay,
       );
 
   factory Loan.updateId({
@@ -94,6 +103,8 @@ class Loan extends Equatable {
         incidentalFees: loan.incidentalFees,
         outstandingBalance: loan.outstandingBalance,
         totalContractPrice: loan.totalContractPrice,
+        downPayment: loan.downPayment,
+        yearsToPay: loan.yearsToPay,
       );
 
   factory Loan.fromJson(Map<String, dynamic> json) => _$LoanFromJson(json);
