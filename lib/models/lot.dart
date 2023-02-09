@@ -56,6 +56,8 @@ class Lot extends Equatable {
 
   Map<String, dynamic> toJson() => _$LotToJson(this);
 
+  String get completeBlockLotNo => 'Blk $blockNo Lot $lotNo';
+
   @override
   List<Object?> get props => [
         lotCategory,

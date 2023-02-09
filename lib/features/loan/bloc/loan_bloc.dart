@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/discount.dart';
 import 'package:flutter_mon_loan_tracking/models/loan.dart';
+import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/models/lot.dart';
 import 'package:flutter_mon_loan_tracking/models/settings.dart';
@@ -40,8 +41,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     on(_handleGetSettingsEvent);
     on(_handleGetAllUsersEvent);
     on(_handleAddLoanEvent);
-    getSettings();
+    on(_handleGetAllLoansEvent);
+    on(_handleGetAllLotsEvent);
     getAllUsers();
+    getAllLots();
+    getAllLoans();
+    getSettings();
   }
 
   final LoanRepository loanRepository;
@@ -87,12 +92,37 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   num get outstandingBalance => _outstandingBalance;
 
+  List<LoanDisplay> _allLoans = [];
+
+  List<LoanDisplay> get allLoans => _allLoans;
+
+  final Map<String, Loan> _loans = {};
+
+  final Map<String, User> _mappedUsers = {};
+
+  Map<String, User> get mappedUsers => _mappedUsers;
+
+  final Map<String, Lot> _mappedLots = {};
+
+  Map<String, Lot> get mappedLots => _mappedLots;
+
   void getSettings() {
     add(GetSettingsEvent());
   }
 
   void getAllUsers() {
     add(GetAllUsersEvent());
+  }
+
+  void getAllLoans({ bool clearList = false}) {
+    if (clearList) {
+      _allLoans.clear();
+    }
+    add(GetAllLoansEvent());
+  }
+
+  void getAllLots() {
+    add(GetAllLotsEvent());
   }
 
   void selectUser({required User user}) {
@@ -288,9 +318,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   Future<void> _handleSearchLotEvent(
       SearchLotEvent event, Emitter<LoanState> emit) async {
     try {
-      final lot =
-          await lotRepository.searchLot(blockNo: _blockNo!, lotNo: _lotNo!);
+      var lot = _mappedLots.values.firstWhereOrNull(
+        (lot) => lot.blockNo == event.blockNo && lot.lotNo == event.lotNo,
+      );
+
+      lot ??= await lotRepository.searchLot(blockNo: _blockNo!, lotNo: _lotNo!);
       _selectedLot = lot;
+
       emit(
         LoanSuccessState(
           message: 'Successfully searched lot',
@@ -325,6 +359,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       GetAllUsersEvent event, Emitter<LoanState> emit) async {
     try {
       _users = await userRepository.all();
+      _mappedUsers.addAll({for (var user in _users) user.id: user});
       emit(LoanSuccessState(message: 'Successfully retrieved all users'));
     } catch (err) {
       printd(err);
@@ -365,20 +400,19 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
       final incidentalFee = totalContractPrice * incidentalFeeRate;
       final loan = Loan.create(
-        clientId: _selectedUser!.id,
-        preparedBy: authenticationService.loggedInUser!.uid,
-        lotId: _selectedLot!.id,
-        loanInterestRate: _settings!.loanInterestRate,
-        incidentalFeeRate: _settings!.incidentalFeeRate,
-        reservationFee: _settings!.reservationFee,
-        perSquareMeterRate: _settings!.perSquareMeterRate,
-        outstandingBalance: outstandingBalance,
-        totalContractPrice: totalContractPrice,
-        incidentalFees: incidentalFee,
-        downPayment: event.downPayment,
-        yearsToPay: event.yearsToPay,
-        deductions: _discounts
-      );
+          clientId: _selectedUser!.id,
+          preparedBy: authenticationService.loggedInUser!.uid,
+          lotId: _selectedLot!.id,
+          loanInterestRate: _settings!.loanInterestRate,
+          incidentalFeeRate: _settings!.incidentalFeeRate,
+          reservationFee: _settings!.reservationFee,
+          perSquareMeterRate: _settings!.perSquareMeterRate,
+          outstandingBalance: outstandingBalance,
+          totalContractPrice: totalContractPrice,
+          incidentalFees: incidentalFee,
+          downPayment: event.downPayment,
+          yearsToPay: event.yearsToPay,
+          deductions: _discounts);
       final loanWithId = await loanRepository.add(data: loan);
       final futureLoanSchedules = _clientLoanSchedules.map(
         (schedule) {
@@ -392,12 +426,71 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
       emit(LoanLoadingState());
       emit(LoanSuccessState(message: 'Adding loan successfully'));
+      await Future.delayed(const Duration(seconds: 3));
+      emit(CloseAddLoanState());
       // clear discounts once loan is been added
       _discounts.clear();
     } catch (err) {
       printd(err);
       emit(LoanLoadingState());
       emit(LoanErrorState(message: 'Something went wrong while adding loan'));
+    }
+  }
+
+  Future<void> _handleGetAllLoansEvent(
+    GetAllLoansEvent event,
+    Emitter<LoanState> emit,
+  ) async {
+    try {
+      emit(LoanLoadingState(isLoading: true));
+
+      if (_loans.isEmpty) {
+        final loans = await loanRepository.all();
+        // adding all loans to the map
+        _loans.addAll({for (var loan in loans) loan.id: loan});
+      }
+
+      final schedules = await loanScheduleRepository.next();
+
+      for (final schedule in schedules) {
+        var loan = _loans[schedule.loanId];
+
+        if (loan == null) {
+          loan = await loanRepository.get(id: schedule.loanId);
+          _loans[loan.id] = loan;
+        }
+
+        _allLoans.add(LoanDisplay(loan: loan, schedule: schedule));
+      }
+
+      emit(LoanLoadingState());
+      emit(LoanSuccessState(message: 'Successfully retrieved loans'));
+    } catch (err) {
+      printd(err);
+      emit(LoanErrorState(
+          message: 'Something went wrong while getting all loans'));
+    }
+  }
+
+  Future<void> _handleGetAllLotsEvent(
+    GetAllLotsEvent event,
+    Emitter<LoanState> emit,
+  ) async {
+    try {
+      emit(LoanLoadingState(isLoading: true));
+
+      final lots = await lotRepository.all();
+      _mappedLots.addAll({for (var lot in lots) lot.id: lot});
+
+      emit(LoanLoadingState());
+      emit(LoanSuccessState(message: 'Successfully retrieved all lots'));
+    } catch (err) {
+      printd(err);
+      emit(
+        LoanErrorState(
+          message: 'Something went wrong while getting all lots',
+        ),
+      );
     }
   }
 

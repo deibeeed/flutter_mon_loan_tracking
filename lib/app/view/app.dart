@@ -67,7 +67,7 @@ class App extends StatelessWidget {
         routes: [
           RouteUtils.buildNoTransitionRoute(
             path: '/loan-dashboard',
-            child: const LoanDashboardScreen(),
+            child: LoanDashboardScreen(),
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/lot-dashboard',

@@ -61,7 +61,7 @@ class AddLoanScreen extends StatelessWidget {
                 context: context,
                 barrierDismissible: false,
                 builder: (context) {
-                  return AlertDialog(
+                  return const AlertDialog(
                     content: SizedBox(
                       width: 80,
                       height: 80,
@@ -78,6 +78,8 @@ class AddLoanScreen extends StatelessWidget {
               printd(err);
             }
           }
+        } else if (state is CloseAddLoanState) {
+          GoRouter.of(context).pop();
         }
       },
       child: Scaffold(

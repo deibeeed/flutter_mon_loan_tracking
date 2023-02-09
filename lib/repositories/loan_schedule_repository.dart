@@ -18,6 +18,10 @@ class LoanScheduleRepository extends BaseRepository<LoanSchedule> {
     return firestoreService.all();
   }
 
+  Future<List<LoanSchedule>> next() {
+    return firestoreService.next();
+  }
+
   @override
   Future<LoanSchedule> delete({required LoanSchedule data}) {
     return firestoreService.delete(data: data);

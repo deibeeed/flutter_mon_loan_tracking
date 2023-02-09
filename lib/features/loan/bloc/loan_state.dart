@@ -44,3 +44,9 @@ class LoanLoadingState extends LoanState {
     this.message
   ];
 }
+
+class CloseAddLoanState extends LoanState {
+  @override
+  List<Object?> get props => [];
+
+}

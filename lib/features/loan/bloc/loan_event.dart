@@ -27,3 +27,7 @@ class AddLoanEvent extends LoanEvent {
 
   AddLoanEvent({ required this.downPayment, required this.yearsToPay});
 }
+
+class GetAllLoansEvent extends LoanEvent { }
+
+class GetAllLotsEvent extends LoanEvent { }

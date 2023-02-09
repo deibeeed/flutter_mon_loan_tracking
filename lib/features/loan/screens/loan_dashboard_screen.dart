@@ -1,15 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_selection_cubit.dart';
+import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
+import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class LoanDashboardScreen extends StatelessWidget {
-  const LoanDashboardScreen({super.key}) : super();
+  LoanDashboardScreen({super.key}) : super();
+
+  final _pagingController = PagingController<int, LoanDisplay>(firstPageKey: 0);
+  bool _didAddPageRequestListener = false;
+
+  final _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
+    final loanBloc = BlocProvider.of<LoanBloc>(context)
+      ..getAllUsers()
+      ..getAllLots();
+
+    if (!_didAddPageRequestListener) {
+      _pagingController.addPageRequestListener((pageKey) {
+        loanBloc.getAllLoans();
+      });
+      // _scrollController.addListener(() {
+      //   printd('pixesl: ${_scrollController.position.pixels}');
+      //   if (_scrollController.position.atEdge) {
+      //     final isTop = _scrollController.position.pixels == 0;
+      //     if (isTop) {
+      //       printd('At the top');
+      //     } else {
+      //       loanBloc.getAllLoans();
+      //     }
+      //   }
+      // });
+      _didAddPageRequestListener = true;
+    }
+
     final screenSize = MediaQuery.of(context).size;
     final defaultBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(32),
@@ -148,74 +179,137 @@ class LoanDashboardScreen extends StatelessWidget {
                   ),
                   Expanded(
                     child: SizedBox.expand(
-                      child: DataTable(
-                        dataRowHeight: 72,
-                        headingRowColor: MaterialStateColor.resolveWith(
-                          (states) => Theme.of(context)
-                              .colorScheme
-                              .secondaryContainer
-                              .withOpacity(0.32),
-                        ),
-                        columns: [
-                          for (String name
-                              in Constants.loan_dashboard_table_columns)
-                            DataColumn(
-                                label: Text(
-                              name.toUpperCase(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.apply(
-                                    fontWeightDelta: 3,
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
+                      child: BlocBuilder<LoanBloc, LoanState>(
+                        buildWhen: (previous, current) =>
+                            current is LoanSuccessState,
+                        builder: (context, state) {
+                          return NotificationListener(
+                              onNotification: (ScrollMetricsNotification
+                                  scrollNotification) {
+                                printd(
+                                    'scrollNotification: $scrollNotification');
+                                printd(
+                                    'pixels: ${scrollNotification.metrics.pixels}');
+                                printd(
+                                    'maxScrollExtent: ${scrollNotification.metrics.maxScrollExtent}');
+                                if (scrollNotification.metrics.pixels ==
+                                    scrollNotification
+                                        .metrics.maxScrollExtent) {
+                                  loanBloc.getAllLoans();
+                                } else if (scrollNotification.metrics.atEdge) {
+                                  loanBloc.getAllLoans();
+                                }
+                                return true;
+                              },
+                              child: SingleChildScrollView(
+                                // controller: _scrollController,
+                                child: DataTable(
+                                  dataRowHeight: 72,
+                                  headingRowColor:
+                                      MaterialStateColor.resolveWith(
+                                    (states) => Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer
+                                        .withOpacity(0.32),
                                   ),
-                            ))
-                        ],
-                        rows: [
-                          DataRow(
-                            cells: [
-                              DataCell(
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    defaultCellText(text: 'David Andrew Francis Duldulao'),
-                                    Text('dafduldulao@gmail.com')
-                                  ],
+                                  columns:
+                                      Constants.loan_dashboard_table_columns
+                                          .map(
+                                            (name) => DataColumn(
+                                              label: Text(
+                                                name.toUpperCase(),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium
+                                                    ?.apply(
+                                                      fontWeightDelta: 3,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .secondary,
+                                                    ),
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
+                                  rows: loanBloc.allLoans
+                                      .map((loanDisplay) => DataRow(cells: [
+                                            DataCell(
+                                              defaultCellText(
+                                                text: loanDisplay.schedule.date
+                                                    .toDefaultDate(),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  defaultCellText(
+                                                    text: loanBloc
+                                                        .mappedUsers[loanDisplay
+                                                            .loan.clientId]!
+                                                        .completeName,
+                                                  ),
+                                                  Text(loanBloc
+                                                      .mappedUsers[loanDisplay
+                                                          .loan.clientId]!
+                                                      .email)
+                                                ],
+                                              ),
+                                            ),
+                                            DataCell(
+                                              defaultCellText(
+                                                text: loanBloc
+                                                    .mappedLots[
+                                                        loanDisplay.loan.lotId]!
+                                                    .completeBlockLotNo,
+                                              ),
+                                            ),
+                                            DataCell(
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  const Chip(
+                                                    label: Text(
+                                                      'Paid',
+                                                      style: TextStyle(
+                                                          color:
+                                                              Color(0xff007F00),
+                                                          fontWeight:
+                                                              FontWeight.w600),
+                                                    ),
+                                                    backgroundColor:
+                                                        Color(0xffCDFFCD),
+                                                    avatar: Icon(
+                                                      Icons
+                                                          .fiber_manual_record_rounded,
+                                                      color: Color(0xff007F00),
+                                                      size: 14,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                      'Paid on ${loanDisplay.schedule.paidOn?.toDefaultDate()}')
+                                                ],
+                                              ),
+                                            ),
+                                            DataCell(
+                                              defaultCellText(
+                                                  text: loanDisplay.schedule
+                                                      .monthlyAmortization
+                                                      .toCurrency()),
+                                            ),
+                                            DataCell(defaultCellText(
+                                                text: 'PEDRO MALAKI'))
+                                          ]))
+                                      .toList(),
                                 ),
-                              ),
-                              DataCell(defaultCellText(text: 'Blk 1 Lot 1'),),
-                              DataCell(
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Chip(
-                                      label: Text(
-                                        'Paid',
-                                        style: TextStyle(
-                                            color: Color(0xff007F00),
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      backgroundColor: Color(0xffCDFFCD),
-                                      avatar: Icon(
-                                        Icons.fiber_manual_record_rounded,
-                                        color: Color(0xff007F00),
-                                        size: 14,
-                                      ),
-                                    ),
-                                    Text('Paid on 26-Jan-2023')
-                                  ],
-                                ),
-                              ),
-                              DataCell(
-                                defaultCellText(text: '₱ 100.00'),
-                              ),
-                              DataCell(defaultCellText(text: 'PEDRO MALAKI'))
-                            ],
-                          ),
-                        ],
+                              ));
+                        },
                       ),
                     ),
                   )
@@ -227,8 +321,8 @@ class LoanDashboardScreen extends StatelessWidget {
       ),
     );
   }
-  
-  Text defaultCellText({ required String text }) {
+
+  Text defaultCellText({required String text}) {
     return Text(
       text,
       style: const TextStyle(
