@@ -423,6 +423,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       ).toList();
 
       await Future.wait(futureLoanSchedules);
+      _selectedLot!.reservedTo = _selectedUser!.id;
+
+      await lotRepository.update(data: _selectedLot!);
 
       emit(LoanLoadingState());
       emit(LoanSuccessState(message: 'Adding loan successfully'));

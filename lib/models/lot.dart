@@ -14,6 +14,7 @@ class Lot extends Equatable {
   final num createdAt;
   num updatedAt;
   final num area;
+  String? reservedTo;
 
   Lot({
     required this.lotCategory,
@@ -24,6 +25,7 @@ class Lot extends Equatable {
     this.id = Constants.NO_ID,
     this.updatedAt = Constants.NO_DATE,
     required this.createdAt,
+    this.reservedTo,
   });
 
   factory Lot.fromJson(Map<String, dynamic> json) => _$LotFromJson(json);
@@ -36,6 +38,8 @@ class Lot extends Equatable {
         id: id,
         area: lot.area,
         createdAt: lot.createdAt,
+        updatedAt: lot.updatedAt,
+        reservedTo: lot.reservedTo,
       );
 
   factory Lot.create({
@@ -67,6 +71,7 @@ class Lot extends Equatable {
         id,
         area,
         createdAt,
-        updatedAt
+        updatedAt,
+        reservedTo,
       ];
 }

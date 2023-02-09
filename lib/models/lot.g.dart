@@ -15,6 +15,7 @@ Lot _$LotFromJson(Map<String, dynamic> json) => Lot(
       id: json['id'] as String? ?? Constants.NO_ID,
       updatedAt: json['updatedAt'] as num? ?? Constants.NO_DATE,
       createdAt: json['createdAt'] as num,
+      reservedTo: json['reservedTo'] as String?,
     );
 
 Map<String, dynamic> _$LotToJson(Lot instance) => <String, dynamic>{
@@ -26,4 +27,5 @@ Map<String, dynamic> _$LotToJson(Lot instance) => <String, dynamic>{
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
       'area': instance.area,
+      'reservedTo': instance.reservedTo,
     };
