@@ -282,7 +282,7 @@ class LoanDashboardScreen extends StatelessWidget {
                                                       .toCurrency()),
                                             ),
                                             DataCell(defaultCellText(
-                                                text: 'PEDRO MALAKI'))
+                                                text: 'DAVID DULDULAO'))
                                           ]))
                                       .toList(),
                                 ),
