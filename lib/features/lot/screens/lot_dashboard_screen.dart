@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/general_lot_filter_selection_cubit.dart';
+import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
 
 class LotDashboardScreen extends StatelessWidget {
-  const LotDashboardScreen({super.key}) : super();
+  LotDashboardScreen({super.key}) : super();
+
+  String _selectedBlock = '';
 
   @override
   Widget build(BuildContext context) {
+    final lotBloc = BlocProvider.of<LotBloc>(context);
     final screenSize = MediaQuery.of(context).size;
     final defaultBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(32),
@@ -156,41 +160,43 @@ class LotDashboardScreen extends StatelessWidget {
                   ),
                   Padding(
                     padding: EdgeInsets.all(32),
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.all(8),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
-                            onTap: () => printd('tapped'),
-                            child: Chip(
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .tertiary
-                                  .withOpacity(0.8),
-                              surfaceTintColor: Colors.red,
-                              padding: EdgeInsets.all(12),
-                              label: Text('Block 1', style: TextStyle(color: Colors.white),),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(8),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
-                            onTap: () => printd('tapped'),
-                            child: Chip(
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .tertiary
-                                  .withOpacity(0.4),
-                              surfaceTintColor: Colors.red,
-                              padding: EdgeInsets.all(12),
-                              label: Text('Block 2', style: TextStyle(color: Colors.white),),
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: BlocBuilder<LotBloc, LotState>(
+                      buildWhen: (previous, current) =>
+                          current is LotSuccessState,
+                      builder: (context, state) {
+                        if (_selectedBlock.isEmpty) {
+                          _selectedBlock = lotBloc.groupedLots.keys.first;
+                        }
+
+                        return Row(
+                          children: lotBloc.groupedLots.keys.map((blockNo) {
+                            var opacitity = 0.4;
+                            if (blockNo == _selectedBlock) {
+                              opacitity = 0.8;
+                            }
+
+                            return Padding(
+                              padding: EdgeInsets.all(8),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () => printd('tapped'),
+                                child: Chip(
+                                  backgroundColor: Theme.of(context)
+                                      .colorScheme
+                                      .tertiary
+                                      .withOpacity(opacitity),
+                                  surfaceTintColor: Colors.red,
+                                  padding: EdgeInsets.all(12),
+                                  label: Text(
+                                    'Block $blockNo',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      },
                     ),
                   ),
                   Center(
@@ -199,23 +205,23 @@ class LotDashboardScreen extends StatelessWidget {
                       child: SizedBox(
                         width: screenSize.width * 0.65,
                         // height: screenSize.height * 0.4,
-                        child: Column(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .tertiary
-                                    .withOpacity(0.8),
-                                borderRadius: BorderRadius.circular(120),
-                              ),
-                              padding: EdgeInsets.all(32),
-                              child: Column(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .tertiary
+                                .withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(120),
+                          ),
+                          padding: EdgeInsets.all(32),
+                          child: BlocBuilder<LotBloc, LotState>(
+                            builder: (context, state) {
+                              return Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   Center(
                                     child: Text(
-                                      'Block 1',
+                                      'Block $_selectedBlock',
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleLarge
@@ -226,282 +232,52 @@ class LotDashboardScreen extends StatelessWidget {
                                           ),
                                     ),
                                   ),
-                                  Container(
-                                    padding: const EdgeInsets.all(32),
-                                    margin: EdgeInsets.all(32),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(80),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
+                                  ...lotBloc
+                                      .chunkedLots(
+                                          lots: lotBloc
+                                              .groupedLots[_selectedBlock]!)
+                                      .map(
+                                        (lots) => Container(
+                                          padding: const EdgeInsets.all(32),
+                                          margin: EdgeInsets.all(32),
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
+                                            color: Colors.white,
                                             borderRadius:
-                                                BorderRadius.circular(64),
+                                                BorderRadius.circular(80),
                                           ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge
-                                                  ?.apply(fontWeightDelta: 2),
-                                            ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: lots
+                                                .map((lot) => Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .secondaryContainer,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(64),
+                                                      ),
+                                                      width: 200,
+                                                      height: 200,
+                                                      child: Center(
+                                                        child: Text(
+                                                          'Lot ${lot.lotNo}',
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .titleLarge,
+                                                        ),
+                                                      ),
+                                                    ))
+                                                .toList(),
                                           ),
                                         ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge
-                                                  ?.apply(fontWeightDelta: 2),
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.all(32),
-                                    margin: EdgeInsets.all(32),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(80),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.all(32),
-                                    margin: EdgeInsets.all(32),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(80),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            borderRadius:
-                                                BorderRadius.circular(64),
-                                          ),
-                                          width: 200,
-                                          height: 200,
-                                          child: Center(
-                                            child: Text(
-                                              'hello',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                      ),
                                 ],
-                              ),
-                            )
-                          ],
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),

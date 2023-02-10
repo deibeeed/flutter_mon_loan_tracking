@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_mon_loan_tracking/services/base_cache_service.dart';
 import 'package:flutter_mon_loan_tracking/services/environments.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 
-abstract class BaseFirestoreService<T> {
+abstract class BaseFirestoreService<T> extends BaseCacheService<T>{
   final _fs = FirebaseFirestore.instance;
 
   CollectionReference get root {
@@ -18,9 +19,4 @@ abstract class BaseFirestoreService<T> {
   }
 
   String get collectionName;
-  Future<T> add({ required T data });
-  Future<T> update({ required T data});
-  Future<T> delete({ required T data });
-  Future<T> get({ required String id });
-  Future<List<T>> all();
 }

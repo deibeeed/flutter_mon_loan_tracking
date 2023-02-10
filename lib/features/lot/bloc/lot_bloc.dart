@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mon_loan_tracking/features/settings/bloc/settings_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/lot.dart';
 import 'package:flutter_mon_loan_tracking/repositories/lot_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
@@ -32,6 +32,10 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
   List<String> get lotCategories => _lotCategories;
   String? _selectedLotCategory;
+
+  final Map<String, List<Lot>> _groupedLots = {};
+
+  Map<String, List<Lot>> get groupedLots => _groupedLots;
 
   void addLot({
     required String lotCategory,
@@ -67,6 +71,21 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     emit(SelectedLotCategoryLotState(selectedLotCategory: lotCategory!));
   }
 
+  List<List<Lot>> chunkedLots({ required List<Lot> lots}) {
+    lots.sortBy((element) => element.lotNo);
+    final len = lots.length;
+    const size = 4;
+    final chunks = <List<Lot>>[];
+
+    for(var i = 0; i< len; i+= size)
+    {
+      final end = (i+size<len)?i+size:len;
+      chunks.add(lots.sublist(i,end));
+    }
+
+    return chunks;
+  }
+
   Future<void> _handleInitializeEvent(
     InitializeLotEvent event,
     Emitter<LotState> emit,
@@ -78,6 +97,8 @@ class LotBloc extends Bloc<LotEvent, LotState> {
         ..clear()
         ..addAll(settings[0].lotCategories);
       _selectedLotCategory = _lotCategories.first;
+      final lots = await lotRepository.all();
+      _groupedLots.addAll(groupBy(lots, (p0) => p0.blockNo));
       emit(LotLoadingState());
     } catch (err) {
       emit(LotErrorState(message: 'Something went wrong when initializing'));

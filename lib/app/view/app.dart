@@ -29,6 +29,7 @@ import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
 import 'package:flutter_mon_loan_tracking/services/loan_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/loan_schedule_firestore_service.dart';
+import 'package:flutter_mon_loan_tracking/services/lot_cache_service.dart';
 import 'package:flutter_mon_loan_tracking/services/lot_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/settings_firestre_service.dart';
 import 'package:flutter_mon_loan_tracking/services/user_firestore_service.dart';
@@ -71,7 +72,7 @@ class App extends StatelessWidget {
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/lot-dashboard',
-            child: const LotDashboardScreen(),
+            child: LotDashboardScreen(),
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/users',
@@ -122,6 +123,7 @@ class App extends StatelessWidget {
         RepositoryProvider<LotRepository>.value(
           value: LotRepository(
             firestoreService: LotFirestoreService(),
+            cacheService: LotCacheService(),
           ),
         ),
         RepositoryProvider<LoanRepository>.value(
