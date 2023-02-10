@@ -9,6 +9,7 @@ import 'package:flutter_mon_loan_tracking/models/loan.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/models/lot.dart';
+import 'package:flutter_mon_loan_tracking/models/payment_status.dart';
 import 'package:flutter_mon_loan_tracking/models/settings.dart';
 import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/repositories/loan_repository.dart';
@@ -221,6 +222,21 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       return 0;
     }
   }
+
+PaymentStatus getPaymentStatus({ required LoanSchedule schedule}) {
+    if (schedule.paidOn != null) {
+      return PaymentStatus.paid;
+    }
+
+    final now = DateTime.now();
+    final date = DateTime.fromMillisecondsSinceEpoch(schedule.date.toInt());
+
+    if (schedule.paidOn == null && now.isAfter(date)) {
+      return PaymentStatus.overdue;
+    }
+
+    return PaymentStatus.nextPayment;
+}
 
   /// PRIVATE METHODS
 

@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
+import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
+import 'package:flutter_mon_loan_tracking/models/payment_status.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -268,33 +270,9 @@ class LoanDashboardScreen extends StatelessWidget {
                                               ),
                                             ),
                                             DataCell(
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  const Chip(
-                                                    label: Text(
-                                                      'Paid',
-                                                      style: TextStyle(
-                                                          color:
-                                                              Color(0xff007F00),
-                                                          fontWeight:
-                                                              FontWeight.w600),
-                                                    ),
-                                                    backgroundColor:
-                                                        Color(0xffCDFFCD),
-                                                    avatar: Icon(
-                                                      Icons
-                                                          .fiber_manual_record_rounded,
-                                                      color: Color(0xff007F00),
-                                                      size: 14,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                      'Paid on ${loanDisplay.schedule.paidOn?.toDefaultDate()}')
-                                                ],
+                                              _paymentStatusWidget(
+                                                context: context,
+                                                schedule: loanDisplay.schedule,
                                               ),
                                             ),
                                             DataCell(
@@ -329,6 +307,57 @@ class LoanDashboardScreen extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.w600,
       ),
+    );
+  }
+
+  Widget _paymentStatusWidget({
+    required BuildContext context,
+    required LoanSchedule schedule,
+  }) {
+    final status =
+        context.read<LoanBloc>().getPaymentStatus(schedule: schedule);
+    // success text color 0xff007F00
+    // success background color 0xffCDFFCD
+    final themeColorScheme = Theme.of(context).colorScheme;
+    var textColor = themeColorScheme.tertiary;
+    var backgroundColor = themeColorScheme.tertiaryContainer;
+    var payStatus = 'Paid on ${schedule.paidOn?.toDefaultDate()}';
+
+    if (status == PaymentStatus.overdue) {
+      textColor = themeColorScheme.error;
+      backgroundColor = themeColorScheme.errorContainer;
+    }
+
+    if (status == PaymentStatus.nextPayment) {
+      textColor = themeColorScheme.surfaceVariant;
+      backgroundColor = themeColorScheme.onSurfaceVariant;
+      payStatus = 'Pay on ${schedule.date.toDefaultDate()}';
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Chip(
+          label: Text(
+            status.value,
+            style:
+                TextStyle(color: textColor, fontWeight: FontWeight.w600),
+          ),
+          backgroundColor: backgroundColor,
+          avatar: Icon(
+            Icons.fiber_manual_record_rounded,
+            color: textColor,
+            size: 14,
+          ),
+        ),
+        SizedBox(
+          height: 4,
+        ),
+        Text(
+          payStatus,
+        )
+      ],
     );
   }
 }
