@@ -111,6 +111,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _selectedLot = null;
     _blockNo = null;
     _lotNo = null;
+    _discounts.clear();
     emit(LoanSuccessState(message: 'successfully reset values'));
   }
 
