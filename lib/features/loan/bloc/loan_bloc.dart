@@ -107,6 +107,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   Map<String, Lot> get mappedLots => _mappedLots;
 
+  void reset() {
+    _selectedLot = null;
+    _blockNo = null;
+    _lotNo = null;
+    emit(LoanSuccessState(message: 'successfully reset values'));
+  }
+
   void getSettings() {
     add(GetSettingsEvent());
   }
@@ -245,11 +252,6 @@ PaymentStatus getPaymentStatus({ required LoanSchedule schedule}) {
   Future<void> _handleCalculateLoanEvent(
       CalculateLoanEvent event, Emitter<LoanState> emit) async {
     try {
-      if (_selectedUser == null) {
-        emit(LoanErrorState(message: 'Please select user'));
-        return;
-      }
-
       if (_selectedLot == null) {
         emit(LoanErrorState(message: 'Please select block and lot number'));
         return;

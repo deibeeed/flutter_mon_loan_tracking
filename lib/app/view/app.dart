@@ -84,7 +84,7 @@ class App extends StatelessWidget {
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/loan-calculator',
-            child: const LoanCalculatorScreen(),
+            child: LoanCalculatorScreen(),
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/add-loan',
