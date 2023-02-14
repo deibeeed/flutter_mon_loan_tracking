@@ -179,6 +179,22 @@ class LoanDashboardScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  BlocBuilder<LoanBloc, LoanState>(
+                      buildWhen: (previous, current) =>
+                          current is LoanLoadingState || current is LoanErrorState,
+                      builder: (context, state) {
+                        if (state is LoanLoadingState) {
+                          if (state.isLoading) {
+                            return const SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                        }
+
+                        return Container();
+                      }),
                   Expanded(
                     child: SizedBox.expand(
                       child: BlocBuilder<LoanBloc, LoanState>(
@@ -341,8 +357,7 @@ class LoanDashboardScreen extends StatelessWidget {
         Chip(
           label: Text(
             status.value,
-            style:
-                TextStyle(color: textColor, fontWeight: FontWeight.w600),
+            style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
           ),
           backgroundColor: backgroundColor,
           avatar: Icon(
@@ -351,7 +366,7 @@ class LoanDashboardScreen extends StatelessWidget {
             size: 14,
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 4,
         ),
         Text(
