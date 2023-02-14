@@ -114,6 +114,13 @@ class AuthenticationScreen extends StatelessWidget {
                             label: Text('Password'),
                             border: OutlineInputBorder(),
                           ),
+                          textInputAction: TextInputAction.go,
+                          onFieldSubmitted: (value) {
+                            authenticationBloc.login(
+                              email: emailController.text,
+                              password: passwordController.text,
+                            );
+                          },
                         ),
                         const SizedBox(
                           height: 72,
