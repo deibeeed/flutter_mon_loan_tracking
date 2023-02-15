@@ -26,20 +26,22 @@ class LoanDashboardScreen extends StatelessWidget {
       ..getAllLots();
 
     if (!_didAddPageRequestListener) {
-      _pagingController.addPageRequestListener((pageKey) {
-        loanBloc.getAllLoans();
-      });
-      // _scrollController.addListener(() {
-      //   printd('pixesl: ${_scrollController.position.pixels}');
-      //   if (_scrollController.position.atEdge) {
-      //     final isTop = _scrollController.position.pixels == 0;
-      //     if (isTop) {
-      //       printd('At the top');
-      //     } else {
-      //       loanBloc.getAllLoans();
-      //     }
-      //   }
+      // _pagingController.addPageRequestListener((pageKey) {
+      //   loanBloc.getAllLoans();
       // });
+      _scrollController.addListener(() {
+        printd('pixesl: ${_scrollController.position.pixels}');
+        if (_scrollController.position.atEdge) {
+          final isTop = _scrollController.position.pixels == 0;
+          if (isTop) {
+            printd('At the top');
+          } else {
+            if (!loanBloc.loansBottomReached) {
+              loanBloc.getAllLoans();
+            }
+          }
+        }
+      });
       _didAddPageRequestListener = true;
     }
 
@@ -210,17 +212,17 @@ class LoanDashboardScreen extends StatelessWidget {
                                     'pixels: ${scrollNotification.metrics.pixels}');
                                 printd(
                                     'maxScrollExtent: ${scrollNotification.metrics.maxScrollExtent}');
-                                if (scrollNotification.metrics.pixels ==
+                                if (scrollNotification.metrics.pixels == 0 && scrollNotification.metrics.pixels ==
                                     scrollNotification
                                         .metrics.maxScrollExtent) {
                                   loanBloc.getAllLoans();
-                                } else if (scrollNotification.metrics.atEdge) {
+                                } /*else if (scrollNotification.metrics.atEdge) {
                                   loanBloc.getAllLoans();
-                                }
+                                }*/
                                 return true;
                               },
                               child: SingleChildScrollView(
-                                // controller: _scrollController,
+                                controller: _scrollController,
                                 child: DataTable(
                                   dataRowHeight: 72,
                                   headingRowColor:

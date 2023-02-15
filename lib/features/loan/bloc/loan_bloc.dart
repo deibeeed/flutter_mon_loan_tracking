@@ -107,6 +107,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   Map<String, Lot> get mappedLots => _mappedLots;
 
+  bool _loansBottomReached = false;
+
+  bool get loansBottomReached => _loansBottomReached;
+
   void reset() {
     _selectedLot = null;
     _blockNo = null;
@@ -490,6 +494,7 @@ PaymentStatus getPaymentStatus({ required LoanSchedule schedule}) {
       emit(LoanSuccessState(message: 'Successfully retrieved loans'));
     } catch (err) {
       printd(err);
+      _loansBottomReached = true;
       emit(LoanErrorState(
           message: 'Something went wrong while getting all loans'));
     }
