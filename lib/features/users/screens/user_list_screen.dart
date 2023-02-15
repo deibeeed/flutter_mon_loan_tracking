@@ -91,6 +91,24 @@ class UserListScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  BlocBuilder<UserBloc, UserState>(
+                    buildWhen: (previous, current) =>
+                    current is UserLoadingState ||
+                        current is UserErrorState,
+                    builder: (context, state) {
+                      if (state is UserLoadingState) {
+                        if (state.isLoading) {
+                          return const SizedBox(
+                            width: 56,
+                            height: 56,
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                      }
+
+                      return Container();
+                    },
+                  ),
                   Expanded(
                     child: SizedBox.expand(
                       child: DataTable(

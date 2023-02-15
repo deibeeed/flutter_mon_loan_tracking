@@ -76,7 +76,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       final addedUser = await userRepository.add(data: tmpUser);
       _users.add(addedUser);
       emit(UserLoadingState());
-      emit(UserSuccessState(user: addedUser));
+      emit(UserSuccessState(user: addedUser, message: 'Successfully added user'));
     } catch (err) {
       printd(err);
     }
