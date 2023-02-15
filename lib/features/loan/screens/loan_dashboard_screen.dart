@@ -30,7 +30,6 @@ class LoanDashboardScreen extends StatelessWidget {
       //   loanBloc.getAllLoans();
       // });
       _scrollController.addListener(() {
-        printd('pixesl: ${_scrollController.position.pixels}');
         if (_scrollController.position.atEdge) {
           final isTop = _scrollController.position.pixels == 0;
           if (isTop) {
@@ -206,12 +205,6 @@ class LoanDashboardScreen extends StatelessWidget {
                           return NotificationListener(
                               onNotification: (ScrollMetricsNotification
                                   scrollNotification) {
-                                printd(
-                                    'scrollNotification: $scrollNotification');
-                                printd(
-                                    'pixels: ${scrollNotification.metrics.pixels}');
-                                printd(
-                                    'maxScrollExtent: ${scrollNotification.metrics.maxScrollExtent}');
                                 if (scrollNotification.metrics.pixels == 0 && scrollNotification.metrics.pixels ==
                                     scrollNotification
                                         .metrics.maxScrollExtent) {

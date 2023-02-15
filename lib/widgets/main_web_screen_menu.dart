@@ -50,7 +50,7 @@ class MainWebScreenMenu extends StatelessWidget {
                 margin: EdgeInsets.only(right: 24),
                 padding: EdgeInsets.all(48),
                 child: InkWell(
-                  onTap: () => GoRouter.of(context).go(addButtonPath),
+                  onTap: () => GoRouter.of(context).push(addButtonPath),
                   child: DottedBorder(
                     borderType: BorderType.RRect,
                     color: Colors.white,

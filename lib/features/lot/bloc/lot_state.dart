@@ -32,3 +32,14 @@ class SelectedLotCategoryLotState extends LotState {
 
   SelectedLotCategoryLotState({ required this.selectedLotCategory});
 }
+
+class AddLotSuccessState extends LotState {
+  final Lot? lot;
+  final String? message;
+
+  AddLotSuccessState({ this.lot, this.message});
+}
+
+class DismissLotState extends LotState {
+
+}
