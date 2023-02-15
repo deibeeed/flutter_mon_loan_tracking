@@ -497,10 +497,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           _loans[loan.id] = loan;
         }
 
-        _allLoans.add(LoanDisplay(loan: loan, schedule: schedule));
+        final display = LoanDisplay(loan: loan, schedule: schedule);
+        _allLoans.add(display);
+        _filteredLoans.add(display);
       }
-
-      _filteredLoans.addAll(_allLoans);
 
       emit(LoanLoadingState());
       emit(LoanSuccessState(message: 'Successfully retrieved loans'));
