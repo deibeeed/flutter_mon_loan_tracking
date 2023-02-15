@@ -18,6 +18,7 @@ class LoanDashboardScreen extends StatelessWidget {
   bool _didAddPageRequestListener = false;
 
   final _scrollController = ScrollController();
+  final _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -128,8 +129,65 @@ class LoanDashboardScreen extends StatelessWidget {
                         const EdgeInsets.only(left: 24, top: 24, bottom: 24),
                     child: Row(
                       children: [
+                        // OutlinedButton(
+                        //   onPressed: () => printd('hello'),
+                        //   style: OutlinedButton.styleFrom(
+                        //     padding: const EdgeInsets.all(22),
+                        //     foregroundColor: Theme.of(context)
+                        //         .colorScheme
+                        //         .secondary
+                        //         .withOpacity(0.8),
+                        //     side: BorderSide(
+                        //       width: 1.5,
+                        //       color: Theme.of(context)
+                        //           .colorScheme
+                        //           .secondary
+                        //           .withOpacity(0.8),
+                        //     ),
+                        //   ),
+                        //   child: Row(
+                        //     children: [
+                        //       const Icon(Icons.filter_alt_rounded),
+                        //       Text(
+                        //         'FILTER',
+                        //         style: Theme.of(context).textTheme.titleMedium,
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                        // const SizedBox(
+                        //   width: 32,
+                        // ),
+                        SizedBox(
+                          width: screenSize.width * 0.3,
+                          child: TextFormField(
+                            // style: TextStyle(fontSize: 16, ),
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.only(
+                                    left: 32, right: 32, top: 20, bottom: 20),
+                                label: const Text(
+                                    'Search loan schedules by user name or email'),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.never,
+                                filled: true,
+                                fillColor: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryContainer,
+                                border: defaultBorder,
+                                enabledBorder: defaultBorder,
+                                focusedBorder: defaultBorder),
+                            textInputAction: TextInputAction.search,
+                            onFieldSubmitted: (value) =>
+                                loanBloc.search(query: value),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 16,
+                        ),
                         OutlinedButton(
-                          onPressed: () => printd('hello'),
+                          onPressed: () =>
+                              loanBloc.search(query: _searchController.text),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.all(22),
                             foregroundColor: Theme.of(context)
@@ -146,37 +204,14 @@ class LoanDashboardScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.filter_alt_rounded),
+                              const Icon(Icons.search_rounded),
                               Text(
-                                'FILTER',
+                                'Search',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(
-                          width: 32,
-                        ),
-                        SizedBox(
-                          width: screenSize.width * 0.3,
-                          child: TextFormField(
-                            // style: TextStyle(fontSize: 16, ),
-                            decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.only(
-                                    left: 32, right: 32, top: 20, bottom: 20),
-                                label:
-                                    const Text('Search users by name or email'),
-                                floatingLabelBehavior:
-                                    FloatingLabelBehavior.never,
-                                filled: true,
-                                fillColor: Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer,
-                                border: defaultBorder,
-                                enabledBorder: defaultBorder,
-                                focusedBorder: defaultBorder),
-                          ),
-                        )
                       ],
                     ),
                   ),
@@ -207,11 +242,13 @@ class LoanDashboardScreen extends StatelessWidget {
                           return NotificationListener(
                               onNotification: (ScrollMetricsNotification
                                   scrollNotification) {
-                                if (scrollNotification.metrics.pixels == 0 &&
-                                    scrollNotification.metrics.pixels ==
-                                        scrollNotification
-                                            .metrics.maxScrollExtent) {
-                                  loanBloc.getAllLoans();
+                                if (!loanBloc.loansBottomReached) {
+                                  if (scrollNotification.metrics.pixels == 0 &&
+                                      scrollNotification.metrics.pixels ==
+                                          scrollNotification
+                                              .metrics.maxScrollExtent) {
+                                    loanBloc.getAllLoans();
+                                  }
                                 }
                                 /*else if (scrollNotification.metrics.atEdge) {
                                   loanBloc.getAllLoans();
@@ -248,7 +285,7 @@ class LoanDashboardScreen extends StatelessWidget {
                                             ),
                                           )
                                           .toList(),
-                                  rows: loanBloc.allLoans
+                                  rows: loanBloc.filteredLoans
                                       .map((loanDisplay) => DataRow(cells: [
                                             DataCell(
                                               defaultCellText(

@@ -32,7 +32,7 @@ class Constants {
   static const loan_dashboard_general_filters = [
     'All',
     'Paid',
-    'Unpaid',
+    // 'Unpaid',
     'Overdue'
   ];
 

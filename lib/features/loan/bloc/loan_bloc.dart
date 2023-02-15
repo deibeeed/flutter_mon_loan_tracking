@@ -44,6 +44,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     on(_handleAddLoanEvent);
     on(_handleGetAllLoansEvent);
     on(_handleGetAllLotsEvent);
+    on(_handleSearchLoanEvent);
     getAllUsers();
     getAllLots();
     getAllLoans();
@@ -95,7 +96,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   List<LoanDisplay> _allLoans = [];
 
-  List<LoanDisplay> get allLoans => _allLoans;
+  List<LoanDisplay> _filteredLoans = [];
+
+  List<LoanDisplay> get filteredLoans => _filteredLoans;
 
   final Map<String, Loan> _loans = {};
 
@@ -120,6 +123,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     emit(LoanSuccessState(message: 'successfully reset values'));
   }
 
+  void search({
+    required String query,
+  }) {
+    add(SearchLoanEvent(query: query));
+  }
+
   void getSettings() {
     add(GetSettingsEvent());
   }
@@ -128,9 +137,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     add(GetAllUsersEvent());
   }
 
-  void getAllLoans({ bool clearList = false}) {
+  void getAllLoans({bool clearList = false}) {
     if (clearList) {
       _allLoans.clear();
+      _filteredLoans.clear();
     }
     add(GetAllLoansEvent());
   }
@@ -236,7 +246,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
   }
 
-PaymentStatus getPaymentStatus({ required LoanSchedule schedule}) {
+  PaymentStatus getPaymentStatus({required LoanSchedule schedule}) {
     if (schedule.paidOn != null) {
       return PaymentStatus.paid;
     }
@@ -249,7 +259,7 @@ PaymentStatus getPaymentStatus({ required LoanSchedule schedule}) {
     }
 
     return PaymentStatus.nextPayment;
-}
+  }
 
   /// PRIVATE METHODS
 
@@ -490,6 +500,8 @@ PaymentStatus getPaymentStatus({ required LoanSchedule schedule}) {
         _allLoans.add(LoanDisplay(loan: loan, schedule: schedule));
       }
 
+      _filteredLoans.addAll(_allLoans);
+
       emit(LoanLoadingState());
       emit(LoanSuccessState(message: 'Successfully retrieved loans'));
     } catch (err) {
@@ -517,6 +529,55 @@ PaymentStatus getPaymentStatus({ required LoanSchedule schedule}) {
       emit(
         LoanErrorState(
           message: 'Something went wrong while getting all lots',
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleSearchLoanEvent(
+    SearchLoanEvent event,
+    Emitter<LoanState> emit,
+  ) async {
+    try {
+      emit(LoanLoadingState(isLoading: true));
+      final query = event.query;
+      if (query.isNotEmpty) {
+        final cacheUsers = await userRepository.allCache();
+        final userIds = cacheUsers
+            .where((user) {
+              final firstName = user.firstName.toLowerCase();
+              final lastName = user.lastName.toLowerCase();
+              final email = user.email;
+
+              return firstName.contains(query) ||
+                  lastName.contains(query) ||
+                  email.contains(query);
+            })
+            .map((user) => user.id)
+            .toList();
+        final filteredList = _allLoans
+            .where(
+              (display) => userIds.contains(display.loan.clientId),
+            )
+            .toList();
+        _filteredLoans
+          ..clear()
+          ..addAll(filteredList);
+      } else {
+        _filteredLoans
+          ..clear()
+          ..addAll(_allLoans);
+      }
+
+      emit(LoanLoadingState());
+      emit(LoanSuccessState(
+          message: 'Successfully searched for ${event.query}'));
+    } catch (err) {
+      printd(err);
+      emit(LoanLoadingState());
+      emit(
+        LoanErrorState(
+          message: 'Something went wrong while searching for ${event.query}',
         ),
       );
     }

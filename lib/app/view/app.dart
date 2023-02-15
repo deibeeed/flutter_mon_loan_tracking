@@ -32,6 +32,7 @@ import 'package:flutter_mon_loan_tracking/services/loan_schedule_firestore_servi
 import 'package:flutter_mon_loan_tracking/services/lot_cache_service.dart';
 import 'package:flutter_mon_loan_tracking/services/lot_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/settings_firestre_service.dart';
+import 'package:flutter_mon_loan_tracking/services/user_cache_service.dart';
 import 'package:flutter_mon_loan_tracking/services/user_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/utils/color_schemes.g.dart';
 import 'package:flutter_mon_loan_tracking/utils/no_transition_route.dart';
@@ -113,6 +114,7 @@ class App extends StatelessWidget {
         RepositoryProvider<UserRepository>.value(
           value: UserRepository(
             firestoreService: UserFirestoreService(),
+            cacheService: UserCacheService(),
           ),
         ),
         RepositoryProvider<SettingsRepository>.value(
