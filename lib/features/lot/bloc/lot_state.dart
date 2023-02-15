@@ -40,6 +40,6 @@ class AddLotSuccessState extends LotState {
   AddLotSuccessState({ this.lot, this.message});
 }
 
-class DismissLotState extends LotState {
+class CloseAddLotState extends LotState {
 
 }

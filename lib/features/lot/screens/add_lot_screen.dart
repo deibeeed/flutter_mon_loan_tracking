@@ -52,7 +52,7 @@ class AddLotScreen extends StatelessWidget {
               ),
             );
           }
-        } else if (state is DismissLotState) {
+        } else if (state is CloseAddLotState) {
           GoRouter.of(context).pop();
         } else if (state is LotErrorState) {
           showDialog(
