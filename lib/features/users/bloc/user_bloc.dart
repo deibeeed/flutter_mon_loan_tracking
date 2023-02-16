@@ -21,14 +21,21 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     // });
     on(_handleAddUserEvent);
     on(_handleGetAllUsersEvent);
+    on(_handleSearchUsersEvent);
     getAllUsers();
   }
 
-  final List<User> _users = [];
+  // final List<User> _users = [];
 
-  List<User> get users => _users;
+  final List<User> _filteredUsers = [];
+
+  List<User> get filteredUsers => _filteredUsers;
 
   final UserRepository userRepository;
+
+  void search({required String query}) {
+    add(SearchUsersEvent(query: query));
+  }
 
   void addUser({
     required String lastName,
@@ -74,23 +81,68 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         mobileNumber: event.mobileNumber,
       );
       final addedUser = await userRepository.add(data: tmpUser);
-      _users.add(addedUser);
+      _filteredUsers.add(addedUser);
       emit(UserLoadingState());
-      emit(UserSuccessState(user: addedUser, message: 'Successfully added user'));
+      emit(UserSuccessState(
+          user: addedUser, message: 'Successfully added user'));
     } catch (err) {
       printd(err);
     }
   }
 
-  Future<void> _handleGetAllUsersEvent(GetAllUsersEvent event, Emitter<UserState> emit) async {
+  Future<void> _handleGetAllUsersEvent(
+      GetAllUsersEvent event, Emitter<UserState> emit) async {
     try {
       emit(UserLoadingState(isLoading: true));
       final tmpUsers = await userRepository.all();
-      _users.clear();
-      _users.addAll(tmpUsers);
+      _filteredUsers
+        ..clear()
+        ..addAll(tmpUsers);
       emit(UserLoadingState());
+      emit(UserSuccessState(message: 'Successfully loaded all users'));
     } catch (err) {
       printd(err);
+    }
+  }
+
+  Future<void> _handleSearchUsersEvent(
+      SearchUsersEvent event, Emitter<UserState> emit) async {
+    try {
+      emit(UserLoadingState(isLoading: true));
+      final query = event.query.toLowerCase();
+      final users = await userRepository.allCache();
+
+      if (query.isNotEmpty) {
+        final filteredList = users.where(
+              (user) {
+            final lastName = user.lastName.toLowerCase();
+            final firstName = user.firstName.toLowerCase();
+            final email = user.email;
+
+            return lastName.contains(query) ||
+                firstName.contains(query) ||
+                email.contains(query);
+          },
+        ).toList();
+        _filteredUsers
+          ..clear()
+          ..addAll(filteredList);
+      } else {
+        _filteredUsers
+          ..clear()
+          ..addAll(users);
+      }
+
+      emit(UserLoadingState());
+      emit(UserSuccessState(message: 'Successfully searched user'));
+    } catch (err) {
+      printd(err);
+      emit(UserLoadingState());
+      emit(
+        UserErrorState(
+          message: 'Something went wrong while searching for users',
+        ),
+      );
     }
   }
 }

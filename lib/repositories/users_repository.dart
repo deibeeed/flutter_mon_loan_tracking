@@ -22,7 +22,8 @@ class UserRepository extends BaseRepository<UserModel.User> {
 
   @override
   Future<List<UserModel.User>> all() {
-    return firestoreService.all();
+    return firestoreService.all()
+    .then((value) => cacheService.addAll(users: value));
   }
 
   Future<List<UserModel.User>> allCache() {

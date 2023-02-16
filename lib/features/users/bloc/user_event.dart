@@ -34,3 +34,9 @@ class UpdateUserEvent extends UserEvent {
 }
 
 class GetAllUsersEvent extends UserEvent { }
+
+class SearchUsersEvent extends UserEvent {
+  final String query;
+
+  SearchUsersEvent({ required this.query });
+}

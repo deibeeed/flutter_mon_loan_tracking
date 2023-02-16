@@ -6,12 +6,12 @@ abstract class UserState {}
 class UserInitial extends UserState {}
 
 class UserSuccessState extends UserState {
-  final String? message;
-  final User user;
+  final String message;
+  final User? user;
 
   UserSuccessState({
-    required this.user,
-    this.message,
+    this.user,
+    required this.message,
   });
 }
 

@@ -9,6 +9,11 @@ class UserCacheService extends BaseCacheService<User> {
     _mappedUsers[data.id] = data;
     return data;
   }
+  
+  Future<List<User>> addAll({ required List<User> users }) {
+    _mappedUsers.addAll({ for (var user in users) user.id: user});
+    return Future.value(users);
+  }
 
   @override
   Future<List<User>> all() async {
