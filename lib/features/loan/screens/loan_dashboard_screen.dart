@@ -81,8 +81,10 @@ class LoanDashboardScreen extends StatelessWidget {
                     Column(
                       children: [
                         TextButton(
-                          onPressed: () =>
-                              generalFilterCubit.select(position: i),
+                          onPressed: () {
+                            loanBloc.filterByStatus(status: Constants.loan_dashboard_general_filters[i]);
+                            generalFilterCubit.select(position: i);
+                          },
                           child: Text(
                             Constants.loan_dashboard_general_filters[i],
                             style: Theme.of(context)

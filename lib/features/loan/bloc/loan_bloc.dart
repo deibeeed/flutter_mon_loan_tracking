@@ -45,6 +45,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     on(_handleGetAllLoansEvent);
     on(_handleGetAllLotsEvent);
     on(_handleSearchLoanEvent);
+    on(_handleFilterByStatusEvent);
     getAllUsers();
     getAllLots();
     getAllLoans();
@@ -114,6 +115,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   bool get loansBottomReached => _loansBottomReached;
 
+  bool _isFilteringByStatus = false;
+
   void reset() {
     _selectedLot = null;
     _blockNo = null;
@@ -127,6 +130,20 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required String query,
   }) {
     add(SearchLoanEvent(query: query));
+  }
+
+  void filterByStatus({required String status}) {
+    var paymentStatus = PaymentStatus.all;
+    switch (status.toLowerCase()) {
+      case 'paid':
+        paymentStatus = PaymentStatus.paid;
+        break;
+      case 'overdue':
+        paymentStatus = PaymentStatus.overdue;
+        break;
+    }
+    _isFilteringByStatus = true;
+    add(FilterByStatusDashboardLoanEvent(status: paymentStatus));
   }
 
   void getSettings() {
@@ -479,6 +496,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     Emitter<LoanState> emit,
   ) async {
     try {
+      if (_isFilteringByStatus) return;
+
       emit(LoanLoadingState(isLoading: true));
 
       if (_loans.isEmpty) {
@@ -580,6 +599,61 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           message: 'Something went wrong while searching for ${event.query}',
         ),
       );
+    }
+  }
+
+  Future<void> _handleFilterByStatusEvent(
+    FilterByStatusDashboardLoanEvent event,
+    Emitter<LoanState> emit,
+  ) async {
+    try {
+      emit(LoanLoadingState(isLoading: true));
+
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final filteredList = <LoanDisplay>[];
+      switch (event.status) {
+        case PaymentStatus.all:
+          filteredList.addAll(_allLoans);
+          _isFilteringByStatus = false;
+          break;
+        case PaymentStatus.paid:
+          filteredList.addAll(
+            _allLoans
+                .where((display) => display.schedule.paidOn != null)
+                .toList(),
+          );
+          break;
+        case PaymentStatus.overdue:
+          filteredList.addAll(
+            _allLoans
+                .where((display) =>
+                    display.schedule.paidOn == null &&
+                    display.schedule.date < now)
+                .toList(),
+          );
+          break;
+        case PaymentStatus.nextPayment:
+          filteredList.addAll(
+            _allLoans
+                .where((display) =>
+                    display.schedule.paidOn == null &&
+                    display.schedule.date >= now)
+                .toList(),
+          );
+          break;
+      }
+
+      _filteredLoans
+        ..clear()
+        ..addAll(filteredList);
+
+      emit(LoanLoadingState());
+      emit(LoanSuccessState(message: 'Successfully filtered loan schedules'));
+    } catch (err) {
+      printd(err);
+      emit(LoanLoadingState());
+      emit(LoanErrorState(
+          message: 'Something went wrong while filtering loan schedules'));
     }
   }
 

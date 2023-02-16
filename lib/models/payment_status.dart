@@ -5,7 +5,8 @@
 enum PaymentStatus {
   paid('Paid'),
   overdue('Overdue'),
-  nextPayment('Next');
+  nextPayment('Next'),
+  all('All');
 
   final String value;
 

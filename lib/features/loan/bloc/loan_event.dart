@@ -48,3 +48,9 @@ class SearchLoanEvent extends LoanEvent {
     required this.query,
   });
 }
+
+class FilterByStatusDashboardLoanEvent extends LoanEvent {
+  final PaymentStatus status;
+
+  FilterByStatusDashboardLoanEvent({ required this.status });
+}
