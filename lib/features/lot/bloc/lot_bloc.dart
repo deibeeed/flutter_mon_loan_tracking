@@ -23,6 +23,7 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     on(_handleAddLotEvent);
     on(_handleUpdateLotEvent);
     on(_handleDeleteLotEvent);
+    on(_handleSearchLotEvent);
     initialize();
   }
 
@@ -35,7 +36,17 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
   final Map<String, List<Lot>> _groupedLots = {};
 
-  Map<String, List<Lot>> get groupedLots => _groupedLots;
+  final Map<String, List<Lot>> _filteredGroupedLots = {};
+
+  Map<String, List<Lot>> get filteredGroupedLots => _filteredGroupedLots;
+
+  void selectBlock({required String blockNo}) {
+    emit(LotSuccessState(message: 'Successfully selected block'));
+  }
+
+  void search({required String query}) {
+    add(SearchLotEvent(query: query));
+  }
 
   void addLot({
     required String lotCategory,
@@ -71,16 +82,15 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     emit(SelectedLotCategoryLotState(selectedLotCategory: lotCategory!));
   }
 
-  List<List<Lot>> chunkedLots({ required List<Lot> lots}) {
+  List<List<Lot>> chunkedLots({required List<Lot> lots}) {
     lots.sortBy((element) => element.lotNo);
     final len = lots.length;
     const size = 4;
     final chunks = <List<Lot>>[];
 
-    for(var i = 0; i< len; i+= size)
-    {
-      final end = (i+size<len)?i+size:len;
-      chunks.add(lots.sublist(i,end));
+    for (var i = 0; i < len; i += size) {
+      final end = (i + size < len) ? i + size : len;
+      chunks.add(lots.sublist(i, end));
     }
 
     return chunks;
@@ -98,8 +108,15 @@ class LotBloc extends Bloc<LotEvent, LotState> {
         ..addAll(settings[0].lotCategories);
       _selectedLotCategory = _lotCategories.first;
       final lots = await lotRepository.all();
-      _groupedLots.addAll(groupBy(lots, (p0) => p0.blockNo));
+      final grouped = groupBy(lots, (p0) => p0.blockNo);
+      _groupedLots.addAll(
+        Map.fromEntries(
+          grouped.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)),
+        ),
+      );
+      _filteredGroupedLots.addAll(_groupedLots);
       emit(LotLoadingState());
+      emit(LotSuccessState(message: 'successfully initialized lots'));
     } catch (err) {
       emit(LotErrorState(message: 'Something went wrong when initializing'));
     }
@@ -181,6 +198,50 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     } catch (err) {
       emit(LotErrorState(message: 'Something went wrong when deleting lot'));
       printd(err);
+    }
+  }
+
+  Future<void> _handleSearchLotEvent(
+    SearchLotEvent event,
+    Emitter<LotState> emit,
+  ) async {
+    try {
+      emit(LotLoadingState(isLoading: true));
+      final query = event.query;
+
+      if (query.isNotEmpty) {
+        final lots = await lotRepository.allCache();
+        final filteredList = lots.where(
+              (lot) {
+            if (!query.contains(':')) {
+              return lot.blockNo == query || lot.lotNo == query;
+            }
+            final combined = '${lot.blockNo}:${lot.lotNo}';
+
+            return query == combined;
+          },
+        ).toList();
+
+        final grouped = groupBy(filteredList, (p0) => p0.blockNo);
+        final groupedFilteredList =Map.fromEntries(
+          grouped.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)),
+        );
+        _filteredGroupedLots
+          ..clear()
+          ..addAll(groupedFilteredList);
+      } else {
+        _filteredGroupedLots
+          ..clear()
+          ..addAll(_groupedLots);
+      }
+
+      emit(LotLoadingState());
+      emit(LotSuccessState(message: 'Successfully performed query'));
+    } catch (err) {
+      printd(err);
+      emit(LotLoadingState());
+      emit(LotErrorState(
+          message: 'Something went wrong while searching for lot'));
     }
   }
 }

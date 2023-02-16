@@ -10,6 +10,7 @@ class LotDashboardScreen extends StatelessWidget {
   LotDashboardScreen({super.key}) : super();
 
   String _selectedBlock = '';
+  final _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +101,79 @@ class LotDashboardScreen extends StatelessWidget {
                         const EdgeInsets.only(left: 24, top: 24, bottom: 24),
                     child: Row(
                       children: [
+                        // OutlinedButton(
+                        //   onPressed: () => printd('hello'),
+                        //   style: OutlinedButton.styleFrom(
+                        //     padding: const EdgeInsets.all(22),
+                        //     foregroundColor: Theme.of(context)
+                        //         .colorScheme
+                        //         .secondary
+                        //         .withOpacity(0.8),
+                        //     side: BorderSide(
+                        //       width: 1.5,
+                        //       color: Theme.of(context)
+                        //           .colorScheme
+                        //           .secondary
+                        //           .withOpacity(0.8),
+                        //     ),
+                        //   ),
+                        //   child: Row(
+                        //     children: [
+                        //       const Icon(Icons.filter_alt_rounded),
+                        //       Text(
+                        //         'FILTER',
+                        //         style: Theme.of(context).textTheme.titleMedium,
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                        // const SizedBox(
+                        //   width: 32,
+                        // ),
+                        SizedBox(
+                          width: screenSize.width * 0.3,
+                          child: TextFormField(
+                            // style: TextStyle(fontSize: 16, ),
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.only(
+                                left: 32,
+                                right: 32,
+                                top: 20,
+                                bottom: 20,
+                              ),
+                              label:
+                                  const Text('Search by block or lot number'),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.never,
+                              filled: true,
+                              fillColor: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryContainer,
+                              border: defaultBorder,
+                              enabledBorder: defaultBorder,
+                              focusedBorder: defaultBorder,
+                            ),
+                            onChanged: (value) {
+                              if (value.isEmpty) {
+                                // to load all lots
+                                _selectedBlock = '';
+                                lotBloc.search(query: '');
+                              }
+                            },
+                            onFieldSubmitted: (value) {
+                              lotBloc.search(query: value);
+                            },
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 16,
+                        ),
                         OutlinedButton(
-                          onPressed: () => printd('hello'),
+                          onPressed: () {
+                            _selectedBlock = '';
+                            lotBloc.search(query: _searchController.text);
+                          },
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.all(22),
                             foregroundColor: Theme.of(context)
@@ -118,37 +190,14 @@ class LotDashboardScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.filter_alt_rounded),
+                              const Icon(Icons.search_rounded),
                               Text(
-                                'FILTER',
+                                'Search',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(
-                          width: 32,
-                        ),
-                        SizedBox(
-                          width: screenSize.width * 0.3,
-                          child: TextFormField(
-                            // style: TextStyle(fontSize: 16, ),
-                            decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.only(
-                                    left: 32, right: 32, top: 20, bottom: 20),
-                                label:
-                                    const Text('Search by block or lot number'),
-                                floatingLabelBehavior:
-                                    FloatingLabelBehavior.never,
-                                filled: true,
-                                fillColor: Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer,
-                                border: defaultBorder,
-                                enabledBorder: defaultBorder,
-                                focusedBorder: defaultBorder),
-                          ),
-                        )
                       ],
                     ),
                   ),
@@ -159,37 +208,42 @@ class LotDashboardScreen extends StatelessWidget {
                         .withOpacity(0.5),
                   ),
                   Padding(
-                    padding: EdgeInsets.all(32),
+                    padding: const EdgeInsets.all(32),
                     child: BlocBuilder<LotBloc, LotState>(
                       buildWhen: (previous, current) =>
                           current is LotSuccessState,
                       builder: (context, state) {
                         if (_selectedBlock.isEmpty) {
-                          _selectedBlock = lotBloc.groupedLots.keys.first;
+                          _selectedBlock =
+                              lotBloc.filteredGroupedLots.keys.first;
                         }
 
                         return Row(
-                          children: lotBloc.groupedLots.keys.map((blockNo) {
-                            var opacitity = 0.4;
+                          children:
+                              lotBloc.filteredGroupedLots.keys.map((blockNo) {
+                            var opacity = 0.4;
                             if (blockNo == _selectedBlock) {
-                              opacitity = 0.8;
+                              opacity = 0.8;
                             }
 
                             return Padding(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(16),
-                                onTap: () => printd('tapped'),
+                                onTap: () {
+                                  _selectedBlock = blockNo;
+                                  lotBloc.selectBlock(blockNo: blockNo);
+                                },
                                 child: Chip(
                                   backgroundColor: Theme.of(context)
                                       .colorScheme
                                       .tertiary
-                                      .withOpacity(opacitity),
+                                      .withOpacity(opacity),
                                   surfaceTintColor: Colors.red,
-                                  padding: EdgeInsets.all(12),
+                                  padding: const EdgeInsets.all(12),
                                   label: Text(
                                     'Block $blockNo',
-                                    style: TextStyle(color: Colors.white),
+                                    style: const TextStyle(color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -201,7 +255,7 @@ class LotDashboardScreen extends StatelessWidget {
                   ),
                   Center(
                     child: Padding(
-                      padding: EdgeInsets.all(32),
+                      padding: const EdgeInsets.all(32),
                       child: SizedBox(
                         width: screenSize.width * 0.65,
                         // height: screenSize.height * 0.4,
@@ -213,8 +267,10 @@ class LotDashboardScreen extends StatelessWidget {
                                 .withOpacity(0.8),
                             borderRadius: BorderRadius.circular(120),
                           ),
-                          padding: EdgeInsets.all(32),
+                          padding: const EdgeInsets.all(32),
                           child: BlocBuilder<LotBloc, LotState>(
+                            buildWhen: (previous, current) =>
+                                current is LotSuccessState,
                             builder: (context, state) {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -234,12 +290,12 @@ class LotDashboardScreen extends StatelessWidget {
                                   ),
                                   ...lotBloc
                                       .chunkedLots(
-                                          lots: lotBloc
-                                              .groupedLots[_selectedBlock]!)
+                                          lots: lotBloc.filteredGroupedLots[
+                                              _selectedBlock]!)
                                       .map(
                                         (lots) => Container(
                                           padding: const EdgeInsets.all(32),
-                                          margin: EdgeInsets.all(32),
+                                          margin: const EdgeInsets.all(32),
                                           decoration: BoxDecoration(
                                             color: Colors.white,
                                             borderRadius:
@@ -282,7 +338,7 @@ class LotDashboardScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text('Lot pages here'),
+                  // Text('Lot pages here'),
                 ],
               ),
             ),

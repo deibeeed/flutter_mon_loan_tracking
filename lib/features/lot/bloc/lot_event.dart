@@ -30,3 +30,9 @@ class DeleteLotEvent extends LotEvent {
 }
 
 class InitializeLotEvent extends LotEvent { }
+
+class SearchLotEvent extends LotEvent {
+  final String query;
+
+  SearchLotEvent({ required this.query });
+}

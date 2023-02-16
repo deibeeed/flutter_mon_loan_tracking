@@ -25,6 +25,10 @@ class LotRepository extends BaseRepository<Lot> {
     .then((value) => cacheService.addAll(lots: value));
   }
 
+  Future<List<Lot>> allCache() {
+    return cacheService.all();
+  }
+
   @override
   Future<Lot> delete({required Lot data}) {
     return firestoreService.delete(data: data)
