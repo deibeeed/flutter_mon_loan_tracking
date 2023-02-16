@@ -24,6 +24,7 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     on(_handleUpdateLotEvent);
     on(_handleDeleteLotEvent);
     on(_handleSearchLotEvent);
+    on(_handleFilterByAvailabilityEvent);
     initialize();
   }
 
@@ -46,6 +47,10 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
   void search({required String query}) {
     add(SearchLotEvent(query: query));
+  }
+
+  void filter({required String filter}) {
+    add(FilterByAvailabilityEvent(filter: filter));
   }
 
   void addLot({
@@ -212,7 +217,7 @@ class LotBloc extends Bloc<LotEvent, LotState> {
       if (query.isNotEmpty) {
         final lots = await lotRepository.allCache();
         final filteredList = lots.where(
-              (lot) {
+          (lot) {
             if (!query.contains(':')) {
               return lot.blockNo == query || lot.lotNo == query;
             }
@@ -223,7 +228,7 @@ class LotBloc extends Bloc<LotEvent, LotState> {
         ).toList();
 
         final grouped = groupBy(filteredList, (p0) => p0.blockNo);
-        final groupedFilteredList =Map.fromEntries(
+        final groupedFilteredList = Map.fromEntries(
           grouped.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)),
         );
         _filteredGroupedLots
@@ -242,6 +247,57 @@ class LotBloc extends Bloc<LotEvent, LotState> {
       emit(LotLoadingState());
       emit(LotErrorState(
           message: 'Something went wrong while searching for lot'));
+    }
+  }
+
+  Future<void> _handleFilterByAvailabilityEvent(
+      FilterByAvailabilityEvent event, Emitter<LotState> emit) async {
+    try {
+      emit(LotLoadingState(isLoading: true));
+      final filter = event.filter.toLowerCase();
+      final lots = await lotRepository.allCache();
+
+      switch (filter) {
+        case 'available':
+          final filteredList = lots.where(
+                (lot) => lot.reservedTo == null,
+          ).toList();
+
+          final grouped = groupBy(filteredList, (p0) => p0.blockNo);
+          final groupedFilteredList = Map.fromEntries(
+            grouped.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)),
+          );
+          _filteredGroupedLots
+            ..clear()
+            ..addAll(groupedFilteredList);
+          break;
+        case 'unavailable':
+          final filteredList = lots.where(
+                (lot) => lot.reservedTo != null,
+          ).toList();
+
+          final grouped = groupBy(filteredList, (p0) => p0.blockNo);
+          final groupedFilteredList = Map.fromEntries(
+            grouped.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)),
+          );
+          _filteredGroupedLots
+            ..clear()
+            ..addAll(groupedFilteredList);
+          break;
+        default:
+          _filteredGroupedLots
+            ..clear()
+            ..addAll(_groupedLots);
+      }
+
+      emit(LotLoadingState());
+      emit(LotSuccessState(message: 'Successfully filtered lots by availability'));
+    } catch (err) {
+      printd(err);
+      emit(LotLoadingState());
+      emit(LotErrorState(
+        message: 'Something went wrong while filtering by availability',
+      ));
     }
   }
 }

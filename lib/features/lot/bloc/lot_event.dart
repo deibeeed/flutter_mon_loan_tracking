@@ -36,3 +36,9 @@ class SearchLotEvent extends LotEvent {
 
   SearchLotEvent({ required this.query });
 }
+
+class FilterByAvailabilityEvent extends LotEvent {
+  final String filter;
+
+  FilterByAvailabilityEvent({ required this.filter});
+}

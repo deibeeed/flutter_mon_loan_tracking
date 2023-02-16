@@ -52,8 +52,12 @@ class LotDashboardScreen extends StatelessWidget {
                     Column(
                       children: [
                         TextButton(
-                          onPressed: () =>
-                              generalFilterCubit.select(position: i),
+                          onPressed: () {
+                            lotBloc.filter(
+                                filter:
+                                    Constants.lot_dashbaord_general_filters[i]);
+                            generalFilterCubit.select(position: i);
+                          },
                           child: Text(
                             Constants.lot_dashbaord_general_filters[i],
                             style: Theme.of(context)
@@ -307,9 +311,13 @@ class LotDashboardScreen extends StatelessWidget {
                                             children: lots
                                                 .map((lot) => Container(
                                                       decoration: BoxDecoration(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .secondaryContainer,
+                                                        color:
+                                                            _getLotBackgroundColor(
+                                                          context: context,
+                                                          isReserved:
+                                                              lot.reservedTo !=
+                                                                  null,
+                                                        ),
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(64),
@@ -346,5 +354,16 @@ class LotDashboardScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Color _getLotBackgroundColor({
+    required BuildContext context,
+    required bool isReserved,
+  }) {
+    if (isReserved) {
+      return Theme.of(context).colorScheme.errorContainer;
+    }
+
+    return Theme.of(context).colorScheme.secondaryContainer;
   }
 }
