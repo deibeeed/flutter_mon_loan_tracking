@@ -40,3 +40,9 @@ class SearchUsersEvent extends UserEvent {
 
   SearchUsersEvent({ required this.query });
 }
+
+class GetUserEvent extends UserEvent {
+  final String userId;
+
+  GetUserEvent({ required this.userId });
+}

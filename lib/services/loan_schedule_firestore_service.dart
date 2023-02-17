@@ -10,32 +10,44 @@ class LoanScheduleFirestoreService extends BaseFirestoreService<LoanSchedule> {
   @override
   Future<LoanSchedule> add({required LoanSchedule data}) async {
     final doc = root.doc();
-    final updatedUser = LoanSchedule.updateId(id: doc.id, loanSchedule: data);
+    final updatedSchedule = LoanSchedule.updateId(id: doc.id, loanSchedule: data);
 
-    await doc.set(updatedUser.toJson());
+    await doc.set(updatedSchedule.toJson());
 
-    return updatedUser;
+    return updatedSchedule;
   }
 
   @override
   Future<List<LoanSchedule>> all() async {
     final doc = await root.orderBy('createdAt').get();
-    final users = doc.docs
+    final schedules = doc.docs
         .map((e) => LoanSchedule.fromJson(e.data() as Map<String, dynamic>))
         .toList();
 
-    return users;
+    return schedules;
+  }
+
+  Future<List<LoanSchedule>> allByLoanId({required String loanId}) async {
+    final doc = await root
+        .where('loanId', isEqualTo: loanId)
+        .orderBy('createdAt')
+        .get();
+    final schedules = doc.docs
+        .map((e) => LoanSchedule.fromJson(e.data() as Map<String, dynamic>))
+        .toList();
+
+    return schedules;
   }
 
   Future<List<LoanSchedule>> next() async {
     var query = root.orderBy('createdAt');
-    
+
     if (_lastDocumentSnapshot != null) {
       query = query.startAfterDocument(_lastDocumentSnapshot!);
     }
 
     final doc = await query.limit(10).get();
-    
+
     final schedules = doc.docs
         .map((e) => LoanSchedule.fromJson(e.data() as Map<String, dynamic>))
         .toList();

@@ -58,4 +58,14 @@ class Constants {
     'Interest payment',
     'Incidental fees'
   ];
+
+  static const user_loan_schedule_table_columns = [
+    'Date',
+    'Outstanding balance',
+    'Monthly amortization',
+    'Principal payment',
+    'Interest payment',
+    'Incidental fees',
+    'Status'
+  ];
 }

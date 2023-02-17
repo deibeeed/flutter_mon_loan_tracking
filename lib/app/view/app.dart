@@ -19,6 +19,7 @@ import 'package:flutter_mon_loan_tracking/features/splash/bloc/splash_bloc.dart'
 import 'package:flutter_mon_loan_tracking/features/splash/screens/splash_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/add_user_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/users/screens/user_details_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/user_list_screen.dart';
 import 'package:flutter_mon_loan_tracking/l10n/l10n.dart';
 import 'package:flutter_mon_loan_tracking/repositories/loan_repository.dart';
@@ -35,6 +36,7 @@ import 'package:flutter_mon_loan_tracking/services/settings_firestre_service.dar
 import 'package:flutter_mon_loan_tracking/services/user_cache_service.dart';
 import 'package:flutter_mon_loan_tracking/services/user_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/utils/color_schemes.g.dart';
+import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/no_transition_route.dart';
 import 'package:go_router/go_router.dart';
 
@@ -98,6 +100,10 @@ class App extends StatelessWidget {
           RouteUtils.buildNoTransitionRoute(
             path: '/add-user',
             child: AddUserScreen(),
+          ),
+          RouteUtils.buildNoTransitionRoute(
+            path: '/users/:userId',
+            child: UserDetailsScreen(),
           ),
         ],
       )
@@ -180,7 +186,8 @@ class App extends StatelessWidget {
               BlocProvider<LoanBloc>.value(
                 value: LoanBloc(
                   loanRepository: context.read<LoanRepository>(),
-                  loanScheduleRepository: context.read<LoanScheduleRepository>(),
+                  loanScheduleRepository:
+                      context.read<LoanScheduleRepository>(),
                   lotRepository: context.read<LotRepository>(),
                   userRepository: context.read<UserRepository>(),
                   settingsRepository: context.read<SettingsRepository>(),

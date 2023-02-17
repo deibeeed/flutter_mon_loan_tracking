@@ -22,6 +22,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on(_handleAddUserEvent);
     on(_handleGetAllUsersEvent);
     on(_handleSearchUsersEvent);
+    on(_handleGetUserEvent);
     getAllUsers();
   }
 
@@ -33,8 +34,20 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   final UserRepository userRepository;
 
+  User? _selectedUser;
+
+  User? get selectedUser => _selectedUser;
+
   void search({required String query}) {
     add(SearchUsersEvent(query: query));
+  }
+
+  void selectUser({ required String userId,}) {
+    add(GetUserEvent(userId: userId));
+  }
+
+  void reset() {
+    _selectedUser = null;
   }
 
   void addUser({
@@ -143,6 +156,19 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           message: 'Something went wrong while searching for users',
         ),
       );
+    }
+  }
+
+  Future<void> _handleGetUserEvent(GetUserEvent event, Emitter<UserState> emit) async {
+    try {
+      emit(UserLoadingState(isLoading: true));
+      _selectedUser = await userRepository.get(id: event.userId);
+      emit(UserLoadingState());
+      emit(UserSuccessState(message: 'Successfully retrieved user'));
+    } catch (err) {
+      printd(err);
+      emit(UserLoadingState());
+      emit(UserErrorState(message: 'Something went wrong while getting user'));
     }
   }
 }

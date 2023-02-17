@@ -18,6 +18,10 @@ class LoanScheduleRepository extends BaseRepository<LoanSchedule> {
     return firestoreService.all();
   }
 
+  Future<List<LoanSchedule>> allByLoanId({ required String loanId}) {
+    return firestoreService.allByLoanId(loanId: loanId);
+  }
+
   Future<List<LoanSchedule>> next() {
     return firestoreService.next();
   }

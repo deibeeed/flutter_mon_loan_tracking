@@ -122,6 +122,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _blockNo = null;
     _lotNo = null;
     _discounts.clear();
+    _loans.clear();
     _clientLoanSchedules.clear();
     emit(LoanSuccessState(message: 'successfully reset values'));
   }
@@ -154,12 +155,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     add(GetAllUsersEvent());
   }
 
-  void getAllLoans({bool clearList = false}) {
+  void getAllLoans({bool clearList = false, String? clientId}) {
     if (clearList) {
       _allLoans.clear();
       _filteredLoans.clear();
     }
-    add(GetAllLoansEvent());
+    add(GetAllLoansEvent(clientId: clientId));
   }
 
   void getAllLots() {
@@ -500,25 +501,44 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
       emit(LoanLoadingState(isLoading: true));
 
-      if (_loans.isEmpty) {
+      if (event.clientId != null) {
+        _loans.clear();
         final loans = await loanRepository.all();
-        // adding all loans to the map
-        _loans.addAll({for (var loan in loans) loan.id: loan});
-      }
+        final clientLoans = loans.where(
+          (loan) => loan.clientId == event.clientId,
+        );
+        _loans.addAll({for (var loan in clientLoans) loan.id: loan});
 
-      final schedules = await loanScheduleRepository.next();
+        final futureClientLoanSchedules = clientLoans.map(
+          (loan) => loanScheduleRepository.allByLoanId(loanId: loan.id),
+        );
 
-      for (final schedule in schedules) {
-        var loan = _loans[schedule.loanId];
-
-        if (loan == null) {
-          loan = await loanRepository.get(id: schedule.loanId);
-          _loans[loan.id] = loan;
+        final schedules = await Future.wait(futureClientLoanSchedules)
+            .then((value) => value.flattened);
+        _clientLoanSchedules
+        ..clear()
+        ..addAll(schedules.sortedBy((schedule) => schedule.createdAt).toList());
+      } else {
+        if (_loans.isEmpty) {
+          final loans = await loanRepository.all();
+          // adding all loans to the map
+          _loans.addAll({for (var loan in loans) loan.id: loan});
         }
 
-        final display = LoanDisplay(loan: loan, schedule: schedule);
-        _allLoans.add(display);
-        _filteredLoans.add(display);
+        final schedules = await loanScheduleRepository.next();
+
+        for (final schedule in schedules) {
+          var loan = _loans[schedule.loanId];
+
+          if (loan == null) {
+            loan = await loanRepository.get(id: schedule.loanId);
+            _loans[loan.id] = loan;
+          }
+
+          final display = LoanDisplay(loan: loan, schedule: schedule);
+          _allLoans.add(display);
+          _filteredLoans.add(display);
+        }
       }
 
       emit(LoanLoadingState());

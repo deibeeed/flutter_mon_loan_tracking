@@ -1,7 +1,6 @@
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
-import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 
-extension CurrencyParsing on num {
+extension FormattingExtension on num {
   String toCurrency({bool isDeduction = false}) {
     var formatted =
         Constants.defaultCurrencyFormat.format(num.parse(toStringAsFixed(2)));

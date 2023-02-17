@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:go_router/go_router.dart';
 
 class UserListScreen extends StatelessWidget {
   final _searchController = TextEditingController();
@@ -189,6 +190,11 @@ class UserListScreen extends StatelessWidget {
                                   (user) => DataRow(
                                     cells: [
                                       DataCell(
+                                        onTap: () {
+                                          userBloc.selectUser(userId: user.id);
+                                          GoRouter.of(context)
+                                              .go('/users/${user.id}');
+                                        },
                                         Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,

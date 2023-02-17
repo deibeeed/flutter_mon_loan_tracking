@@ -34,11 +34,6 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
     super.deactivate();
 
   }
-  @override
-  void dispose() {
-    super.dispose();
-    printd('disposed');
-  }
 
   @override
   Widget build(BuildContext context) {

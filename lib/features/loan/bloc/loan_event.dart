@@ -37,7 +37,11 @@ class AddLoanEvent extends LoanEvent {
   });
 }
 
-class GetAllLoansEvent extends LoanEvent {}
+class GetAllLoansEvent extends LoanEvent {
+  final String? clientId;
+
+  GetAllLoansEvent({ this.clientId});
+}
 
 class GetAllLotsEvent extends LoanEvent {}
 
