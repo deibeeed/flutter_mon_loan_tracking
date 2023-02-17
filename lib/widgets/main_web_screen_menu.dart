@@ -49,32 +49,36 @@ class MainWebScreenMenu extends StatelessWidget {
               Container(
                 margin: EdgeInsets.only(right: 24),
                 padding: EdgeInsets.all(48),
-                child: InkWell(
-                  onTap: () => GoRouter.of(context).push(addButtonPath),
-                  child: DottedBorder(
-                    borderType: BorderType.RRect,
-                    color: Colors.white,
-                    dashPattern: const [6, 4],
-                    strokeWidth: 2,
-                    padding: const EdgeInsets.all(24),
-                    radius: Constants.defaultRadius,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.add,
-                          size: 24,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 16,),
-                        Text(
-                          addButtonTitle,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.apply(color: Colors.white),
-                        ),
-                      ],
+                height: 170,
+                child: Visibility(
+                  visible: page <= 2,
+                  child: InkWell(
+                    onTap: () => GoRouter.of(context).push(addButtonPath),
+                    child: DottedBorder(
+                      borderType: BorderType.RRect,
+                      color: Colors.white,
+                      dashPattern: const [6, 4],
+                      strokeWidth: 2,
+                      padding: const EdgeInsets.all(24),
+                      radius: Constants.defaultRadius,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.add,
+                            size: 24,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 16,),
+                          Text(
+                            addButtonTitle,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.apply(color: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

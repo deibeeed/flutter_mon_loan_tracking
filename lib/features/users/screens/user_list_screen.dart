@@ -161,6 +161,7 @@ class UserListScreen extends StatelessWidget {
                             current is UserSuccessState,
                         builder: (context, state) {
                           return DataTable(
+                            showCheckboxColumn: false,
                             dataRowHeight: 72,
                             headingRowColor: MaterialStateColor.resolveWith(
                               (states) => Theme.of(context)
@@ -188,13 +189,13 @@ class UserListScreen extends StatelessWidget {
                             rows: userBloc.filteredUsers
                                 .map(
                                   (user) => DataRow(
+                                    onSelectChanged: (value) {
+                                      userBloc.selectUser(userId: user.id);
+                                      GoRouter.of(context)
+                                          .go('/users/${user.id}');
+                                    },
                                     cells: [
                                       DataCell(
-                                        onTap: () {
-                                          userBloc.selectUser(userId: user.id);
-                                          GoRouter.of(context)
-                                              .go('/users/${user.id}');
-                                        },
                                         Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
