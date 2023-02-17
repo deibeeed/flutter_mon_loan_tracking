@@ -122,7 +122,6 @@ class LoanDashboardScreen extends StatelessWidget {
           ),
           Expanded(
             child: Card(
-              color: Colors.white,
               shadowColor: Colors.black,
               elevation: 16,
               child: Column(
@@ -267,7 +266,7 @@ class LoanDashboardScreen extends StatelessWidget {
                                     (states) => Theme.of(context)
                                         .colorScheme
                                         .secondaryContainer
-                                        .withOpacity(0.32),
+                                        ,
                                   ),
                                   columns:
                                       Constants.loan_dashboard_table_columns

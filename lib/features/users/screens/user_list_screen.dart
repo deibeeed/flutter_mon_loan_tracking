@@ -32,7 +32,6 @@ class UserListScreen extends StatelessWidget {
         children: [
           Expanded(
             child: Card(
-              color: Colors.white,
               shadowColor: Colors.black,
               elevation: 16,
               child: Column(
