@@ -3,6 +3,7 @@ import 'package:flutter_mon_loan_tracking/services/base_cache_service.dart';
 
 class UserCacheService extends BaseCacheService<User> {
   final Map<String, User> _mappedUsers = {};
+  User? loggedInUser;
 
   @override
   Future<User> add({required User data}) async {

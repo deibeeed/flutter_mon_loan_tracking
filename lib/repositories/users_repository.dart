@@ -1,4 +1,5 @@
 import 'package:flutter_mon_loan_tracking/models/user.dart' as UserModel;
+import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/repositories/base_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/user_cache_service.dart';
 import 'package:flutter_mon_loan_tracking/services/user_firestore_service.dart';
@@ -52,5 +53,13 @@ class UserRepository extends BaseRepository<UserModel.User> {
   @override
   Future<UserModel.User> update({required UserModel.User data}) {
     return firestoreService.update(data: data);
+  }
+
+  void setLoggedInUser({ required User user }) {
+    cacheService.loggedInUser = user;
+  }
+
+  User? getLoggedInUser() {
+    return cacheService.loggedInUser;
   }
 }

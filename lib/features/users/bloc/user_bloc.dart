@@ -79,6 +79,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     add(GetAllUsersEvent());
   }
 
+  User? getLoggedInUser() {
+    return userRepository.getLoggedInUser();
+  }
+
   Future<void> _handleAddUserEvent(
     AddUserEvent event,
     Emitter<UserState> emit,

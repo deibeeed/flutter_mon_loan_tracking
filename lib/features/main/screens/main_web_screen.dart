@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/widgets/main_web_screen_menu.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ class MainWebScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
     final width = MediaQuery.of(context).size.width;
     final computedWidth = width * 0.88;
     return Scaffold(
@@ -33,12 +35,43 @@ class MainWebScreen extends StatelessWidget {
                     menuItemName = Constants.menuItems[state.page].name;
                   }
 
-                  return Text(
-                    menuItemName,
-                    style: Theme.of(context)
-                        .textTheme
-                        .displaySmall
-                        ?.apply(color: Colors.white),
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        menuItemName,
+                        style: Theme.of(context)
+                            .textTheme
+                            .displaySmall
+                            ?.apply(color: Colors.white),
+                      ),
+                      SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: InkWell(
+                          onTap: () {
+                            final user = userBloc.getLoggedInUser();
+                            if (user != null) {
+                              userBloc.selectUser(userId: user.id);
+                              GoRouter.of(context).push('/users/${user.id}');
+                            }
+                          },
+                          child: CircleAvatar(
+                            backgroundColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Text(
+                                userBloc.getLoggedInUser()?.initials ?? 'No',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -50,6 +83,9 @@ class MainWebScreen extends StatelessWidget {
               bottomRight: Constants.defaultRadius,
             ),
           ),
+          actions: [
+            Icon(Icons.add),
+          ],
         ),
       ),
       body: Container(

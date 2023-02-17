@@ -46,9 +46,11 @@ class AuthenticationBloc
       if (userId == null) {
         emit(const LoginLoadingState());
         emit(const LoginErrorState(message: 'UserId not found'));
+        return;
       }
 
       final user = await usersRepository.get(id: userId!);
+      usersRepository.setLoggedInUser(user: user);
       emit(const LoginLoadingState());
       emit(
         LoginSuccessState(
