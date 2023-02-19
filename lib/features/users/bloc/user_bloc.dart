@@ -23,6 +23,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on(_handleGetAllUsersEvent);
     on(_handleSearchUsersEvent);
     on(_handleGetUserEvent);
+    on(_handleUpdateUserEvent);
     getAllUsers();
   }
 
@@ -75,6 +76,25 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     );
   }
 
+  void updateUser({
+    required String lastName,
+    required String firstName,
+    required String birthDate,
+    required String civilStatus,
+    required String mobileNumber,
+    required String email,
+  }) {
+    add(
+      UpdateUserEvent(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        birthDate: birthDate,
+        civilStatus: civilStatus,
+        mobileNumber: mobileNumber,
+    ));
+  }
+
   void getAllUsers() {
     add(GetAllUsersEvent());
   }
@@ -89,12 +109,23 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   ) async {
     try {
       emit(UserLoadingState(isLoading: true));
+      var civilStatus = CivilStatus.single;
+
+      switch(event.civilStatus) {
+        case 'divorced':
+          civilStatus = CivilStatus.divorced;
+          break;
+        case 'married':
+          civilStatus = CivilStatus.married;
+          break;
+      }
+
       final tmpUser = User(
         firstName: event.firstName,
         lastName: event.lastName,
         email: event.email,
         birthDate: event.birthDate,
-        civilStatus: CivilStatus.single,
+        civilStatus: civilStatus,
         mobileNumber: event.mobileNumber,
       );
       final addedUser = await userRepository.add(data: tmpUser);
@@ -102,6 +133,47 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       emit(UserLoadingState());
       emit(UserSuccessState(
           user: addedUser, message: 'Successfully added user'));
+    } catch (err) {
+      printd(err);
+    }
+  }
+
+  Future<void> _handleUpdateUserEvent(
+      UpdateUserEvent event,
+      Emitter<UserState> emit,
+      ) async {
+    try {
+      if (_selectedUser == null) {
+        emit(UserErrorState(message: 'User not selected'));
+        return;
+      }
+
+      emit(UserLoadingState(isLoading: true));
+      var civilStatus = CivilStatus.single;
+
+      switch(event.civilStatus) {
+        case 'divorced':
+          civilStatus = CivilStatus.divorced;
+          break;
+        case 'married':
+          civilStatus = CivilStatus.married;
+          break;
+      }
+
+      var tmpUser = User(
+        firstName: event.firstName,
+        lastName: event.lastName,
+        email: event.email,
+        birthDate: event.birthDate,
+        civilStatus: civilStatus,
+        mobileNumber: event.mobileNumber,
+      );
+      tmpUser = User.updateId(id: _selectedUser!.id, user: tmpUser);
+      final addedUser = await userRepository.update(data: tmpUser);
+      _filteredUsers.add(addedUser);
+      emit(UserLoadingState());
+      emit(UserSuccessState(
+          user: addedUser, message: 'Successfully updated user'));
     } catch (err) {
       printd(err);
     }

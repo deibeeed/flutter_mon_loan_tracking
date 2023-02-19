@@ -33,6 +33,12 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
   @override
   void deactivate() {
+    final menuItemLast = Constants.menuItems.last;
+
+    if (menuItemLast.isDynamic) {
+      Constants.menuItems.removeLast();
+    }
+
     context.read<UserBloc>().reset();
     context.read<LoanBloc>().reset();
     super.deactivate();
@@ -43,7 +49,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     final loanBloc = BlocProvider.of<LoanBloc>(context)
       ..getAllUsers()
       ..getAllLots()
-    ..getAllLoans(clearList: true, clientId: widget.userId);
+      ..getAllLoans(clearList: true, clientId: widget.userId);
 
     final userBloc = BlocProvider.of<UserBloc>(context);
 
@@ -147,7 +153,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                     ],
@@ -169,6 +175,36 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             ),
             const SizedBox(
               height: 32,
+            ),
+            Visibility(
+              visible: _shouldShowUpdateButton(),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => userBloc.updateUser(
+                        lastName: lastNameController.text,
+                        firstName: firstNameController.text,
+                        birthDate: birthDateController.text,
+                        civilStatus: civilStatusController.text,
+                        mobileNumber: mobileNumberController.text,
+                        email: emailController.text,
+                      ),
+                      style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.all(24),
+                          backgroundColor:
+                          Theme.of(context).colorScheme.primary),
+                      child: Text(
+                        'Update profile',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.apply(color: Colors.white),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
             const SizedBox(
               height: 32,
@@ -219,81 +255,82 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 return DataTable(
                   dataRowHeight: 72,
                   headingRowColor: MaterialStateColor.resolveWith(
-                        (states) => Theme.of(context)
+                    (states) => Theme.of(context)
                         .colorScheme
                         .secondaryContainer
                         .withOpacity(0.32),
                   ),
                   columns: [
-                    for (String name in Constants.user_loan_schedule_table_columns)
+                    for (String name
+                        in Constants.user_loan_schedule_table_columns)
                       DataColumn(
                           label: Text(
-                            name.toUpperCase(),
-                            style: Theme.of(context).textTheme.titleMedium?.apply(
+                        name.toUpperCase(),
+                        style: Theme.of(context).textTheme.titleMedium?.apply(
                               fontWeightDelta: 3,
                               color: Theme.of(context).colorScheme.secondary,
                             ),
-                          ))
+                      ))
                   ],
                   rows: loanBloc.clientLoanSchedules
                       .map(
                         (schedule) => DataRow(
-                      cells: [
-                        DataCell(
-                          defaultCellText(
-                            text: Constants.defaultDateFormat.format(
-                              DateTime.fromMillisecondsSinceEpoch(
-                                schedule.date.toInt(),
+                          cells: [
+                            DataCell(
+                              defaultCellText(
+                                text: Constants.defaultDateFormat.format(
+                                  DateTime.fromMillisecondsSinceEpoch(
+                                    schedule.date.toInt(),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        DataCell(
-                          Center(
-                            child: defaultCellText(
-                              text:
-                              schedule.outstandingBalance.toCurrency(),
+                            DataCell(
+                              Center(
+                                child: defaultCellText(
+                                  text:
+                                      schedule.outstandingBalance.toCurrency(),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        DataCell(
-                          Center(
-                            child: defaultCellText(
-                              text:
-                              schedule.monthlyAmortization.toCurrency(),
+                            DataCell(
+                              Center(
+                                child: defaultCellText(
+                                  text:
+                                      schedule.monthlyAmortization.toCurrency(),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        DataCell(
-                          Center(
-                            child: defaultCellText(
-                              text: schedule.principalPayment.toCurrency(),
+                            DataCell(
+                              Center(
+                                child: defaultCellText(
+                                  text: schedule.principalPayment.toCurrency(),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        DataCell(
-                          Center(
-                            child: defaultCellText(
-                              text: schedule.interestPayment.toCurrency(),
+                            DataCell(
+                              Center(
+                                child: defaultCellText(
+                                  text: schedule.interestPayment.toCurrency(),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        DataCell(
-                          Center(
-                            child: defaultCellText(
-                              text: schedule.incidentalFee.toCurrency(),
+                            DataCell(
+                              Center(
+                                child: defaultCellText(
+                                  text: schedule.incidentalFee.toCurrency(),
+                                ),
+                              ),
                             ),
-                          ),
+                            DataCell(
+                              paymentStatusWidget(
+                                context: context,
+                                schedule: schedule,
+                              ),
+                            ),
+                          ],
                         ),
-                        DataCell(
-                          paymentStatusWidget(
-                            context: context,
-                            schedule: schedule,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
+                      )
                       .toList(),
                 );
               },
@@ -307,4 +344,13 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     );
   }
 
+  bool _shouldShowUpdateButton() {
+    final userBloc = BlocProvider.of<UserBloc>(context);
+
+    if (widget.userId != null && userBloc.getLoggedInUser() != null) {
+      return widget.userId == userBloc.getLoggedInUser()!.id;
+    }
+
+    return false;
+  }
 }

@@ -13,7 +13,7 @@ class Constants {
   static var defaultDateFormat = DateFormat('yyyy-MMM-dd');
   static var defaultCurrencyFormat =
       NumberFormat('${Constants.currency} ###,###,###,###,###,##0.00');
-  static const menuItems = [
+  static var menuItems = [
     MenuItemModel(name: 'Loan Dashboard', goPath: '/loan-dashboard'),
     MenuItemModel(name: 'Lot Dashboard', goPath: '/lot-dashboard'),
     MenuItemModel(name: 'Users', goPath: '/users'),

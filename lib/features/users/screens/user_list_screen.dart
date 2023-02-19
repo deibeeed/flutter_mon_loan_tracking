@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:go_router/go_router.dart';
 
@@ -188,6 +190,14 @@ class UserListScreen extends StatelessWidget {
                                 .map(
                                   (user) => DataRow(
                                     onSelectChanged: (value) {
+                                      Constants.menuItems.add(
+                                        DynamicMenuItem(
+                                            name: user.completeName,),
+                                      );
+                                      context.read<MenuSelectionCubit>().select(
+                                            page:
+                                                Constants.menuItems.length - 1,
+                                          );
                                       userBloc.selectUser(userId: user.id);
                                       GoRouter.of(context)
                                           .go('/users/${user.id}');

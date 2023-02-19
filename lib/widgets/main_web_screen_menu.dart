@@ -83,7 +83,7 @@ class MainWebScreenMenu extends StatelessWidget {
                   ),
                 ),
               ),
-              for (var i = 0; i < Constants.menuItems.length; i++)
+              for (var i = 0; i < Constants.menuItems.where((menu) => !menu.isDynamic).length; i++)
                 _buildMenuItem(
                   context: context,
                   item: Constants.menuItems[i],

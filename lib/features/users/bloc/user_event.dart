@@ -28,9 +28,21 @@ class AddUserEvent extends UserEvent {
 }
 
 class UpdateUserEvent extends UserEvent {
-  final User user;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String birthDate;
+  final String civilStatus;
+  final String mobileNumber;
 
-  UpdateUserEvent({ required this.user });
+  UpdateUserEvent({
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    required this.birthDate,
+    required this.civilStatus,
+    required this.mobileNumber,
+  });
 }
 
 class GetAllUsersEvent extends UserEvent { }
