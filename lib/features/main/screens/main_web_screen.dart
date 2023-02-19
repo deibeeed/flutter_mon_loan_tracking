@@ -15,11 +15,39 @@ class MainWebScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userBloc = BlocProvider.of<UserBloc>(context);
-    final width = MediaQuery.of(context).size.width;
+    final screenSize = MediaQuery.of(context).size;
+    final width = screenSize.width;
     final computedWidth = width * 0.88;
+    final shortestSide = screenSize.shortestSide;
+    var appBarHeight = screenSize.height * 0.2;
+    var cardRadius = 100.0;
+    var cardPadding = 56.0;
+    var buttonHeight = 72.0;
+    var buttonPadding = 24.0;
+    var loginContainerRadius = Constants.defaultRadius;
+    var loginContainerMarginTop = 64.0;
+    var titleTextStyle = Theme.of(context).textTheme.displaySmall;
+    var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
+    var avatarSize = 56.0;
+
+    if (appBarHeight > Constants.maxAppBarHeight) {
+      appBarHeight = Constants.maxAppBarHeight;
+    }
+
+    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+      cardRadius = 48;
+      cardPadding = 32;
+      buttonHeight = 56;
+      buttonPadding = 8;
+      loginContainerRadius = const Radius.circular(64);
+      loginContainerMarginTop = 32;
+      titleTextStyle = Theme.of(context).textTheme.headlineMedium;
+      avatarTextStyle = Theme.of(context).textTheme.titleSmall;
+      avatarSize = 48;
+    }
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(220),
+        preferredSize: Size.fromHeight(appBarHeight),
         child: AppBar(
           backgroundColor:
               Theme.of(context).colorScheme.primary.withOpacity(0.48),
@@ -41,14 +69,11 @@ class MainWebScreen extends StatelessWidget {
                     children: [
                       Text(
                         menuItemName,
-                        style: Theme.of(context)
-                            .textTheme
-                            .displaySmall
-                            ?.apply(color: Colors.white),
+                        style: titleTextStyle?.apply(color: Colors.white),
                       ),
                       SizedBox(
-                        width: 56,
-                        height: 56,
+                        width: avatarSize,
+                        height: avatarSize,
                         child: InkWell(
                           onTap: () {
                             final user = userBloc.getLoggedInUser();
@@ -72,9 +97,7 @@ class MainWebScreen extends StatelessWidget {
                               padding: EdgeInsets.all(8),
                               child: Text(
                                 userBloc.getLoggedInUser()?.initials ?? 'No',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge,
+                                style: avatarTextStyle,
                               ),
                             ),
                           ),
@@ -92,13 +115,10 @@ class MainWebScreen extends StatelessWidget {
               bottomRight: Constants.defaultRadius,
             ),
           ),
-          actions: [
-            Icon(Icons.add),
-          ],
         ),
       ),
       body: Container(
-        margin: EdgeInsets.only(top: 68),
+        margin: EdgeInsets.only(top: loginContainerMarginTop),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
