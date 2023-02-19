@@ -2,15 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/general_lot_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
+import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
 
-class LotDashboardScreen extends StatelessWidget {
-  LotDashboardScreen({super.key}) : super();
+class LotDashboardScreen extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _LotDashboardScreenState();
 
+}
+
+class _LotDashboardScreenState extends State<LotDashboardScreen> {
   String _selectedBlock = '';
   final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<LotBloc>().initialize();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -308,7 +320,23 @@ class LotDashboardScreen extends StatelessWidget {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: lots
-                                                .map((lot) => Container(
+                                                .map(
+                                                  (lot) => InkWell(
+                                                    radius: 64,
+                                                    onTap: () {
+                                                      Constants.menuItems.add(
+                                                        DynamicMenuItem(
+                                                          name: lot.completeBlockLotNo,),
+                                                      );
+                                                      context.read<MenuSelectionCubit>().select(
+                                                        page:
+                                                        Constants.menuItems.length - 1,
+                                                      );
+                                                      lotBloc
+                                                          .selectLot(lot: lot);
+                                                      GoRouter.of(context).push('/lots/${lot.id}');
+                                                    },
+                                                    child: Container(
                                                       decoration: BoxDecoration(
                                                         color:
                                                             _getLotBackgroundColor(
@@ -332,7 +360,9 @@ class LotDashboardScreen extends StatelessWidget {
                                                                   .titleLarge,
                                                         ),
                                                       ),
-                                                    ))
+                                                    ),
+                                                  ),
+                                                )
                                                 .toList(),
                                           ),
                                         ),

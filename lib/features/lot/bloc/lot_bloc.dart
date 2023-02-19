@@ -41,6 +41,16 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
   Map<String, List<Lot>> get filteredGroupedLots => _filteredGroupedLots;
 
+  Lot? _selectedLot;
+
+  Lot? get selectedLot => _selectedLot;
+
+  void selectLot({required Lot lot}) {
+    _selectedLot = lot;
+    _selectedLotCategory = lot.lotCategory;
+    emit(LotSuccessState(message: 'Successfully selected lot'));
+  }
+
   void selectBlock({required String blockNo}) {
     emit(LotSuccessState(message: 'Successfully selected block'));
   }
@@ -54,7 +64,6 @@ class LotBloc extends Bloc<LotEvent, LotState> {
   }
 
   void addLot({
-    required String lotCategory,
     required String area,
     required String blockLotNos,
     required String description,
@@ -66,9 +75,31 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
     add(
       AddLotEvent(
-        lotCategory: lotCategory,
+        lotCategory: _selectedLotCategory!,
         area: num.parse(area),
         blockLotNos: blockLotNos,
+        description: description,
+      ),
+    );
+  }
+
+  void updateLot({
+    required String area,
+    required String blockNo,
+    required String lotNo,
+    required String description,
+  }) {
+    if (_selectedLotCategory == null) {
+      printd('Select lot category first');
+      return;
+    }
+
+    add(
+      UpdateLotEvent(
+        lotCategory: _selectedLotCategory!,
+        area: num.parse(area),
+        blockNo: blockNo,
+        lotNo: lotNo,
         description: description,
       ),
     );
@@ -179,15 +210,37 @@ class LotBloc extends Bloc<LotEvent, LotState> {
   Future<void> _handleUpdateLotEvent(
       UpdateLotEvent event, Emitter<LotState> emit) async {
     try {
+      if (_selectedLotCategory == null) {
+        emit(LotErrorState(message: 'Please select lot category first'));
+        return;
+      }
+
+      if (_selectedLot == null) {
+        emit(LotErrorState(message: 'No lot has been selected'));
+        return;
+      }
       emit(LotLoadingState(isLoading: true));
 
-      final lot = await lotRepository.update(data: event.lot);
+      var tmpLot = Lot.create(
+        lotCategory: event.lotCategory,
+        blockNo: event.blockNo,
+        lotNo: event.lotNo,
+        description: event.description,
+        area: event.area,
+        reservedTo: _selectedLot!.reservedTo,
+      );
+      tmpLot = Lot.updateId(id: _selectedLot!.id, lot: tmpLot);
+      final updatedLot = await lotRepository.update(data: tmpLot);
 
       emit(LotLoadingState());
-      emit(LotSuccessState(lot: lot, message: 'Successfully updated lot'));
+      emit(AddLotSuccessState(message: 'Successfully updated lot'));
+      _selectedLotCategory = null;
+      await Future.delayed(const Duration(seconds: 3));
+      emit(CloseAddLotState());
     } catch (err) {
-      emit(LotErrorState(message: 'Something went wrong when updating lot'));
       printd(err);
+      emit(LotLoadingState());
+      emit(LotErrorState(message: 'Something went wrong when adding lot'));
     }
   }
 
@@ -259,26 +312,32 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
       switch (filter) {
         case 'available':
-          final filteredList = lots.where(
+          final filteredList = lots
+              .where(
                 (lot) => lot.reservedTo == null,
-          ).toList();
+              )
+              .toList();
 
           final grouped = groupBy(filteredList, (p0) => p0.blockNo);
           final groupedFilteredList = Map.fromEntries(
-            grouped.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)),
+            grouped.entries.toList()
+              ..sort((e1, e2) => e1.key.compareTo(e2.key)),
           );
           _filteredGroupedLots
             ..clear()
             ..addAll(groupedFilteredList);
           break;
         case 'unavailable':
-          final filteredList = lots.where(
+          final filteredList = lots
+              .where(
                 (lot) => lot.reservedTo != null,
-          ).toList();
+              )
+              .toList();
 
           final grouped = groupBy(filteredList, (p0) => p0.blockNo);
           final groupedFilteredList = Map.fromEntries(
-            grouped.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)),
+            grouped.entries.toList()
+              ..sort((e1, e2) => e1.key.compareTo(e2.key)),
           );
           _filteredGroupedLots
             ..clear()
@@ -291,7 +350,8 @@ class LotBloc extends Bloc<LotEvent, LotState> {
       }
 
       emit(LotLoadingState());
-      emit(LotSuccessState(message: 'Successfully filtered lots by availability'));
+      emit(LotSuccessState(
+          message: 'Successfully filtered lots by availability'));
     } catch (err) {
       printd(err);
       emit(LotLoadingState());

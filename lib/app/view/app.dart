@@ -11,6 +11,7 @@ import 'package:flutter_mon_loan_tracking/features/lot/bloc/general_lot_filter_s
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/screens/add_lot_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/screens/lot_dashboard_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/lot/screens/lot_detail_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/settings/bloc/settings_bloc.dart';
@@ -104,6 +105,10 @@ class App extends StatelessWidget {
           RouteUtils.buildNoTransitionRoute(
             path: '/users/:userId',
             child: UserDetailsScreen(),
+          ),
+          RouteUtils.buildNoTransitionRoute(
+            path: '/lots/:lotId',
+            child: LotDetailsScreen(),
           ),
         ],
       )

@@ -18,9 +18,19 @@ class AddLotEvent extends LotEvent {
 }
 
 class UpdateLotEvent extends LotEvent {
-  final Lot lot;
+  final String lotCategory;
+  final num area;
+  final String blockNo;
+  final String lotNo;
+  final String description;
 
-  UpdateLotEvent({required this.lot});
+  UpdateLotEvent({
+    required this.lotCategory,
+    required this.area,
+    required this.blockNo,
+    required this.lotNo,
+    required this.description,
+  });
 }
 
 class DeleteLotEvent extends LotEvent {

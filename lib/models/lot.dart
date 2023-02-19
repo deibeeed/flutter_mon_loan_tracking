@@ -48,6 +48,7 @@ class Lot extends Equatable {
     required String lotNo,
     required String description,
     required num area,
+    String? reservedTo,
   }) =>
       Lot(
         lotCategory: lotCategory,
@@ -56,6 +57,7 @@ class Lot extends Equatable {
         area: area,
         description: description,
         createdAt: DateTime.now().millisecondsSinceEpoch,
+        reservedTo: reservedTo
       );
 
   Map<String, dynamic> toJson() => _$LotToJson(this);

@@ -9,7 +9,6 @@ import 'package:go_router/go_router.dart';
 class AddLotScreen extends StatelessWidget {
   AddLotScreen({super.key});
 
-  final lotCategoryController = TextEditingController();
   final blockLotNumberController = TextEditingController();
   final lotDescriptionController = TextEditingController();
   final areaController = TextEditingController();
@@ -152,7 +151,6 @@ class AddLotScreen extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => lotBloc.addLot(
-                        lotCategory: lotCategoryController.text,
                         area: areaController.text,
                         blockLotNos: blockLotNumberController.text,
                         description: lotDescriptionController.text),
