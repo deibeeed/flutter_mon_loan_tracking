@@ -5,6 +5,8 @@ import 'package:flutter_mon_loan_tracking/services/environments.dart';
 import 'package:intl/intl.dart';
 
 class Constants {
+  static const maxAppBarHeight = 220.0;
+  static const largeScreenSmallestSideBreakPoint = 720;
   static const currency = '₱';
   static Environments currentEnvironment = Environments.dev;
   static const String NO_ID = 'no_id_available';

@@ -14,12 +14,36 @@ class AuthenticationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
-    final width = MediaQuery.of(context).size.width;
+    final screenSize = MediaQuery.of(context).size;
+    final shortestSide = screenSize.shortestSide;
+    final width = screenSize.width;
     final computedWidth = width * 0.88;
     final loginContainerWidth = width * 0.315;
+    var appBarHeight = screenSize.height * 0.2;
+    var cardRadius = 100.0;
+    var cardPadding = 56.0;
+    var buttonHeight = 72.0;
+    var buttonPadding = 24.0;
+    var loginContainerRadius = Constants.defaultRadius;
+    var loginContainerMarginTop = 64.0;
+
+    if (appBarHeight > Constants.maxAppBarHeight) {
+      appBarHeight = Constants.maxAppBarHeight;
+    }
+
+    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+      cardRadius = 48;
+      cardPadding = 32;
+      buttonHeight = 56;
+      buttonPadding = 8;
+      loginContainerRadius = const Radius.circular(64);
+      loginContainerMarginTop = 32;
+    }
+
+    printd('size: ${MediaQuery.of(context).size}');
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(220),
+        preferredSize: Size.fromHeight(appBarHeight),
         child: AppBar(
           backgroundColor:
               Theme.of(context).colorScheme.primary.withOpacity(0.48),
@@ -29,22 +53,6 @@ class AuthenticationScreen extends StatelessWidget {
             child: Container(
               width: computedWidth,
               margin: const EdgeInsets.only(bottom: 48),
-              // child: BlocBuilder<MenuSelectionCubit, MenuSelectionState>(
-              //   builder: (context, state) {
-              //     var menuItemName = Constants.menuItems[0].name;
-              //     if (state is MenuPageSelected) {
-              //       menuItemName = Constants.menuItems[state.page].name;
-              //     }
-              //
-              //     return Text(
-              //       menuItemName,
-              //       style: Theme.of(context)
-              //           .textTheme
-              //           .displaySmall
-              //           ?.apply(color: Colors.white),
-              //     );
-              //   },
-              // ),
             ),
           ),
           shape: const RoundedRectangleBorder(
@@ -74,98 +82,122 @@ class AuthenticationScreen extends StatelessWidget {
           }
         },
         child: Container(
-          margin: const EdgeInsets.only(top: 64),
+          margin: EdgeInsets.only(top: loginContainerMarginTop),
           height: double.infinity,
           width: loginContainerWidth,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.tertiary.withOpacity(0.8),
-            borderRadius: const BorderRadius.only(
-              topRight: Constants.defaultRadius,
-              bottomRight: Constants.defaultRadius,
+            borderRadius: BorderRadius.only(
+              topRight: loginContainerRadius,
+              bottomRight: loginContainerRadius,
             ),
           ),
           child: Center(
-            child: SizedBox(
-              height: 600,
-              width: 600,
-              child: Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100)),
-                  child: Padding(
-                    padding: EdgeInsets.all(56),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: emailController,
-                          decoration: const InputDecoration(
-                            label: Text('Email'),
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 32,
-                        ),
-                        TextFormField(
-                          controller: passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            label: Text('Password'),
-                            border: OutlineInputBorder(),
-                          ),
-                          textInputAction: TextInputAction.go,
-                          onFieldSubmitted: (value) {
-                            authenticationBloc.login(
-                              email: emailController.text,
-                              password: passwordController.text,
-                            );
-                          },
-                        ),
-                        const SizedBox(
-                          height: 72,
-                        ),
-                        SizedBox(
-                          height: 72,
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () => authenticationBloc.login(
-                              email: emailController.text,
-                              password: passwordController.text,
-                            ),
-                            style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.all(24),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Login',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.apply(color: Colors.white),
-                                ),
-                                BlocBuilder<AuthenticationBloc, AuthenticationState>(builder: (context, state) {
-                                  if (state is LoginLoadingState && state.isLoading) {
-                                    return Row(
-                                      children: [
-                                        const SizedBox(width: 16,),
-                                        CircularProgressIndicator(color: Colors.white,)
-                                      ],
-                                    );
-                                  }
+            child: LayoutBuilder(
+              builder: (context, constraint) {
+                var width = 520.0;
+                var height = 600.0;
 
-                                  return Container();
-                                }),
-                              ],
-                            ),
+
+                if (screenSize.shortestSide <
+                    Constants.largeScreenSmallestSideBreakPoint) {
+                  width = constraint.maxWidth * 0.8;
+                  height = constraint.maxHeight * 0.8;
+                }
+
+                return SizedBox(
+                  height: height,
+                  width: width,
+                  child: Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(cardRadius)),
+                      child: Padding(
+                        padding: EdgeInsets.all(cardPadding),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextFormField(
+                                controller: emailController,
+                                decoration: const InputDecoration(
+                                  label: Text('Email'),
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 32,
+                              ),
+                              TextFormField(
+                                controller: passwordController,
+                                obscureText: true,
+                                decoration: const InputDecoration(
+                                  label: Text('Password'),
+                                  border: OutlineInputBorder(),
+                                ),
+                                textInputAction: TextInputAction.go,
+                                onFieldSubmitted: (value) {
+                                  authenticationBloc.login(
+                                    email: emailController.text,
+                                    password: passwordController.text,
+                                  );
+                                },
+                              ),
+                              const SizedBox(
+                                height: 72,
+                              ),
+                              SizedBox(
+                                height: buttonHeight,
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () => authenticationBloc.login(
+                                    email: emailController.text,
+                                    password: passwordController.text,
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.all(buttonPadding),
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Login',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.apply(color: Colors.white),
+                                      ),
+                                      BlocBuilder<AuthenticationBloc,
+                                              AuthenticationState>(
+                                          builder: (context, state) {
+                                        if (state is LoginLoadingState &&
+                                            state.isLoading) {
+                                          return Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 16,
+                                              ),
+                                              const CircularProgressIndicator(
+                                                color: Colors.white,
+                                              )
+                                            ],
+                                          );
+                                        }
+
+                                        return Container();
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
-                        )
-                      ],
-                    ),
-                  )),
+                        ),
+                      )),
+                );
+              },
             ),
           ),
         ),
