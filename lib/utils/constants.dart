@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 
 class Constants {
   static const maxAppBarHeight = 220.0;
-  static const largeScreenSmallestSideBreakPoint = 720;
+  static const largeScreenSmallestSideBreakPoint = 800;
   static const currency = '₱';
   static Environments currentEnvironment = Environments.dev;
   static const String NO_ID = 'no_id_available';

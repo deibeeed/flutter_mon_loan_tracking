@@ -98,7 +98,6 @@ class AuthenticationScreen extends StatelessWidget {
                 var width = 520.0;
                 var height = 600.0;
 
-
                 if (screenSize.shortestSide <
                     Constants.largeScreenSmallestSideBreakPoint) {
                   width = constraint.maxWidth * 0.8;
@@ -109,8 +108,9 @@ class AuthenticationScreen extends StatelessWidget {
                   height: height,
                   width: width,
                   child: Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(cardRadius)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(cardRadius)),
+                    child: SingleChildScrollView(
                       child: Padding(
                         padding: EdgeInsets.all(cardPadding),
                         child: Center(
@@ -156,9 +156,8 @@ class AuthenticationScreen extends StatelessWidget {
                                   ),
                                   style: ElevatedButton.styleFrom(
                                       padding: EdgeInsets.all(buttonPadding),
-                                      backgroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .primary),
+                                      backgroundColor:
+                                      Theme.of(context).colorScheme.primary),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -170,24 +169,24 @@ class AuthenticationScreen extends StatelessWidget {
                                             ?.apply(color: Colors.white),
                                       ),
                                       BlocBuilder<AuthenticationBloc,
-                                              AuthenticationState>(
+                                          AuthenticationState>(
                                           builder: (context, state) {
-                                        if (state is LoginLoadingState &&
-                                            state.isLoading) {
-                                          return Row(
-                                            children: [
-                                              const SizedBox(
-                                                width: 16,
-                                              ),
-                                              const CircularProgressIndicator(
-                                                color: Colors.white,
-                                              )
-                                            ],
-                                          );
-                                        }
+                                            if (state is LoginLoadingState &&
+                                                state.isLoading) {
+                                              return Row(
+                                                children: [
+                                                  const SizedBox(
+                                                    width: 16,
+                                                  ),
+                                                  const CircularProgressIndicator(
+                                                    color: Colors.white,
+                                                  )
+                                                ],
+                                              );
+                                            }
 
-                                        return Container();
-                                      }),
+                                            return Container();
+                                          }),
                                     ],
                                   ),
                                 ),
@@ -195,7 +194,9 @@ class AuthenticationScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                      )),
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
