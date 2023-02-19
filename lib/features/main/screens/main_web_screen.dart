@@ -53,7 +53,7 @@ class MainWebScreen extends StatelessWidget {
                             final user = userBloc.getLoggedInUser();
                             if (user != null) {
                               userBloc.selectUser(userId: user.id);
-                              GoRouter.of(context).push('/users/${user.id}');
+                              GoRouter.of(context).go('/users/${user.id}');
                             }
                           },
                           child: CircleAvatar(
