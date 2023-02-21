@@ -23,6 +23,10 @@ class AuthenticationService {
     return credential.user?.uid;
   }
 
+  Future<void> logout() async {
+    return _auth.signOut();
+  }
+
   bool isLoggedIn() {
     return loggedInUser != null;
   }

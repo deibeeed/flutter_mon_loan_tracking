@@ -44,3 +44,10 @@ class LoginLoadingState extends AuthenticationState {
   ];
 
 }
+
+class LogoutSuccessState extends AuthenticationState {
+  @override
+  List<Object?> get props => [
+    Random().nextInt(9999)
+  ];
+}

@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
@@ -10,6 +11,7 @@ import 'package:go_router/go_router.dart';
 class MainWebScreenMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
     var loginContainerRadius = Constants.defaultRadius;
@@ -126,6 +128,10 @@ class MainWebScreenMenu extends StatelessWidget {
                   item: Constants.menuItems[i],
                   selected: page == i,
                   onTap: () {
+                    if (Constants.menuItems[i].name.toLowerCase() == 'logout') {
+                      authenticationBloc.logout();
+                      return;
+                    }
                     menuSelection.select(page: i);
                     GoRouter.of(context).go(Constants.menuItems[i].goPath);
                   },

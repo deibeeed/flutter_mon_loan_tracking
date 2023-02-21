@@ -22,6 +22,7 @@ class Constants {
     MenuItemModel(name: 'Settings', goPath: '/settings'),
     MenuItemSeparator(),
     MenuItemModel(name: 'Loan Calculator', goPath: '/loan-calculator'),
+    MenuItemModel(name: 'Logout', goPath: '/login')
   ];
   static const loan_dashboard_table_columns = [
     'Date',

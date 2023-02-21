@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -23,6 +24,7 @@ class AuthenticationBloc
     //   // TODO: implement event handler
     // });
     on(_handleLogin);
+    on(_handleLogoutEvent);
   }
 
   final AuthenticationService authenticationService;
@@ -30,6 +32,10 @@ class AuthenticationBloc
 
   void login({required String email, required String password}) {
     add(LoginEvent(email: email, password: password));
+  }
+
+  void logout() {
+    add(LogoutEvent());
   }
 
   Future<void> _handleLogin(
@@ -62,6 +68,19 @@ class AuthenticationBloc
       printd(err);
     } catch(err) {
       emit(const LoginLoadingState());
+    }
+  }
+
+  Future<void> _handleLogoutEvent(LogoutEvent event, Emitter<AuthenticationState> emit) async {
+    try {
+      emit(LoginLoadingState(isLoading: true));
+      await authenticationService.logout();
+      emit(LoginLoadingState());
+      emit(LogoutSuccessState());
+    } catch (err) {
+      printd(err);
+      emit(LoginLoadingState());
+      emit(LoginErrorState(message: 'Something went wrong while logging out'));
     }
   }
 }
