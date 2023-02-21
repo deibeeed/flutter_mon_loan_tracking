@@ -34,6 +34,14 @@ class AddLoanScreen extends StatelessWidget {
     //   ..getSettings()
     //   ..getAllUsers();
     final screenSize = MediaQuery.of(context).size;
+    final shortestSide = screenSize.shortestSide;
+    var buttonPadding = const EdgeInsets.all(24);
+    var computationDetailsWidth = screenSize.width * 0.2;
+
+    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+      buttonPadding = const EdgeInsets.all(16);
+      computationDetailsWidth = screenSize.width * 0.3;
+    }
 
     return BlocListener<LoanBloc, LoanState>(
       listener: (context, state) {
@@ -355,7 +363,7 @@ class AddLoanScreen extends StatelessWidget {
                     discountDescriptionController.text = '';
                   },
                   style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(24),
+                      padding: buttonPadding,
                       backgroundColor: Theme.of(context).colorScheme.primary),
                   child: Text(
                     'Add discount',
@@ -404,7 +412,7 @@ class AddLoanScreen extends StatelessWidget {
                     yearsToPay: loanDurationController.text,
                   ),
                   style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(24),
+                      padding: buttonPadding,
                       backgroundColor: Theme.of(context).colorScheme.primary),
                   child: Text(
                     'Calculate loan',
@@ -445,7 +453,7 @@ class AddLoanScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                          width: screenSize.width * 0.2,
+                          width: computationDetailsWidth,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -567,79 +575,82 @@ class AddLoanScreen extends StatelessWidget {
                 return current is LoanSuccessState;
               },
               builder: (context, state) {
-                return DataTable(
-                  dataRowHeight: 72,
-                  headingRowColor: MaterialStateColor.resolveWith(
-                    (states) => Theme.of(context)
-                        .colorScheme
-                        .secondaryContainer
-                        .withOpacity(0.32),
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    dataRowHeight: 72,
+                    headingRowColor: MaterialStateColor.resolveWith(
+                          (states) => Theme.of(context)
+                          .colorScheme
+                          .secondaryContainer
+                          .withOpacity(0.32),
+                    ),
+                    columns: [
+                      for (String name in Constants.loan_schedule_table_columns)
+                        DataColumn(
+                            label: Text(
+                              name.toUpperCase(),
+                              style: Theme.of(context).textTheme.titleMedium?.apply(
+                                fontWeightDelta: 3,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            ))
+                    ],
+                    rows: loanBloc.clientLoanSchedules
+                        .map(
+                          (schedule) => DataRow(
+                        cells: [
+                          DataCell(
+                            defaultCellText(
+                              text: Constants.defaultDateFormat.format(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                  schedule.date.toInt(),
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text:
+                                schedule.outstandingBalance.toCurrency(),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text:
+                                schedule.monthlyAmortization.toCurrency(),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.principalPayment.toCurrency(),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.interestPayment.toCurrency(),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.incidentalFee.toCurrency(),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                        .toList(),
                   ),
-                  columns: [
-                    for (String name in Constants.loan_schedule_table_columns)
-                      DataColumn(
-                          label: Text(
-                        name.toUpperCase(),
-                        style: Theme.of(context).textTheme.titleMedium?.apply(
-                              fontWeightDelta: 3,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                      ))
-                  ],
-                  rows: loanBloc.clientLoanSchedules
-                      .map(
-                        (schedule) => DataRow(
-                          cells: [
-                            DataCell(
-                              defaultCellText(
-                                text: Constants.defaultDateFormat.format(
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                    schedule.date.toInt(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Center(
-                                child: defaultCellText(
-                                  text:
-                                      schedule.outstandingBalance.toCurrency(),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Center(
-                                child: defaultCellText(
-                                  text:
-                                      schedule.monthlyAmortization.toCurrency(),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Center(
-                                child: defaultCellText(
-                                  text: schedule.principalPayment.toCurrency(),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Center(
-                                child: defaultCellText(
-                                  text: schedule.interestPayment.toCurrency(),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Center(
-                                child: defaultCellText(
-                                  text: schedule.incidentalFee.toCurrency(),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                      .toList(),
                 );
               },
             ),
@@ -655,7 +666,7 @@ class AddLoanScreen extends StatelessWidget {
                       downPayment: downpaymentController.text,
                     ),
                     style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.all(24),
+                        padding: buttonPadding,
                         backgroundColor: Theme.of(context).colorScheme.primary),
                     child: Text(
                       'Add loan',
