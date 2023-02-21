@@ -21,10 +21,32 @@ class UserListScreen extends StatelessWidget {
         style: BorderStyle.none,
       ),
     );
-    const defaultTableTextStyle = TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
+    final shortestSide = screenSize.shortestSide;
+    var searchTextFieldPadding = const EdgeInsets.only(
+      left: 32,
+      right: 32,
+      top: 20,
+      bottom: 20,
     );
+    var searchContainerPadding = const EdgeInsets.only(
+      left: 24,
+      top: 24,
+      bottom: 24,
+    );
+    var searchButtonPadding = const EdgeInsets.all(22);
+    var searchTextFieldWidth = screenSize.width * 0.3;
+
+    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+      searchTextFieldPadding = const EdgeInsets.only(
+        left: 32,
+        right: 32,
+        top: 16,
+        bottom: 16,
+      );
+      searchContainerPadding = const EdgeInsets.all(16);
+      searchButtonPadding = const EdgeInsets.all(16);
+      searchTextFieldWidth = screenSize.width * 0.5;
+    }
 
     userBloc.getAllUsers();
 
@@ -39,7 +61,7 @@ class UserListScreen extends StatelessWidget {
                 children: [
                   Padding(
                     padding:
-                        const EdgeInsets.only(left: 24, top: 24, bottom: 24),
+                        searchContainerPadding,
                     child: Row(
                       children: [
                         // OutlinedButton(
@@ -72,13 +94,12 @@ class UserListScreen extends StatelessWidget {
                         //   width: 32,
                         // ),
                         SizedBox(
-                          width: screenSize.width * 0.3,
+                          width: searchTextFieldWidth,
                           child: TextFormField(
                             // style: TextStyle(fontSize: 16, ),
                             controller: _searchController,
                             decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.only(
-                                  left: 32, right: 32, top: 20, bottom: 20),
+                              contentPadding: searchTextFieldPadding,
                               label:
                                   const Text('Search users by name or email'),
                               floatingLabelBehavior:
@@ -110,7 +131,7 @@ class UserListScreen extends StatelessWidget {
                             userBloc.search(query: _searchController.text);
                           },
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.all(22),
+                            padding: searchButtonPadding,
                             foregroundColor: Theme.of(context)
                                 .colorScheme
                                 .secondary
@@ -133,26 +154,29 @@ class UserListScreen extends StatelessWidget {
                             ],
                           ),
                         ),
+                        BlocBuilder<UserBloc, UserState>(
+                          buildWhen: (previous, current) =>
+                          current is UserLoadingState ||
+                              current is UserErrorState,
+                          builder: (context, state) {
+                            if (state is UserLoadingState) {
+                              if (state.isLoading) {
+                                return const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: SizedBox(
+                                    width: 32,
+                                    height: 32,
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
+                            }
+
+                            return Container();
+                          },
+                        ),
                       ],
                     ),
-                  ),
-                  BlocBuilder<UserBloc, UserState>(
-                    buildWhen: (previous, current) =>
-                        current is UserLoadingState ||
-                        current is UserErrorState,
-                    builder: (context, state) {
-                      if (state is UserLoadingState) {
-                        if (state.isLoading) {
-                          return const SizedBox(
-                            width: 56,
-                            height: 56,
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                      }
-
-                      return Container();
-                    },
                   ),
                   Expanded(
                     child: SizedBox.expand(
@@ -160,44 +184,47 @@ class UserListScreen extends StatelessWidget {
                         buildWhen: (previous, current) =>
                             current is UserSuccessState,
                         builder: (context, state) {
-                          return DataTable(
-                            showCheckboxColumn: false,
-                            dataRowHeight: 72,
-                            headingRowColor: MaterialStateColor.resolveWith(
-                              (states) => Theme.of(context)
-                                  .colorScheme
-                                  .secondaryContainer
-                                  .withOpacity(0.32),
-                            ),
-                            columns: [
-                              for (String name
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: SingleChildScrollView(
+                              child: DataTable(
+                                showCheckboxColumn: false,
+                                dataRowHeight: 72,
+                                headingRowColor: MaterialStateColor.resolveWith(
+                                      (states) => Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer
+                                      .withOpacity(0.32),
+                                ),
+                                columns: [
+                                  for (String name
                                   in Constants.user_list_table_colums)
-                                DataColumn(
-                                    label: Text(
-                                  name.toUpperCase(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.apply(
-                                        fontWeightDelta: 3,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                      ),
-                                ))
-                            ],
-                            rows: userBloc.filteredUsers
-                                .map(
-                                  (user) => DataRow(
+                                    DataColumn(
+                                        label: Text(
+                                          name.toUpperCase(),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.apply(
+                                            fontWeightDelta: 3,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                          ),
+                                        ))
+                                ],
+                                rows: userBloc.filteredUsers
+                                    .map(
+                                      (user) => DataRow(
                                     onSelectChanged: (value) {
                                       Constants.menuItems.add(
                                         DynamicMenuItem(
-                                            name: user.completeName,),
+                                          name: user.completeName,),
                                       );
                                       context.read<MenuSelectionCubit>().select(
-                                            page:
-                                                Constants.menuItems.length - 1,
-                                          );
+                                        page:
+                                        Constants.menuItems.length - 1,
+                                      );
                                       userBloc.selectUser(userId: user.id);
                                       GoRouter.of(context)
                                           .go('/users/${user.id}');
@@ -206,9 +233,9 @@ class UserListScreen extends StatelessWidget {
                                       DataCell(
                                         Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          MainAxisAlignment.center,
                                           children: [
                                             defaultCellText(
                                               text: user.completeName,
@@ -239,7 +266,9 @@ class UserListScreen extends StatelessWidget {
                                     ],
                                   ),
                                 )
-                                .toList(),
+                                    .toList(),
+                              ),
+                            ),
                           );
                         },
                       ),

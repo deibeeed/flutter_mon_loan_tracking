@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 
 class AddUserScreen extends StatelessWidget {
@@ -19,6 +20,13 @@ class AddUserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userBloc = BlocProvider.of<UserBloc>(context);
+    final screenSize = MediaQuery.of(context).size;
+    final shortestSide = screenSize.shortestSide;
+    var buttonPadding = const EdgeInsets.all(24);
+
+    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+      buttonPadding = const EdgeInsets.all(16);
+    }
 
     return BlocListener<UserBloc, UserState>(
       listener: (context, state) {
@@ -175,7 +183,7 @@ class AddUserScreen extends StatelessWidget {
                         password: passwordController.text,
                         confirmPassword: confirmPasswordController.text),
                     style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.all(24),
+                        padding: buttonPadding,
                         backgroundColor: Theme.of(context).colorScheme.primary),
                     child: Text(
                       'Add User',
