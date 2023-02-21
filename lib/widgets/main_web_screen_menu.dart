@@ -149,7 +149,7 @@ class MainWebScreenMenu extends StatelessWidget {
     if (item.isSeparator) {
       var paddingRight = 64.0;
       if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
-        paddingRight = 40;
+        paddingRight = 32;
       }
       return Padding(
         padding:
