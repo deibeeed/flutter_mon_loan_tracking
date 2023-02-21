@@ -107,7 +107,7 @@ class AddLoanScreen extends StatelessWidget {
                   controller: textEditingController,
                   focusNode: focusNode,
                   onFieldSubmitted: (value) => onFieldSubmitted(),
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     label: Text('Last name'),
                     border: OutlineInputBorder(),
                   ),
@@ -353,24 +353,27 @@ class AddLoanScreen extends StatelessWidget {
                 const SizedBox(
                   width: 16,
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    loanBloc.addDiscount(
-                      discount: discountController.text,
-                      description: discountDescriptionController.text,
-                    );
-                    discountController.text = '';
-                    discountDescriptionController.text = '';
-                  },
-                  style: ElevatedButton.styleFrom(
-                      padding: buttonPadding,
-                      backgroundColor: Theme.of(context).colorScheme.primary),
-                  child: Text(
-                    'Add discount',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.apply(color: Colors.white),
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      loanBloc.addDiscount(
+                        discount: discountController.text,
+                        description: discountDescriptionController.text,
+                      );
+                      discountController.text = '';
+                      discountDescriptionController.text = '';
+                    },
+                    style: ElevatedButton.styleFrom(
+                        padding: buttonPadding,
+                        backgroundColor: Theme.of(context).colorScheme.primary),
+                    child: Text(
+                      'Add discount',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.apply(color: Colors.white),
+                    ),
                   ),
                 ),
               ],

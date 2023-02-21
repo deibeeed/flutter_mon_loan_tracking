@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
@@ -44,6 +45,12 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
     //   ..getSettings()
     //   ..getAllUsers();
     final screenSize = MediaQuery.of(context).size;
+    final shortestSide = screenSize.shortestSide;
+    var buttonPadding = const EdgeInsets.all(24);
+
+    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+      buttonPadding = const EdgeInsets.all(16);
+    }
 
     return BlocListener<LoanBloc, LoanState>(
       listener: (context, state) {
@@ -318,24 +325,27 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                 const SizedBox(
                   width: 16,
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    loanBloc.addDiscount(
-                      discount: discountController.text,
-                      description: discountDescriptionController.text,
-                    );
-                    discountController.text = '';
-                    discountDescriptionController.text = '';
-                  },
-                  style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(24),
-                      backgroundColor: Theme.of(context).colorScheme.primary),
-                  child: Text(
-                    'Add discount',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.apply(color: Colors.white),
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      loanBloc.addDiscount(
+                        discount: discountController.text,
+                        description: discountDescriptionController.text,
+                      );
+                      discountController.text = '';
+                      discountDescriptionController.text = '';
+                    },
+                    style: ElevatedButton.styleFrom(
+                        padding: buttonPadding,
+                        backgroundColor: Theme.of(context).colorScheme.primary),
+                    child: Text(
+                      'Add discount',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.apply(color: Colors.white),
+                    ),
                   ),
                 ),
               ],
@@ -377,7 +387,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                     yearsToPay: loanDurationController.text,
                   ),
                   style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(24),
+                      padding: buttonPadding,
                       backgroundColor: Theme.of(context).colorScheme.primary),
                   child: Text(
                     'Calculate loan',
