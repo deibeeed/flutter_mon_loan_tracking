@@ -6,7 +6,8 @@ import 'package:intl/intl.dart';
 
 class Constants {
   static const maxAppBarHeight = 220.0;
-  static const largeScreenSmallestSideBreakPoint = 800;
+  static const largeScreenShortestSideBreakPoint = 800;
+  static const smallScreenShortestSideBreakPoint = 420;
   static const currency = '₱';
   static Environments currentEnvironment = Environments.dev;
   static const String NO_ID = 'no_id_available';
@@ -16,13 +17,12 @@ class Constants {
   static var defaultCurrencyFormat =
       NumberFormat('${Constants.currency} ###,###,###,###,###,##0.00');
   static var menuItems = [
-    MenuItemModel(name: 'Loan Dashboard', goPath: '/loan-dashboard'),
-    MenuItemModel(name: 'Lot Dashboard', goPath: '/lot-dashboard'),
+    MenuItemModel(name: 'Loan Dashboard', goPath: '/loan-dashboard', shortName: 'Loans'),
+    MenuItemModel(name: 'Lot Dashboard', goPath: '/lot-dashboard', shortName: 'Lots'),
     MenuItemModel(name: 'Users', goPath: '/users'),
     MenuItemModel(name: 'Settings', goPath: '/settings'),
     MenuItemSeparator(),
-    MenuItemModel(name: 'Loan Calculator', goPath: '/loan-calculator'),
-    MenuItemModel(name: 'Logout', goPath: '/login')
+    MenuItemModel(name: 'Loan Calculator', goPath: '/loan-calculator', shortName: 'Calculator'),
   ];
   static const loan_dashboard_table_columns = [
     'Date',

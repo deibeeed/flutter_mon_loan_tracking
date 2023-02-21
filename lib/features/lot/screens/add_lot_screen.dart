@@ -23,7 +23,7 @@ class AddLotScreen extends StatelessWidget {
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
 
-    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       buttonPadding = const EdgeInsets.all(16);
     }
 

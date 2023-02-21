@@ -7,8 +7,8 @@ import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/widgets/main_web_screen_menu.dart';
 import 'package:go_router/go_router.dart';
 
-class MainWebScreen extends StatelessWidget {
-  const MainWebScreen({super.key, required this.content});
+class MainLargeScreen extends StatelessWidget {
+  const MainLargeScreen({super.key, required this.content});
 
   final Widget content;
 
@@ -36,7 +36,7 @@ class MainWebScreen extends StatelessWidget {
       appBarHeight = Constants.maxAppBarHeight;
     }
 
-    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       cardRadius = 48;
       cardPadding = 32;
       buttonHeight = 56;

@@ -38,7 +38,7 @@ class AddLoanScreen extends StatelessWidget {
     var buttonPadding = const EdgeInsets.all(24);
     var computationDetailsWidth = screenSize.width * 0.2;
 
-    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       buttonPadding = const EdgeInsets.all(16);
       computationDetailsWidth = screenSize.width * 0.3;
     }

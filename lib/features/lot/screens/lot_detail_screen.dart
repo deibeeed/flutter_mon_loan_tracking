@@ -37,7 +37,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
 
-    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       buttonPadding = const EdgeInsets.all(16);
     }
 

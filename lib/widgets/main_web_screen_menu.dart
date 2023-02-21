@@ -26,7 +26,7 @@ class MainWebScreenMenu extends StatelessWidget {
       left: 32,
     );
 
-    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       // cardRadius = 48;
       // cardPadding = 32;
       // buttonHeight = 56;
@@ -128,10 +128,6 @@ class MainWebScreenMenu extends StatelessWidget {
                   item: Constants.menuItems[i],
                   selected: page == i,
                   onTap: () {
-                    if (Constants.menuItems[i].name.toLowerCase() == 'logout') {
-                      authenticationBloc.logout();
-                      return;
-                    }
                     menuSelection.select(page: i);
                     GoRouter.of(context).go(Constants.menuItems[i].goPath);
                   },
@@ -154,7 +150,7 @@ class MainWebScreenMenu extends StatelessWidget {
 
     if (item.isSeparator) {
       var paddingRight = 64.0;
-      if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+      if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
         paddingRight = 32;
       }
       return Padding(
@@ -179,7 +175,7 @@ class MainWebScreenMenu extends StatelessWidget {
       ),
     );
 
-    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       textStyle = Theme.of(context).textTheme.titleSmall;
       paddingRight = 16;
       minVerticalPadding = 4;

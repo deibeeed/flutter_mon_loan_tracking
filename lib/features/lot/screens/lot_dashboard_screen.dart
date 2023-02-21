@@ -70,7 +70,7 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
         .circular(64);
     var lotContainerContainerBorderRadius = BorderRadius.circular(80);
 
-    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       searchTextFieldPadding = const EdgeInsets.only(
         left: 32,
         right: 32,

@@ -74,7 +74,7 @@ class LoanDashboardScreen extends StatelessWidget {
     var searchButtonPadding = const EdgeInsets.all(22);
     var searchTextFieldWidth = screenSize.width * 0.3;
 
-    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       searchTextFieldPadding = const EdgeInsets.only(
         left: 32,
         right: 32,

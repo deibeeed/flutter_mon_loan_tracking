@@ -26,18 +26,23 @@ class AuthenticationScreen extends StatelessWidget {
     var buttonPadding = 24.0;
     var loginContainerRadius = Constants.defaultRadius;
     var loginContainerMarginTop = 64.0;
+    var isMobileScreen = false;
 
     if (appBarHeight > Constants.maxAppBarHeight) {
       appBarHeight = Constants.maxAppBarHeight;
     }
 
-    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       cardRadius = 48;
       cardPadding = 32;
       buttonHeight = 56;
       buttonPadding = 8;
       loginContainerRadius = const Radius.circular(64);
       loginContainerMarginTop = 32;
+    }
+
+    if (shortestSide <= Constants.smallScreenShortestSideBreakPoint) {
+      isMobileScreen = true;
     }
 
     printd('size: ${MediaQuery.of(context).size}');
@@ -82,14 +87,21 @@ class AuthenticationScreen extends StatelessWidget {
           }
         },
         child: Container(
-          margin: EdgeInsets.only(top: loginContainerMarginTop),
+          margin: EdgeInsets.only(
+            top: loginContainerMarginTop,
+            bottom: !isMobileScreen ? 0 : loginContainerMarginTop,
+            left: !isMobileScreen ? 0 : 16,
+            right: !isMobileScreen ? 0 : 16,
+          ),
           height: double.infinity,
-          width: loginContainerWidth,
+          width: !isMobileScreen ? loginContainerWidth : double.infinity,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.tertiary.withOpacity(0.8),
             borderRadius: BorderRadius.only(
               topRight: loginContainerRadius,
               bottomRight: loginContainerRadius,
+              topLeft: !isMobileScreen ? Radius.zero : loginContainerRadius,
+              bottomLeft: !isMobileScreen ? Radius.zero : loginContainerRadius,
             ),
           ),
           child: Center(
@@ -143,7 +155,7 @@ class AuthenticationScreen extends StatelessWidget {
                             style: ElevatedButton.styleFrom(
                                 padding: EdgeInsets.all(buttonPadding),
                                 backgroundColor:
-                                Theme.of(context).colorScheme.primary),
+                                    Theme.of(context).colorScheme.primary),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -155,24 +167,24 @@ class AuthenticationScreen extends StatelessWidget {
                                       ?.apply(color: Colors.white),
                                 ),
                                 BlocBuilder<AuthenticationBloc,
-                                    AuthenticationState>(
+                                        AuthenticationState>(
                                     builder: (context, state) {
-                                      if (state is LoginLoadingState &&
-                                          state.isLoading) {
-                                        return Row(
-                                          children: [
-                                            const SizedBox(
-                                              width: 16,
-                                            ),
-                                            const CircularProgressIndicator(
-                                              color: Colors.white,
-                                            )
-                                          ],
-                                        );
-                                      }
+                                  if (state is LoginLoadingState &&
+                                      state.isLoading) {
+                                    return Row(
+                                      children: const [
+                                        SizedBox(
+                                          width: 16,
+                                        ),
+                                        CircularProgressIndicator(
+                                          color: Colors.white,
+                                        )
+                                      ],
+                                    );
+                                  }
 
-                                      return Container();
-                                    }),
+                                  return Container();
+                                }),
                               ],
                             ),
                           ),
@@ -183,7 +195,7 @@ class AuthenticationScreen extends StatelessWidget {
                 );
 
                 if (screenSize.shortestSide <
-                    Constants.largeScreenSmallestSideBreakPoint) {
+                    Constants.largeScreenShortestSideBreakPoint) {
                   width = constraint.maxWidth * 0.8;
                   height = constraint.maxHeight * 0.8;
                   content = SingleChildScrollView(
