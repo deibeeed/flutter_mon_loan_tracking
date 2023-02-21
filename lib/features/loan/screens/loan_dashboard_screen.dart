@@ -72,6 +72,7 @@ class LoanDashboardScreen extends StatelessWidget {
       bottom: 24,
     );
     var searchButtonPadding = const EdgeInsets.all(22);
+    var searchTextFieldWidth = screenSize.width * 0.3;
 
     if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
       searchTextFieldPadding = const EdgeInsets.only(
@@ -82,6 +83,7 @@ class LoanDashboardScreen extends StatelessWidget {
       );
       searchContainerPadding = const EdgeInsets.all(16);
       searchButtonPadding = const EdgeInsets.all(16);
+      searchTextFieldWidth = screenSize.width * 0.5;
     }
 
     return Scaffold(
@@ -183,7 +185,7 @@ class LoanDashboardScreen extends StatelessWidget {
                         //   width: 32,
                         // ),
                         SizedBox(
-                          width: screenSize.width * 0.5,
+                          width: searchTextFieldWidth,
                           child: TextFormField(
                             // style: TextStyle(fontSize: 16, ),
                             controller: _searchController,
