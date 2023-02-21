@@ -19,7 +19,7 @@ class MainWebScreen extends StatelessWidget {
     final width = screenSize.width;
     final computedWidth = width * 0.88;
     final shortestSide = screenSize.shortestSide;
-    var appBarHeight = screenSize.height * 0.2;
+    var appBarHeight = screenSize.height * 0.16;
     var cardRadius = 100.0;
     var cardPadding = 56.0;
     var buttonHeight = 72.0;
@@ -29,6 +29,8 @@ class MainWebScreen extends StatelessWidget {
     var titleTextStyle = Theme.of(context).textTheme.displaySmall;
     var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
     var avatarSize = 56.0;
+    var contentPadding = const EdgeInsets.all(58);
+    var appBarBottomPadding = 48.0;
 
     if (appBarHeight > Constants.maxAppBarHeight) {
       appBarHeight = Constants.maxAppBarHeight;
@@ -44,6 +46,13 @@ class MainWebScreen extends StatelessWidget {
       titleTextStyle = Theme.of(context).textTheme.headlineMedium;
       avatarTextStyle = Theme.of(context).textTheme.titleSmall;
       avatarSize = 48;
+      contentPadding = const EdgeInsets.only(
+          left: 32,
+          right: 32,
+          top: 16,
+          bottom: 16,
+      );
+      appBarBottomPadding = 24;
     }
     return Scaffold(
       appBar: PreferredSize(
@@ -56,7 +65,7 @@ class MainWebScreen extends StatelessWidget {
             preferredSize: Size.zero,
             child: Container(
               width: computedWidth,
-              margin: const EdgeInsets.only(bottom: 48),
+              margin: EdgeInsets.only(bottom: appBarBottomPadding),
               child: BlocBuilder<MenuSelectionCubit, MenuSelectionState>(
                 builder: (context, state) {
                   var menuItemName = Constants.menuItems[0].name;
@@ -94,7 +103,7 @@ class MainWebScreen extends StatelessWidget {
                             backgroundColor:
                             Theme.of(context).colorScheme.primaryContainer,
                             child: Padding(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: Text(
                                 userBloc.getLoggedInUser()?.initials ?? 'No',
                                 style: avatarTextStyle,
@@ -109,10 +118,10 @@ class MainWebScreen extends StatelessWidget {
               ),
             ),
           ),
-          shape: const RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
-              bottomLeft: Constants.defaultRadius,
-              bottomRight: Constants.defaultRadius,
+              bottomLeft: loginContainerRadius,
+              bottomRight: loginContainerRadius,
             ),
           ),
         ),
@@ -129,7 +138,7 @@ class MainWebScreen extends StatelessWidget {
             Expanded(
               flex: 4,
               child: Padding(
-                padding: EdgeInsets.all(58),
+                padding: contentPadding,
                 child: content,
               ),
             )
