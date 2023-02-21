@@ -31,8 +31,15 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
     final lotBloc = BlocProvider.of<LotBloc>(context);
+
+    final screenSize = MediaQuery.of(context).size;
+    final shortestSide = screenSize.shortestSide;
+    var buttonPadding = const EdgeInsets.all(24);
+
+    if (shortestSide < Constants.largeScreenSmallestSideBreakPoint) {
+      buttonPadding = const EdgeInsets.all(16);
+    }
 
     if (lotBloc.selectedLot != null){
       final lot = lotBloc.selectedLot!;
@@ -308,7 +315,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                                   description: _descriptionController.text,
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.all(24),
+                                    padding: buttonPadding,
                                     backgroundColor:
                                     Theme.of(context).colorScheme.primary),
                                 child: Text(
