@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen_small.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -46,6 +47,11 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
     //   ..getAllUsers();
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
+
+    if (shortestSide <= Constants.smallScreenShortestSideBreakPoint) {
+      return const LoanCalculatorScreenSmall();
+    }
+
     var buttonPadding = const EdgeInsets.all(24);
 
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
