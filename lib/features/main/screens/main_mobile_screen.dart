@@ -1,9 +1,12 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
+import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class MainSmallScreen extends StatelessWidget {
@@ -13,6 +16,7 @@ class MainSmallScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final menuSelection = BlocProvider.of<MenuSelectionCubit>(context);
     final userBloc = BlocProvider.of<UserBloc>(context);
     final screenSize = MediaQuery.of(context).size;
     final width = screenSize.width;
@@ -30,6 +34,8 @@ class MainSmallScreen extends StatelessWidget {
     var avatarSize = 56.0;
     var contentPadding = const EdgeInsets.all(58);
     var appBarBottomPadding = 48.0;
+    var bottomMenuSelectedColor = Theme.of(context).colorScheme.primary;
+    var bottomMenuUnselectedColor = Theme.of(context).colorScheme.primaryContainer;
 
     if (appBarHeight > Constants.maxAppBarHeight) {
       appBarHeight = Constants.maxAppBarHeight;
@@ -125,37 +131,98 @@ class MainSmallScreen extends StatelessWidget {
           ),
         ),
       ),
+      floatingActionButton: Container(),
       bottomNavigationBar: BottomAppBar(
         color: Theme.of(context).colorScheme.tertiary.withOpacity(0.8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: Constants.menuItems
-              .where((item) => !item.isSeparator && !item.isDynamic)
-              .map(
-                (item) => InkWell(
-                  onTap: () => GoRouter.of(context).go(item.goPath),
-                  child: SizedBox(
-                    width: 72,
-                    height: 64,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        item.icon ??
-                            Icon(
-                              Icons.add,
+        shape: const AutomaticNotchedShape(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
+            )
+          ),
+          StadiumBorder(),
+        ),
+        child: BlocBuilder<MenuSelectionCubit, MenuSelectionState>(
+          builder: (context, state) {
+            var page = 0;
+
+            if (state is MenuPageSelected) {
+              page = state.page;
+            }
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: Constants.menuItems
+                  .where((item) => !item.isSeparator && !item.isDynamic)
+                  .mapIndexed(
+                    (i, item) => InkWell(
+                      onTap: () {
+                        menuSelection.select(page: i);
+                        GoRouter.of(context).go(item.goPath);
+                      },
+                      child: Container(
+                        color: page == i
+                            ? bottomMenuUnselectedColor
+                            : null,
+                        width: 72,
+                        height: 64,
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 6,
+                              decoration: BoxDecoration(
+                                  color: page == i
+                                      ? bottomMenuSelectedColor
+                                      : null,
+                                  borderRadius: const BorderRadius.only(
+                                    bottomLeft: Radius.circular(8),
+                                    bottomRight: Radius.circular(8),
+                                  )),
                             ),
-                        Text(item.computedShortName)
-                      ],
+                            Expanded(child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (item.iconSvgAssetPath != null)
+                                  SvgPicture.asset(
+                                    item.iconSvgAssetPath!,
+                                    width: 24,
+                                    height: 24,
+                                    color: page == i
+                                        ? bottomMenuSelectedColor
+                                        : bottomMenuUnselectedColor,
+                                  )
+                                else
+                                  SvgPicture.asset(
+                                    'assets/icons/mortgage-loan.svg',
+                                    width: 24,
+                                    height: 24,
+                                    color: page == i
+                                        ? bottomMenuSelectedColor
+                                        : bottomMenuUnselectedColor,
+                                  ),
+                                Text(
+                                  item.computedShortName,
+                                  style: TextStyle(
+                                    color: page == i
+                                        ? bottomMenuSelectedColor
+                                        : bottomMenuUnselectedColor,
+                                  ),
+                                )
+                              ],
+                            ))
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              )
-              .toList(),
+                  )
+                  .toList(),
+            );
+          },
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: content,
       ),
     );

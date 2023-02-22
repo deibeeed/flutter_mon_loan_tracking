@@ -7,7 +7,7 @@ class MenuItemModel extends Equatable {
     required this.goPath,
     this.isSeparator = false,
     this.isDynamic = false,
-    this.icon,
+    this.iconSvgAssetPath,
     this.shortName,
   });
 
@@ -15,7 +15,7 @@ class MenuItemModel extends Equatable {
   final String goPath;
   final bool isSeparator;
   final bool isDynamic;
-  final Widget? icon;
+  final String? iconSvgAssetPath;
   final String? shortName;
 
   String get computedShortName => shortName ?? name;
@@ -27,7 +27,7 @@ class MenuItemModel extends Equatable {
         goPath,
         isSeparator,
         isDynamic,
-        icon,
+        iconSvgAssetPath,
         shortName
       ];
 }
