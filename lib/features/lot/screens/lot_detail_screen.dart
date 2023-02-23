@@ -168,7 +168,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                 ],
               ),
               const SizedBox(
-                height: 16,
+                height: 32,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -188,7 +188,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                 ],
               ),
               const SizedBox(
-                height: 16,
+                height: 32,
               ),
               TextFormField(
                 controller: _blockNoController,

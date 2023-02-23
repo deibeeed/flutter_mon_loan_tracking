@@ -129,59 +129,47 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             const SizedBox(
               height: 32,
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: birthDateController,
-                    decoration: const InputDecoration(
-                      label: Text('Birthdate'),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: civilStatusController,
-                    decoration: const InputDecoration(
-                      label: Text('Civil status'),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: mobileNumberController,
-                    decoration: const InputDecoration(
-                      label: Text('Mobile number'),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: emailController,
-                    decoration: const InputDecoration(
-                      label: Text('Email'),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
+            TextFormField(
+              controller: birthDateController,
+              decoration: const InputDecoration(
+                label: Text('Birthdate'),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            TextFormField(
+              controller: civilStatusController,
+              decoration: const InputDecoration(
+                label: Text('Civil status'),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            TextFormField(
+              controller: mobileNumberController,
+              decoration: const InputDecoration(
+                label: Text('Mobile number'),
+                border: OutlineInputBorder(),
+              ),
+              keyboardType:
+              const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            TextFormField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                label: Text('Email'),
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(
               height: 32,
@@ -234,7 +222,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
               ),
             ),
             const SizedBox(
-              height: 32,
+              height: 16,
             ),
             const Divider(
               thickness: 1.5,
@@ -261,7 +249,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
               thickness: 1.5,
             ),
             const SizedBox(
-              height: 32,
+              height: 16,
             ),
             Row(
               children: [
@@ -279,86 +267,89 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 return current is LoanSuccessState;
               },
               builder: (context, state) {
-                return DataTable(
-                  dataRowHeight: 72,
-                  headingRowColor: MaterialStateColor.resolveWith(
-                    (states) => Theme.of(context)
-                        .colorScheme
-                        .secondaryContainer
-                        .withOpacity(0.32),
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    dataRowHeight: 72,
+                    headingRowColor: MaterialStateColor.resolveWith(
+                          (states) => Theme.of(context)
+                          .colorScheme
+                          .secondaryContainer
+                          .withOpacity(0.32),
+                    ),
+                    columns: [
+                      for (String name
+                      in Constants.user_loan_schedule_table_columns)
+                        DataColumn(
+                            label: Text(
+                              name.toUpperCase(),
+                              style: Theme.of(context).textTheme.titleMedium?.apply(
+                                fontWeightDelta: 3,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            ))
+                    ],
+                    rows: loanBloc.clientLoanSchedules
+                        .map(
+                          (schedule) => DataRow(
+                        cells: [
+                          DataCell(
+                            defaultCellText(
+                              text: Constants.defaultDateFormat.format(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                  schedule.date.toInt(),
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text:
+                                schedule.outstandingBalance.toCurrency(),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text:
+                                schedule.monthlyAmortization.toCurrency(),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.principalPayment.toCurrency(),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.interestPayment.toCurrency(),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.incidentalFee.toCurrency(),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            paymentStatusWidget(
+                              context: context,
+                              schedule: schedule,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                        .toList(),
                   ),
-                  columns: [
-                    for (String name
-                        in Constants.user_loan_schedule_table_columns)
-                      DataColumn(
-                          label: Text(
-                        name.toUpperCase(),
-                        style: Theme.of(context).textTheme.titleMedium?.apply(
-                              fontWeightDelta: 3,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                      ))
-                  ],
-                  rows: loanBloc.clientLoanSchedules
-                      .map(
-                        (schedule) => DataRow(
-                          cells: [
-                            DataCell(
-                              defaultCellText(
-                                text: Constants.defaultDateFormat.format(
-                                  DateTime.fromMillisecondsSinceEpoch(
-                                    schedule.date.toInt(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Center(
-                                child: defaultCellText(
-                                  text:
-                                      schedule.outstandingBalance.toCurrency(),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Center(
-                                child: defaultCellText(
-                                  text:
-                                      schedule.monthlyAmortization.toCurrency(),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Center(
-                                child: defaultCellText(
-                                  text: schedule.principalPayment.toCurrency(),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Center(
-                                child: defaultCellText(
-                                  text: schedule.interestPayment.toCurrency(),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Center(
-                                child: defaultCellText(
-                                  text: schedule.incidentalFee.toCurrency(),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              paymentStatusWidget(
-                                context: context,
-                                schedule: schedule,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                      .toList(),
                 );
               },
             ),
