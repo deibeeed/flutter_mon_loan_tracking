@@ -118,10 +118,9 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     emit(SelectedLotCategoryLotState(selectedLotCategory: lotCategory!));
   }
 
-  List<List<Lot>> chunkedLots({required List<Lot> lots}) {
+  List<List<Lot>> chunkedLots({required List<Lot> lots, int size = 4,}) {
     lots.sortBy((element) => element.lotNo);
     final len = lots.length;
-    const size = 4;
     final chunks = <List<Lot>>[];
 
     for (var i = 0; i < len; i += size) {

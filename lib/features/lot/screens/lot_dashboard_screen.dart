@@ -69,8 +69,41 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
     var lotContainerBorderRadius = BorderRadius
         .circular(64);
     var lotContainerContainerBorderRadius = BorderRadius.circular(80);
+    var lotContainerContainerMarginPadding = const EdgeInsets.all(32);
+    var chunkSize = 4;
 
-    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
+    if (shortestSide <= Constants.smallScreenShortestSideBreakPoint) {
+      searchTextFieldPadding = const EdgeInsets.only(
+        left: 32,
+        right: 32,
+        top: 16,
+        bottom: 16,
+      );
+      searchContainerPadding = const EdgeInsets.all(16);
+      searchButtonPadding = const EdgeInsets.all(16);
+      searchTextFieldWidth = screenSize.width * 0.5;
+      blockSelectorContainerPadding = const EdgeInsets.only(
+        left: 16,
+        right: 16,
+      );
+      blockContainerPadding = const EdgeInsets.all(8);
+      blockContainerWidth = screenSize.width * 0.8;
+      chipTextStyle = Theme.of(context).textTheme.labelLarge;
+      chipPadding = const EdgeInsets.all(10);
+      lotContainerSize = 100;
+      lotTextStyle = Theme.of(context)
+          .textTheme
+          .titleSmall;
+      lotContainerBorderRadius =BorderRadius
+          .circular(32);
+      lotContainerContainerBorderRadius = BorderRadius.circular(40);
+      lotContainerContainerMarginPadding = const EdgeInsets.all(16);
+      blockContainerBorderRadius = BorderRadius.circular(56);
+      blockTextStyle = Theme.of(context)
+          .textTheme
+          .titleMedium;
+      chunkSize = 2;
+    } else if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       searchTextFieldPadding = const EdgeInsets.only(
         left: 32,
         right: 32,
@@ -336,7 +369,7 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                                     .withOpacity(0.8),
                                 borderRadius: blockContainerBorderRadius,
                               ),
-                              padding: const EdgeInsets.all(32),
+                              padding: lotContainerContainerMarginPadding,
                               child: BlocBuilder<LotBloc, LotState>(
                                 buildWhen: (previous, current) =>
                                 current is LotSuccessState,
@@ -358,11 +391,11 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                                       ...lotBloc
                                           .chunkedLots(
                                           lots: lotBloc.filteredGroupedLots[
-                                          _selectedBlock]!)
+                                          _selectedBlock]!, size: chunkSize)
                                           .map(
                                             (lots) => Container(
-                                          padding: const EdgeInsets.all(32),
-                                          margin: const EdgeInsets.all(32),
+                                          padding: lotContainerContainerMarginPadding,
+                                          margin: lotContainerContainerMarginPadding,
                                           decoration: BoxDecoration(
                                             color: Colors.white,
                                             borderRadius:
