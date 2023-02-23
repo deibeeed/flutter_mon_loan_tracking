@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 
 extension FormattingExtension on num {
@@ -25,5 +27,25 @@ extension FormattingExtension on num {
     return Constants.defaultDateFormat.format(
       DateTime.fromMillisecondsSinceEpoch(toInt()),
     );
+  }
+}
+
+extension MobileChecking on StatelessWidget {
+  bool isMobile() {
+    final mobilePlatforms = [
+      TargetPlatform.android,
+      TargetPlatform.iOS,
+    ];
+    return mobilePlatforms.contains(defaultTargetPlatform);
+  }
+}
+
+extension MobileChecking2 on Widget {
+  bool isMobile() {
+    final mobilePlatforms = [
+      TargetPlatform.android,
+      TargetPlatform.iOS,
+    ];
+    return mobilePlatforms.contains(defaultTargetPlatform);
   }
 }

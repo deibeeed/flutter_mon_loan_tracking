@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -67,6 +69,36 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       buttonPadding = const EdgeInsets.all(16);
     }
 
+    final width = screenSize.width;
+    final computedWidth = width * 0.88;
+    var appBarHeight = screenSize.height * 0.16;
+    var loginContainerRadius = Constants.defaultRadius;
+    var loginContainerMarginTop = 64.0;
+    var titleTextStyle = Theme.of(context).textTheme.displaySmall;
+    var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
+    var avatarSize = 56.0;
+    var contentPadding = const EdgeInsets.all(58);
+    var appBarBottomPadding = 48.0;
+
+    if (appBarHeight > Constants.maxAppBarHeight) {
+      appBarHeight = Constants.maxAppBarHeight;
+    }
+
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
+      loginContainerRadius = const Radius.circular(64);
+      loginContainerMarginTop = 32;
+      titleTextStyle = Theme.of(context).textTheme.headlineMedium;
+      avatarTextStyle = Theme.of(context).textTheme.titleSmall;
+      avatarSize = 48;
+      contentPadding = const EdgeInsets.only(
+        left: 32,
+        right: 32,
+        top: 16,
+        bottom: 16,
+      );
+      appBarBottomPadding = 24;
+    }
+
     return BlocListener<UserBloc, UserState>(
       listener: (context, state) {
         if (state is UserSuccessState) {
@@ -108,156 +140,213 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         }
       },
       child: Scaffold(
+        appBar: !widget.isMobile() ? null :
+        PreferredSize(
+          preferredSize: Size.fromHeight(appBarHeight),
+          child: AppBar(
+            backgroundColor:
+            Theme.of(context).colorScheme.primary.withOpacity(0.48),
+            leading: Container(),
+            bottom: PreferredSize(
+              preferredSize: Size.zero,
+              child: Container(
+                width: computedWidth,
+                margin: EdgeInsets.only(bottom: appBarBottomPadding),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      userBloc.selectedUser?.completeName ?? 'User',
+                      style: titleTextStyle?.apply(color: Colors.white),
+                    ),
+                    SizedBox(
+                      width: avatarSize,
+                      height: avatarSize,
+                      child: InkWell(
+                        onTap: () {
+                          final user = userBloc.getLoggedInUser();
+                          if (user != null) {
+                            GoRouter.of(context)
+                                .push('/users/${user.id}');
+                          }
+                        },
+                        child: CircleAvatar(
+                          backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                              userBloc.getLoggedInUser()?.initials ?? 'No',
+                              style: avatarTextStyle,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: loginContainerRadius,
+                bottomRight: loginContainerRadius,
+              ),
+            ),
+          ),
+        ),
         body: ListView(
           children: [
             const SizedBox(
               height: 16,
             ),
-            TextFormField(
-              controller: lastNameController,
-              decoration: const InputDecoration(
-                  label: Text('Last name'), border: OutlineInputBorder()),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: firstNameController,
-              decoration: const InputDecoration(
-                  label: Text('First name'), border: OutlineInputBorder()),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: birthDateController,
-              decoration: const InputDecoration(
-                label: Text('Birthdate'),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: civilStatusController,
-              decoration: const InputDecoration(
-                label: Text('Civil status'),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: mobileNumberController,
-              decoration: const InputDecoration(
-                label: Text('Mobile number'),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-              ],
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                label: Text('Email'),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            Visibility(
-              visible: _shouldShowUpdateButton(),
-              child: Row(
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => userBloc.updateUser(
-                        lastName: lastNameController.text,
-                        firstName: firstNameController.text,
-                        birthDate: birthDateController.text,
-                        civilStatus: civilStatusController.text,
-                        mobileNumber: mobileNumberController.text,
-                        email: emailController.text,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                          padding: buttonPadding,
-                          backgroundColor:
-                          Theme.of(context).colorScheme.primary),
-                      child: Text(
-                        'Update profile',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.apply(color: Colors.white),
-                      ),
+                  TextFormField(
+                    controller: lastNameController,
+                    decoration: const InputDecoration(
+                        label: Text('Last name'), border: OutlineInputBorder()),
+                  ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  TextFormField(
+                    controller: firstNameController,
+                    decoration: const InputDecoration(
+                        label: Text('First name'), border: OutlineInputBorder()),
+                  ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  TextFormField(
+                    controller: birthDateController,
+                    decoration: const InputDecoration(
+                      label: Text('Birthdate'),
+                      border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(width: 32,),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: authenticationBloc.logout,
-                      style: ElevatedButton.styleFrom(
-                          padding: buttonPadding,
-                          backgroundColor:
-                          Theme.of(context).colorScheme.error),
-                      child: Text(
-                        'Logout',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.apply(color: Colors.white),
-                      ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  TextFormField(
+                    controller: civilStatusController,
+                    decoration: const InputDecoration(
+                      label: Text('Civil status'),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  TextFormField(
+                    controller: mobileNumberController,
+                    decoration: const InputDecoration(
+                      label: Text('Mobile number'),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  TextFormField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                      label: Text('Email'),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  Visibility(
+                    visible: _shouldShowUpdateButton(),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => userBloc.updateUser(
+                              lastName: lastNameController.text,
+                              firstName: firstNameController.text,
+                              birthDate: birthDateController.text,
+                              civilStatus: civilStatusController.text,
+                              mobileNumber: mobileNumberController.text,
+                              email: emailController.text,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                padding: buttonPadding,
+                                backgroundColor:
+                                Theme.of(context).colorScheme.primary),
+                            child: Text(
+                              'Update profile',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.apply(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 32,),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: authenticationBloc.logout,
+                            style: ElevatedButton.styleFrom(
+                                padding: buttonPadding,
+                                backgroundColor:
+                                Theme.of(context).colorScheme.error),
+                            child: Text(
+                              'Logout',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.apply(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(
-              height: 16,
+            const Divider(
+              thickness: 1.5,
+            ),
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Purchased lots',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Text('Some purchased lots here ???'),
+                ],
+              ),
             ),
             const Divider(
               thickness: 1.5,
             ),
-            const SizedBox(
-              height: 16,
-            ),
-            Row(
-              children: [
-                Text(
-                  'Purchased lots',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            Text('Some purchased lots here ???'),
-            const SizedBox(
-              height: 32,
-            ),
-            const Divider(
-              thickness: 1.5,
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            Row(
-              children: [
-                Text(
-                  'Loan schedule',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ],
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Loan schedule',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
             ),
             const SizedBox(
               height: 32,

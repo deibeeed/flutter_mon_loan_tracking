@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/app/app.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
@@ -35,7 +36,8 @@ class MainSmallScreen extends StatelessWidget {
     var contentPadding = const EdgeInsets.all(58);
     var appBarBottomPadding = 48.0;
     var bottomMenuSelectedColor = Theme.of(context).colorScheme.primary;
-    var bottomMenuUnselectedColor = Theme.of(context).colorScheme.primaryContainer;
+    var bottomMenuUnselectedColor =
+        Theme.of(context).colorScheme.primaryContainer;
 
     if (appBarHeight > Constants.maxAppBarHeight) {
       appBarHeight = Constants.maxAppBarHeight;
@@ -131,16 +133,41 @@ class MainSmallScreen extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: Container(),
+      floatingActionButton: BlocBuilder<MenuSelectionCubit, MenuSelectionState>(
+        builder: (context, state) {
+          var pageSelected = 0;
+          if (state is MenuPageSelected) {
+            pageSelected = state.page;
+            if (state.page > 2) {
+              return Container();
+            }
+          }
+          return FloatingActionButton.small(
+            onPressed: () {
+              switch (pageSelected) {
+                case 0:
+                  GoRouter.of(context).push('/add-loan');
+                  break;
+                case 1:
+                  GoRouter.of(context).push('/add-lot');
+                  break;
+                case 2:
+                  GoRouter.of(context).push('/add-user');
+                  break;
+              }
+            },
+            child: Icon(Icons.add),
+          );
+        },
+      ),
       bottomNavigationBar: BottomAppBar(
         color: Theme.of(context).colorScheme.tertiary.withOpacity(0.8),
         shape: const AutomaticNotchedShape(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10),
-              topRight: Radius.circular(10),
-            )
-          ),
+              borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          )),
           StadiumBorder(),
         ),
         child: BlocBuilder<MenuSelectionCubit, MenuSelectionState>(
@@ -161,9 +188,7 @@ class MainSmallScreen extends StatelessWidget {
                         GoRouter.of(context).go(item.goPath);
                       },
                       child: Container(
-                        color: page == i
-                            ? bottomMenuUnselectedColor
-                            : null,
+                        color: page == i ? bottomMenuUnselectedColor : null,
                         width: 72,
                         height: 64,
                         child: Column(
@@ -179,7 +204,8 @@ class MainSmallScreen extends StatelessWidget {
                                     bottomRight: Radius.circular(8),
                                   )),
                             ),
-                            Expanded(child: Column(
+                            Expanded(
+                                child: Column(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

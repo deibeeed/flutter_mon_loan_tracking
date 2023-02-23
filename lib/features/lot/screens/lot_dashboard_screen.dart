@@ -5,6 +5,7 @@ import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
+import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
 
@@ -409,14 +410,16 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                                                   (lot) => InkWell(
                                                 radius: 64,
                                                 onTap: () {
-                                                  Constants.menuItems.add(
-                                                    DynamicMenuItem(
-                                                      name: lot.completeBlockLotNo,),
-                                                  );
-                                                  context.read<MenuSelectionCubit>().select(
-                                                    page:
-                                                    Constants.menuItems.length - 1,
-                                                  );
+                                                  if (widget.isMobile()) {
+                                                    Constants.menuItems.add(
+                                                      DynamicMenuItem(
+                                                        name: lot.completeBlockLotNo,),
+                                                    );
+                                                    context.read<MenuSelectionCubit>().select(
+                                                      page:
+                                                      Constants.menuItems.length - 1,
+                                                    );
+                                                  }
                                                   lotBloc
                                                       .selectLot(lot: lot);
                                                   GoRouter.of(context).push('/lots/${lot.id}');

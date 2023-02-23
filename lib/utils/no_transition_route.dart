@@ -8,9 +8,11 @@ class RouteUtils {
     required String path,
     required Widget child,
     List<GoRoute> routes = const [],
+    GlobalKey<NavigatorState>? parentNavigatorKey,
   }) {
     return GoRoute(
       path: path,
+      parentNavigatorKey: parentNavigatorKey,
       pageBuilder: (context, state) {
         if (child is UserDetailsScreen) {
           final userId = state.params['userId'];

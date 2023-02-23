@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/app/app.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/screen/authentication_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_selection_cubit.dart';
@@ -41,79 +42,122 @@ import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/no_transition_route.dart';
 import 'package:go_router/go_router.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   App({super.key});
 
+  @override
+  State<StatefulWidget> createState() => _AppState();
+
+}
+class _AppState extends State<App> {
   static final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
   static final shellNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'shell');
 
-  final GoRouter _rootRouter = GoRouter(
-    navigatorKey: rootNavigatorKey,
-    initialLocation: '/login',
-    routes: [
-      // GoRoute(
-      //   path: '/splash',
-      //   builder: (context, state) {
-      //     return const SplashScreen();
-      //   },
-      // ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) {
-          return AuthenticationScreen();
-        },
-      ),
-      ShellRoute(
-        navigatorKey: shellNavigatorKey,
-        builder: (context, state, child) {
-          return MainScreen(content: child);
-        },
-        routes: [
-          RouteUtils.buildNoTransitionRoute(
-            path: '/loan-dashboard',
-            child: LoanDashboardScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
-            path: '/lot-dashboard',
-            child: LotDashboardScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
-            path: '/users',
-            child: UserListScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
-            path: '/settings',
-            child: SettingsScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
-            path: '/loan-calculator',
-            child: LoanCalculatorScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
-            path: '/add-loan',
-            child: AddLoanScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
-            path: '/add-lot',
-            child: AddLotScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
-            path: '/add-user',
-            child: AddUserScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
-            path: '/users/:userId',
-            child: UserDetailsScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
-            path: '/lots/:lotId',
-            child: LotDetailsScreen(),
-          ),
-        ],
-      )
-    ],
-  );
+  late final GoRouter _rootRouter;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _rootRouter = GoRouter(
+      navigatorKey: rootNavigatorKey,
+      initialLocation: '/login',
+      routes: [
+        // GoRoute(
+        //   path: '/splash',
+        //   builder: (context, state) {
+        //     return const SplashScreen();
+        //   },
+        // ),
+        GoRoute(
+          path: '/login',
+          builder: (context, state) {
+            return AuthenticationScreen();
+          },
+        ),
+        ShellRoute(
+          navigatorKey: shellNavigatorKey,
+          builder: (context, state, child) {
+            return MainScreen(content: child);
+          },
+          routes: [
+            RouteUtils.buildNoTransitionRoute(
+              path: '/loan-dashboard',
+              child: LoanDashboardScreen(),
+            ),
+            RouteUtils.buildNoTransitionRoute(
+              path: '/lot-dashboard',
+              child: LotDashboardScreen(),
+            ),
+            RouteUtils.buildNoTransitionRoute(
+              path: '/users',
+              child: UserListScreen(),
+            ),
+            RouteUtils.buildNoTransitionRoute(
+              path: '/settings',
+              child: SettingsScreen(),
+            ),
+            RouteUtils.buildNoTransitionRoute(
+              path: '/loan-calculator',
+              child: LoanCalculatorScreen(),
+            ),
+            if (!widget.isMobile())
+              ...[
+                RouteUtils.buildNoTransitionRoute(
+                  path: '/add-loan',
+                  child: AddLoanScreen(),
+                ),
+                RouteUtils.buildNoTransitionRoute(
+                  path: '/add-lot',
+                  child: AddLotScreen(),
+                ),
+                RouteUtils.buildNoTransitionRoute(
+                  path: '/add-user',
+                  child: AddUserScreen(),
+                ),
+                RouteUtils.buildNoTransitionRoute(
+                  path: '/users/:userId',
+                  child: UserDetailsScreen(),
+                ),
+                RouteUtils.buildNoTransitionRoute(
+                  path: '/lots/:lotId',
+                  child: LotDetailsScreen(),
+                ),
+              ],
+          ],
+        ),
+        if (widget.isMobile())
+          ...[
+            RouteUtils.buildNoTransitionRoute(
+              path: '/add-loan',
+              parentNavigatorKey: rootNavigatorKey,
+              child: AddLoanScreen(),
+            ),
+            RouteUtils.buildNoTransitionRoute(
+              path: '/add-lot',
+              parentNavigatorKey: rootNavigatorKey,
+              child: AddLotScreen(),
+            ),
+            RouteUtils.buildNoTransitionRoute(
+              path: '/add-user',
+              parentNavigatorKey: rootNavigatorKey,
+              child: AddUserScreen(),
+            ),
+            RouteUtils.buildNoTransitionRoute(
+              path: '/users/:userId',
+              parentNavigatorKey: rootNavigatorKey,
+              child: UserDetailsScreen(),
+            ),
+            RouteUtils.buildNoTransitionRoute(
+              path: '/lots/:lotId',
+              parentNavigatorKey: rootNavigatorKey,
+              child: LotDetailsScreen(),
+            ),
+          ],
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

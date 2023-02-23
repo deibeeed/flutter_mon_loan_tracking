@@ -3,7 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
+import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
+import 'package:go_router/go_router.dart';
 
 class LotDetailsScreen extends StatefulWidget {
   String? lotId;
@@ -37,10 +40,6 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
 
-    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
-      buttonPadding = const EdgeInsets.all(16);
-    }
-
     if (lotBloc.selectedLot != null){
       final lot = lotBloc.selectedLot!;
       _blockNoController.text = lot.blockNo;
@@ -49,7 +48,93 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
       _descriptionController.text = lot.description;
     }
 
+    final width = screenSize.width;
+    final computedWidth = width * 0.88;
+    var appBarHeight = screenSize.height * 0.16;
+    var loginContainerRadius = Constants.defaultRadius;
+    var loginContainerMarginTop = 64.0;
+    var titleTextStyle = Theme.of(context).textTheme.displaySmall;
+    var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
+    var avatarSize = 56.0;
+    var contentPadding = const EdgeInsets.all(58);
+    var appBarBottomPadding = 48.0;
+
+    if (appBarHeight > Constants.maxAppBarHeight) {
+      appBarHeight = Constants.maxAppBarHeight;
+    }
+
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
+      buttonPadding = const EdgeInsets.all(16);
+      loginContainerRadius = const Radius.circular(64);
+      loginContainerMarginTop = 32;
+      titleTextStyle = Theme.of(context).textTheme.headlineMedium;
+      avatarTextStyle = Theme.of(context).textTheme.titleSmall;
+      avatarSize = 48;
+      contentPadding = const EdgeInsets.only(
+        left: 32,
+        right: 32,
+        top: 16,
+        bottom: 16,
+      );
+      appBarBottomPadding = 24;
+    }
+
     return Scaffold(
+      appBar: !widget.isMobile() ? null :
+      PreferredSize(
+        preferredSize: Size.fromHeight(appBarHeight),
+        child: AppBar(
+          backgroundColor:
+          Theme.of(context).colorScheme.primary.withOpacity(0.48),
+          leading: Container(),
+          bottom: PreferredSize(
+            preferredSize: Size.zero,
+            child: Container(
+              width: computedWidth,
+              margin: EdgeInsets.only(bottom: appBarBottomPadding),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    lotBloc.selectedLot?.completeBlockLotNo ?? 'Block & Lot',
+                    style: titleTextStyle?.apply(color: Colors.white),
+                  ),
+                  SizedBox(
+                    width: avatarSize,
+                    height: avatarSize,
+                    child: InkWell(
+                      onTap: () {
+                        final user = context.read<UserBloc>().getLoggedInUser();
+                        if (user != null) {
+                          GoRouter.of(context)
+                              .push('/users/${user.id}');
+                        }
+                      },
+                      child: CircleAvatar(
+                        backgroundColor:
+                        Theme.of(context).colorScheme.primaryContainer,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            context.read<UserBloc>().getLoggedInUser()?.initials ?? 'No',
+                            style: avatarTextStyle,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: loginContainerRadius,
+              bottomRight: loginContainerRadius,
+            ),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: BlocListener<LotBloc, LotState>(
           listener: (context, state) {
@@ -63,261 +148,264 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
               }
             }
           },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Summary',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(
-                height: 32,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Block No.'),
-                  BlocBuilder<LoanBloc, LoanState>(
-                    buildWhen: (previousState, currentState) {
-                      return currentState is LotSuccessState;
-                    },
-                    builder: (context, state) {
-                      return Text(
-                        '${lotBloc.selectedLot?.blockNo}',
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Block No.'),
-                  BlocBuilder<LoanBloc, LoanState>(
-                    buildWhen: (previousState, currentState) {
-                      return currentState is LotSuccessState;
-                    },
-                    builder: (context, state) {
-                      return Text(
-                        '${lotBloc.selectedLot?.lotNo}',
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Area'),
-                  BlocBuilder<LoanBloc, LoanState>(
-                    buildWhen: (previousState, currentState) {
-                      return currentState is LotSuccessState;
-                    },
-                    builder: (context, state) {
-                      return Text(
-                        '${lotBloc.selectedLot?.area}',
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Lot category'),
-                  BlocBuilder<LoanBloc, LoanState>(
-                    buildWhen: (previousState, currentState) {
-                      return currentState is LotSuccessState;
-                    },
-                    builder: (context, state) {
-                      return Text(
-                        '${lotBloc.selectedLot?.lotCategory}',
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Description'),
-                  BlocBuilder<LoanBloc, LoanState>(
-                    buildWhen: (previousState, currentState) {
-                      return currentState is LotSuccessState;
-                    },
-                    builder: (context, state) {
-                      return Text(
-                        '${lotBloc.selectedLot?.description}',
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 32,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Reserved to'),
-                  BlocBuilder<LoanBloc, LoanState>(
-                    buildWhen: (previousState, currentState) {
-                      return currentState is LotSuccessState;
-                    },
-                    builder: (context, state) {
-                      return Text(
-                        lotBloc.selectedLot?.reservedTo ?? 'Available',
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 32,
-              ),
-              TextFormField(
-                controller: _blockNoController,
-                decoration: const InputDecoration(
-                  label: Text('Block no'),
-                  border: OutlineInputBorder(),
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Summary',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-                keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                ],
-                onChanged: (value) {
-                  // settingsBloc.updateSettings(
-                  //   field: SettingField.loanInterestRate,
-                  //   value: value,
-                  // );
-                },
-              ),
-              const SizedBox(
-                height: 32,
-              ),
-              TextFormField(
-                controller: _lotNoController,
-                decoration: const InputDecoration(
-                  label: Text('Lot no'),
-                  border: OutlineInputBorder(),
+                const SizedBox(
+                  height: 32,
                 ),
-                keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                ],
-                // onChanged: (value) => settingsBloc.updateSettings(
-                //   field: SettingField.incidentalFeeRate,
-                //   value: value,
-                // ),
-              ),
-              const SizedBox(
-                height: 32,
-              ),
-              TextFormField(
-                controller: _areaController,
-                decoration: const InputDecoration(
-                  label: Text('Area'),
-                  suffixText: 'sqm',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                ],
-                // onChanged: (value) => settingsBloc.updateSettings(
-                //   field: SettingField.perSquareMeterRate,
-                //   value: value,
-                // ),
-              ),
-              const SizedBox(
-                height: 32,
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: BlocBuilder<LotBloc, LotState>(
-                  builder: (context, state) {
-                    var dropdownValue = lotBloc.lotCategories.first;
-
-                    if (lotBloc.selectedLot != null) {
-                      dropdownValue = lotBloc.selectedLot!.lotCategory;
-                    }
-
-                    if (state is SelectedLotCategoryLotState) {
-                      dropdownValue = state.selectedLotCategory;
-                    }
-
-                    return DropdownButton<String>(
-                      value: dropdownValue,
-                      items: lotBloc.lotCategories.map((category) {
-                        return DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(category),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Block No.'),
+                    BlocBuilder<LoanBloc, LoanState>(
+                      buildWhen: (previousState, currentState) {
+                        return currentState is LotSuccessState;
+                      },
+                      builder: (context, state) {
+                        return Text(
+                          '${lotBloc.selectedLot?.blockNo}',
                         );
-                      }).toList(),
-                      onChanged: (value) => lotBloc.selectLotCategory(
-                        lotCategory: value,
-                      ),
-                    );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Block No.'),
+                    BlocBuilder<LoanBloc, LoanState>(
+                      buildWhen: (previousState, currentState) {
+                        return currentState is LotSuccessState;
+                      },
+                      builder: (context, state) {
+                        return Text(
+                          '${lotBloc.selectedLot?.lotNo}',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Area'),
+                    BlocBuilder<LoanBloc, LoanState>(
+                      buildWhen: (previousState, currentState) {
+                        return currentState is LotSuccessState;
+                      },
+                      builder: (context, state) {
+                        return Text(
+                          '${lotBloc.selectedLot?.area}',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Lot category'),
+                    BlocBuilder<LoanBloc, LoanState>(
+                      buildWhen: (previousState, currentState) {
+                        return currentState is LotSuccessState;
+                      },
+                      builder: (context, state) {
+                        return Text(
+                          '${lotBloc.selectedLot?.lotCategory}',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Description'),
+                    BlocBuilder<LoanBloc, LoanState>(
+                      buildWhen: (previousState, currentState) {
+                        return currentState is LotSuccessState;
+                      },
+                      builder: (context, state) {
+                        return Text(
+                          '${lotBloc.selectedLot?.description}',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 32,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Reserved to'),
+                    BlocBuilder<LoanBloc, LoanState>(
+                      buildWhen: (previousState, currentState) {
+                        return currentState is LotSuccessState;
+                      },
+                      builder: (context, state) {
+                        return Text(
+                          lotBloc.selectedLot?.reservedTo ?? 'Available',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 32,
+                ),
+                TextFormField(
+                  controller: _blockNoController,
+                  decoration: const InputDecoration(
+                    label: Text('Block no'),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
+                  onChanged: (value) {
+                    // settingsBloc.updateSettings(
+                    //   field: SettingField.loanInterestRate,
+                    //   value: value,
+                    // );
                   },
                 ),
-              ),
-              const SizedBox(
-                height: 32,
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  label: Text('Lot description'),
-                  border: OutlineInputBorder(),
+                const SizedBox(
+                  height: 32,
                 ),
-              ),
-              const SizedBox(
-                height: 56,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => lotBloc.updateLot(
-                        area: _areaController.text,
-                        blockNo: _blockNoController.text,
-                        lotNo: _lotNoController.text,
-                        description: _descriptionController.text,
+                TextFormField(
+                  controller: _lotNoController,
+                  decoration: const InputDecoration(
+                    label: Text('Lot no'),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
+                  // onChanged: (value) => settingsBloc.updateSettings(
+                  //   field: SettingField.incidentalFeeRate,
+                  //   value: value,
+                  // ),
+                ),
+                const SizedBox(
+                  height: 32,
+                ),
+                TextFormField(
+                  controller: _areaController,
+                  decoration: const InputDecoration(
+                    label: Text('Area'),
+                    suffixText: 'sqm',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
+                  // onChanged: (value) => settingsBloc.updateSettings(
+                  //   field: SettingField.perSquareMeterRate,
+                  //   value: value,
+                  // ),
+                ),
+                const SizedBox(
+                  height: 32,
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: BlocBuilder<LotBloc, LotState>(
+                    builder: (context, state) {
+                      var dropdownValue = lotBloc.lotCategories.first;
+
+                      if (lotBloc.selectedLot != null) {
+                        dropdownValue = lotBloc.selectedLot!.lotCategory;
+                      }
+
+                      if (state is SelectedLotCategoryLotState) {
+                        dropdownValue = state.selectedLotCategory;
+                      }
+
+                      return DropdownButton<String>(
+                        value: dropdownValue,
+                        items: lotBloc.lotCategories.map((category) {
+                          return DropdownMenuItem<String>(
+                            value: category,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                        onChanged: (value) => lotBloc.selectLotCategory(
+                          lotCategory: value,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 32,
+                ),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    label: Text('Lot description'),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(
+                  height: 56,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => lotBloc.updateLot(
+                          area: _areaController.text,
+                          blockNo: _blockNoController.text,
+                          lotNo: _lotNoController.text,
+                          description: _descriptionController.text,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                            padding: buttonPadding,
+                            backgroundColor:
+                            Theme.of(context).colorScheme.primary),
+                        child: Text(
+                          'Update lot',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.apply(color: Colors.white),
+                        ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                          padding: buttonPadding,
-                          backgroundColor:
-                          Theme.of(context).colorScheme.primary),
-                      child: Text(
-                        'Update lot',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.apply(color: Colors.white),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ],
+                    )
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
