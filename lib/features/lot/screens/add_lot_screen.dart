@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
+import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,9 +24,28 @@ class AddLotScreen extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
+    final width = screenSize.width;
+    final computedWidth = width * 0.88;
+    var appBarHeight = screenSize.height * 0.16;
+    var appBarBottomPadding = 48.0;
+    var loginContainerRadius = Constants.defaultRadius;
+    var loginContainerMarginTop = 64.0;
+    var titleTextStyle = Theme.of(context).textTheme.displaySmall;
+    var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
+    var avatarSize = 56.0;
 
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       buttonPadding = const EdgeInsets.all(16);
+      appBarBottomPadding = 24;
+      loginContainerRadius = const Radius.circular(64);
+      loginContainerMarginTop = 32;
+      titleTextStyle = Theme.of(context).textTheme.headlineMedium;
+      avatarTextStyle = Theme.of(context).textTheme.titleSmall;
+      avatarSize = 48;
+    }
+
+    if (appBarHeight > Constants.maxAppBarHeight) {
+      appBarHeight = Constants.maxAppBarHeight;
     }
 
     return BlocListener<LotBloc, LotState>(
@@ -84,102 +105,171 @@ class AddLotScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Lot category',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: BlocBuilder<LotBloc, LotState>(
-                  builder: (context, state) {
-                    String dropdownValue = lotBloc.lotCategories.first;
-
-                    if (state is SelectedLotCategoryLotState) {
-                      dropdownValue = state.selectedLotCategory;
-                    }
-
-                    return DropdownButton<String>(
-                      value: dropdownValue,
-                      items: lotBloc.lotCategories.map((category) {
-                        return DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(category),
-                        );
-                      }).toList(),
-                      onChanged: (value) => lotBloc.selectLotCategory(
-                        lotCategory: value,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 32,
-              ),
-              TextFormField(
-                controller: areaController,
-                decoration: const InputDecoration(
-                  label: Text('Area'),
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                ],
-              ),
-              const SizedBox(
-                height: 32,
-              ),
-              TextFormField(
-                controller: blockLotNumberController,
-                decoration: const InputDecoration(
-                    label: Text('Block and lot numbers'),
-                    border: OutlineInputBorder()),
-              ),
-              const SizedBox(
-                height: 32,
-              ),
-              TextFormField(
-                controller: lotDescriptionController,
-                maxLines: 8,
-                decoration: const InputDecoration(
-                    label: Text('Lot description'), border: OutlineInputBorder()),
-              ),
-              const SizedBox(
-                height: 96,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => lotBloc.addLot(
-                          area: areaController.text,
-                          blockLotNos: blockLotNumberController.text,
-                          description: lotDescriptionController.text),
-                      style: ElevatedButton.styleFrom(
-                        padding: buttonPadding,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                      ),
-                      child: Text(
-                        'Add lot',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.apply(color: Colors.white),
+        appBar: !isMobile()
+            ? null
+            : PreferredSize(
+                preferredSize: Size.fromHeight(appBarHeight),
+                child: AppBar(
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.48),
+                  leading: Container(),
+                  bottom: PreferredSize(
+                    preferredSize: Size.zero,
+                    child: Container(
+                      width: computedWidth,
+                      margin: EdgeInsets.only(bottom: appBarBottomPadding),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Add loan',
+                            style: titleTextStyle?.apply(color: Colors.white),
+                          ),
+                          SizedBox(
+                            width: avatarSize,
+                            height: avatarSize,
+                            child: InkWell(
+                              onTap: () {
+                                final user =
+                                    context.read<UserBloc>().getLoggedInUser();
+                                if (user != null) {
+                                  GoRouter.of(context)
+                                      .push('/users/${user.id}');
+                                }
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Text(
+                                    context
+                                            .read<UserBloc>()
+                                            .getLoggedInUser()
+                                            ?.initials ??
+                                        'No',
+                                    style: avatarTextStyle,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  )
-                ],
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: loginContainerRadius,
+                      bottomRight: loginContainerRadius,
+                    ),
+                  ),
+                ),
               ),
-            ],
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: shortestSide <= Constants.smallScreenShortestSideBreakPoint
+                ? const EdgeInsets.all(16)
+                : EdgeInsets.zero,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Lot category',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: BlocBuilder<LotBloc, LotState>(
+                    builder: (context, state) {
+                      String dropdownValue = lotBloc.lotCategories.first;
+
+                      if (state is SelectedLotCategoryLotState) {
+                        dropdownValue = state.selectedLotCategory;
+                      }
+
+                      return DropdownButton<String>(
+                        value: dropdownValue,
+                        items: lotBloc.lotCategories.map((category) {
+                          return DropdownMenuItem<String>(
+                            value: category,
+                            child: Text(category),
+                          );
+                        }).toList(),
+                        onChanged: (value) => lotBloc.selectLotCategory(
+                          lotCategory: value,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 32,
+                ),
+                TextFormField(
+                  controller: areaController,
+                  decoration: const InputDecoration(
+                    label: Text('Area'),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
+                ),
+                const SizedBox(
+                  height: 32,
+                ),
+                TextFormField(
+                  controller: blockLotNumberController,
+                  decoration: const InputDecoration(
+                      label: Text('Block and lot numbers'),
+                      border: OutlineInputBorder()),
+                ),
+                const SizedBox(
+                  height: 32,
+                ),
+                TextFormField(
+                  controller: lotDescriptionController,
+                  maxLines: 8,
+                  decoration: const InputDecoration(
+                      label: Text('Lot description'),
+                      border: OutlineInputBorder()),
+                ),
+                const SizedBox(
+                  height: 96,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => lotBloc.addLot(
+                            area: areaController.text,
+                            blockLotNos: blockLotNumberController.text,
+                            description: lotDescriptionController.text),
+                        style: ElevatedButton.styleFrom(
+                          padding: buttonPadding,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                        ),
+                        child: Text(
+                          'Add lot',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.apply(color: Colors.white),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
+import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:go_router/go_router.dart';
 
 class AddUserScreen extends StatelessWidget {
   AddUserScreen({super.key});
@@ -24,8 +26,28 @@ class AddUserScreen extends StatelessWidget {
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
 
+    final width = screenSize.width;
+    final computedWidth = width * 0.88;
+    var appBarHeight = screenSize.height * 0.16;
+    var appBarBottomPadding = 48.0;
+    var loginContainerRadius = Constants.defaultRadius;
+    var loginContainerMarginTop = 64.0;
+    var titleTextStyle = Theme.of(context).textTheme.displaySmall;
+    var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
+    var avatarSize = 56.0;
+
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       buttonPadding = const EdgeInsets.all(16);
+      appBarBottomPadding = 24;
+      loginContainerRadius = const Radius.circular(64);
+      loginContainerMarginTop = 32;
+      titleTextStyle = Theme.of(context).textTheme.headlineMedium;
+      avatarTextStyle = Theme.of(context).textTheme.titleSmall;
+      avatarSize = 48;
+    }
+
+    if (appBarHeight > Constants.maxAppBarHeight) {
+      appBarHeight = Constants.maxAppBarHeight;
     }
 
     return BlocListener<UserBloc, UserState>(
@@ -64,7 +86,89 @@ class AddUserScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        body: Column(
+        appBar: !isMobile()
+            ? null
+            : PreferredSize(
+          preferredSize: Size.fromHeight(appBarHeight),
+          child: AppBar(
+            backgroundColor:
+            Theme.of(context).colorScheme.primary.withOpacity(0.48),
+            leading: Container(),
+            bottom: PreferredSize(
+              preferredSize: Size.zero,
+              child: Container(
+                width: computedWidth,
+                margin: EdgeInsets.only(bottom: appBarBottomPadding),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Add loan',
+                      style: titleTextStyle?.apply(color: Colors.white),
+                    ),
+                    SizedBox(
+                      width: avatarSize,
+                      height: avatarSize,
+                      child: InkWell(
+                        onTap: () {
+                          final user =
+                          context.read<UserBloc>().getLoggedInUser();
+                          if (user != null) {
+                            GoRouter.of(context)
+                                .push('/users/${user.id}');
+                          }
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .primaryContainer,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                              context
+                                  .read<UserBloc>()
+                                  .getLoggedInUser()
+                                  ?.initials ??
+                                  'No',
+                              style: avatarTextStyle,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: loginContainerRadius,
+                bottomRight: loginContainerRadius,
+              ),
+            ),
+          ),
+        ),
+        body: shortestSide <= Constants.smallScreenShortestSideBreakPoint
+        ? _buildSmallScreenBody(context: context)
+        : _buildLargeScreenBody(context: context),
+      ),
+    );
+  }
+
+  Widget _buildSmallScreenBody({ required BuildContext context }) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    final screenSize = MediaQuery.of(context).size;
+    final shortestSide = screenSize.shortestSide;
+    var buttonPadding = const EdgeInsets.all(24);
+
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
+      buttonPadding = const EdgeInsets.all(16);
+    }
+
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
           children: [
             TextFormField(
               controller: lastNameController,
@@ -82,89 +186,69 @@ class AddUserScreen extends StatelessWidget {
             const SizedBox(
               height: 32,
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: birthDateController,
-                    decoration: const InputDecoration(
-                      label: Text('Birthdate'),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: civilStatusController,
-                    decoration: const InputDecoration(
-                      label: Text('Civil status'),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: mobileNumberController,
-                    decoration: const InputDecoration(
-                      label: Text('Mobile number'),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                    ],
-                  ),
-                ),
+            TextFormField(
+              controller: birthDateController,
+              decoration: const InputDecoration(
+                label: Text('Birthdate'),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            TextFormField(
+              controller: civilStatusController,
+              decoration: const InputDecoration(
+                label: Text('Civil status'),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            TextFormField(
+              controller: mobileNumberController,
+              decoration: const InputDecoration(
+                label: Text('Mobile number'),
+                border: OutlineInputBorder(),
+              ),
+              keyboardType:
+              const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
             ),
             const SizedBox(
               height: 32,
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: emailController,
-                    decoration: const InputDecoration(
-                      label: Text('Email'),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      label: Text('Password'),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: confirmPasswordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      label: Text('Confirm password'),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ],
+            TextFormField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                label: Text('Email'),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            TextFormField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                label: Text('Password'),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            TextFormField(
+              controller: confirmPasswordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                label: Text('Confirm password'),
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(
               height: 32,
@@ -199,6 +283,151 @@ class AddUserScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLargeScreenBody({ required BuildContext context }) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    final screenSize = MediaQuery.of(context).size;
+    final shortestSide = screenSize.shortestSide;
+    var buttonPadding = const EdgeInsets.all(24);
+
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
+      buttonPadding = const EdgeInsets.all(16);
+    }
+    return Column(
+      children: [
+        TextFormField(
+          controller: lastNameController,
+          decoration: const InputDecoration(
+              label: Text('Last name'), border: OutlineInputBorder()),
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        TextFormField(
+          controller: firstNameController,
+          decoration: const InputDecoration(
+              label: Text('First name'), border: OutlineInputBorder()),
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: birthDateController,
+                decoration: const InputDecoration(
+                  label: Text('Birthdate'),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 32,
+            ),
+            Expanded(
+              child: TextFormField(
+                controller: civilStatusController,
+                decoration: const InputDecoration(
+                  label: Text('Civil status'),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 32,
+            ),
+            Expanded(
+              child: TextFormField(
+                controller: mobileNumberController,
+                decoration: const InputDecoration(
+                  label: Text('Mobile number'),
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  label: Text('Email'),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 32,
+            ),
+            Expanded(
+              child: TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  label: Text('Password'),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 32,
+            ),
+            Expanded(
+              child: TextFormField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  label: Text('Confirm password'),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => userBloc.addUser(
+                    lastName: lastNameController.text,
+                    firstName: firstNameController.text,
+                    birthDate: birthDateController.text,
+                    civilStatus: civilStatusController.text,
+                    mobileNumber: mobileNumberController.text,
+                    email: emailController.text,
+                    password: passwordController.text,
+                    confirmPassword: confirmPasswordController.text),
+                style: ElevatedButton.styleFrom(
+                    padding: buttonPadding,
+                    backgroundColor: Theme.of(context).colorScheme.primary),
+                child: Text(
+                  'Add User',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.apply(color: Colors.white),
+                ),
+              ),
+            )
+          ],
+        ),
+      ],
     );
   }
 }
