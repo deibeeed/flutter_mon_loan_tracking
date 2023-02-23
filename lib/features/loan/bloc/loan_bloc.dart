@@ -517,7 +517,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             .then((value) => value.flattened);
         _clientLoanSchedules
         ..clear()
-        ..addAll(schedules.sortedBy((schedule) => schedule.createdAt).toList());
+        ..addAll(schedules.sortedBy((schedule) => schedule.date).toList());
       } else {
         if (_loans.isEmpty) {
           final loans = await loanRepository.all();
