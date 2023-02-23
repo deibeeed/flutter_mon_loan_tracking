@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -41,6 +42,36 @@ class AddLoanScreen extends StatelessWidget {
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       buttonPadding = const EdgeInsets.all(16);
       computationDetailsWidth = screenSize.width * 0.3;
+    }
+
+    final width = screenSize.width;
+    final computedWidth = width * 0.88;
+    var appBarHeight = screenSize.height * 0.16;
+    var loginContainerRadius = Constants.defaultRadius;
+    var loginContainerMarginTop = 64.0;
+    var titleTextStyle = Theme.of(context).textTheme.displaySmall;
+    var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
+    var avatarSize = 56.0;
+    var contentPadding = const EdgeInsets.all(58);
+    var appBarBottomPadding = 48.0;
+
+    if (appBarHeight > Constants.maxAppBarHeight) {
+      appBarHeight = Constants.maxAppBarHeight;
+    }
+
+    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
+      loginContainerRadius = const Radius.circular(64);
+      loginContainerMarginTop = 32;
+      titleTextStyle = Theme.of(context).textTheme.headlineMedium;
+      avatarTextStyle = Theme.of(context).textTheme.titleSmall;
+      avatarSize = 48;
+      contentPadding = const EdgeInsets.only(
+        left: 32,
+        right: 32,
+        top: 16,
+        bottom: 16,
+      );
+      appBarBottomPadding = 24;
     }
 
     return BlocListener<LoanBloc, LoanState>(
@@ -91,205 +122,159 @@ class AddLoanScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
+        appBar: !isMobile()
+            ? null
+            : PreferredSize(
+                preferredSize: Size.fromHeight(appBarHeight),
+                child: AppBar(
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.48),
+                  leading: Container(),
+                  bottom: PreferredSize(
+                    preferredSize: Size.zero,
+                    child: Container(
+                      width: computedWidth,
+                      margin: EdgeInsets.only(bottom: appBarBottomPadding),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Add loan',
+                            style: titleTextStyle?.apply(color: Colors.white),
+                          ),
+                          SizedBox(
+                            width: avatarSize,
+                            height: avatarSize,
+                            child: InkWell(
+                              onTap: () {
+                                final user =
+                                    context.read<UserBloc>().getLoggedInUser();
+                                if (user != null) {
+                                  GoRouter.of(context)
+                                      .push('/users/${user.id}');
+                                }
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Text(
+                                    context
+                                            .read<UserBloc>()
+                                            .getLoggedInUser()
+                                            ?.initials ??
+                                        'No',
+                                    style: avatarTextStyle,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: loginContainerRadius,
+                      bottomRight: loginContainerRadius,
+                    ),
+                  ),
+                ),
+              ),
         body: ListView(
           children: [
-            Autocomplete(
-              optionsBuilder: (value) => loanBloc.users.where(
-                (user) => user.lastName.toLowerCase().contains(
-                      value.text.toLowerCase(),
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Autocomplete(
+                    optionsBuilder: (value) => loanBloc.users.where(
+                      (user) => user.lastName.toLowerCase().contains(
+                            value.text.toLowerCase(),
+                          ),
                     ),
-              ),
-              displayStringForOption: (user) => user.completeName,
-              onSelected: (user) => loanBloc.selectUser(user: user),
-              fieldViewBuilder: (context, textEditingController, focusNode,
-                  onFieldSubmitted) {
-                return TextFormField(
-                  controller: textEditingController,
-                  focusNode: focusNode,
-                  onFieldSubmitted: (value) => onFieldSubmitted(),
-                  decoration: const InputDecoration(
-                    label: Text('Last name'),
-                    border: OutlineInputBorder(),
+                    displayStringForOption: (user) => user.completeName,
+                    onSelected: (user) => loanBloc.selectUser(user: user),
+                    fieldViewBuilder: (context, textEditingController,
+                        focusNode, onFieldSubmitted) {
+                      return TextFormField(
+                        controller: textEditingController,
+                        focusNode: focusNode,
+                        onFieldSubmitted: (value) => onFieldSubmitted(),
+                        decoration: const InputDecoration(
+                          label: Text('Last name'),
+                          border: OutlineInputBorder(),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: firstNameController,
-              enabled: false,
-              decoration: const InputDecoration(
-                  label: Text('First name'), border: OutlineInputBorder()),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            BlocBuilder<LoanBloc, LoanState>(
-                buildWhen: (previous, current) => current is LoanSuccessState,
-                builder: (context, state) {
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: blockNoController,
-                          decoration: const InputDecoration(
-                            label: Text('Block No.'),
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                          ],
-                          onChanged: (value) => loanBloc.setBlockAndLotNo(
-                            type: 'blockNo',
-                            no: value,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 32,
-                      ),
-                      Expanded(
-                        child: TextFormField(
-                          controller: lotNoController,
-                          decoration: const InputDecoration(
-                            label: Text('Lot no.'),
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                          ],
-                          onChanged: (value) => loanBloc.setBlockAndLotNo(
-                            type: 'lotNo',
-                            no: value,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 32,
-                      ),
-                      Expanded(
-                        child: TextFormField(
-                          controller: lotAreaController,
-                          enabled: false,
-                          decoration: const InputDecoration(
-                            label: Text('Lot Area (sqm)'),
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 32,
-                      ),
-                      Expanded(
-                        child: TextFormField(
-                          controller: lotCategoryController,
-                          enabled: false,
-                          decoration: const InputDecoration(
-                              label: Text('Lot category'),
-                              border: OutlineInputBorder()),
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-            const SizedBox(
-              height: 32,
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: pricePerSqmController,
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  TextFormField(
+                    controller: firstNameController,
                     enabled: false,
                     decoration: const InputDecoration(
-                      label: Text('Price / sqm'),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                    ],
+                        label: Text('First name'),
+                        border: OutlineInputBorder()),
                   ),
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: tcpController,
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      label: Text('Total contract price'),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                    ],
+                  const SizedBox(
+                    height: 32,
                   ),
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: loanDurationController,
-                    decoration: const InputDecoration(
-                      label: Text('Loan duration (Years)'),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    controller: downpaymentController,
-                    decoration: const InputDecoration(
-                      label: Text('Downpayment'),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: discountController,
+                  BlocBuilder<LoanBloc, LoanState>(
+                      buildWhen: (previous, current) =>
+                          current is LoanSuccessState,
+                      builder: (context, state) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: blockNoController,
                               decoration: const InputDecoration(
-                                label: Text('Discount'),
+                                label: Text('Block No.'),
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp('[0-9.,]'))
+                              ],
+                              onChanged: (value) => loanBloc.setBlockAndLotNo(
+                                type: 'blockNo',
+                                no: value,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 32,
+                            ),
+                            TextFormField(
+                              controller: lotNoController,
+                              decoration: const InputDecoration(
+                                label: Text('Lot no.'),
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp('[0-9.,]'))
+                              ],
+                              onChanged: (value) => loanBloc.setBlockAndLotNo(
+                                type: 'lotNo',
+                                no: value,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 32,
+                            ),
+                            TextFormField(
+                              controller: lotAreaController,
+                              enabled: false,
+                              decoration: const InputDecoration(
+                                label: Text('Lot Area (sqm)'),
                                 border: OutlineInputBorder(),
                               ),
                               keyboardType:
@@ -297,135 +282,250 @@ class AddLoanScreen extends StatelessWidget {
                                       decimal: true),
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
-                                  RegExp('[0-9.,]'),
-                                )
+                                    RegExp('[0-9.,]'))
                               ],
                             ),
-                          ),
-                          const SizedBox(
-                            width: 32,
-                          ),
-                          Expanded(
-                            child: TextFormField(
-                              controller: discountDescriptionController,
+                            const SizedBox(
+                              height: 32,
+                            ),
+                            TextFormField(
+                              controller: lotCategoryController,
+                              enabled: false,
                               decoration: const InputDecoration(
-                                label: Text('Description'),
+                                  label: Text('Lot category'),
+                                  border: OutlineInputBorder()),
+                            ),
+                            const SizedBox(
+                              height: 32,
+                            ),
+                            TextFormField(
+                              controller: pricePerSqmController,
+                              enabled: false,
+                              decoration: const InputDecoration(
+                                label: Text('Price / sqm'),
                                 border: OutlineInputBorder(),
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      BlocBuilder<LoanBloc, LoanState>(
-                          buildWhen: (previous, current) =>
-                              current is LoanSuccessState,
-                          builder: (context, state) {
-                            return Row(
-                              children: [
-                                for (var i = 0;
-                                    i < loanBloc.discounts.length;
-                                    i++)
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 16),
-                                    child: Chip(
-                                      padding: const EdgeInsets.only(
-                                          left: 8,
-                                          top: 8,
-                                          bottom: 8,
-                                          right: 16),
-                                      label: Text(
-                                        'Less: ${loanBloc.discounts[i].description}: ${loanBloc.discounts[i].discount.toCurrency()}',
-                                      ),
-                                      onDeleted: () =>
-                                          loanBloc.removeDiscount(position: i),
-                                      deleteIcon: const Icon(Icons.cancel),
-                                    ),
-                                  )
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp('[0-9.,]'))
                               ],
-                            );
-                          }),
+                            ),
+                            const SizedBox(
+                              height: 32,
+                            ),
+                            TextFormField(
+                              controller: tcpController,
+                              enabled: false,
+                              decoration: const InputDecoration(
+                                label: Text('Total contract price'),
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp('[0-9.,]'))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 32,
+                            ),
+                            TextFormField(
+                              controller: loanDurationController,
+                              decoration: const InputDecoration(
+                                label: Text('Loan duration (Years)'),
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp('[0-9.,]'))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 32,
+                            ),
+                            TextFormField(
+                              controller: downpaymentController,
+                              decoration: const InputDecoration(
+                                label: Text('Downpayment'),
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp('[0-9.,]'))
+                              ],
+                            ),
+                          ],
+                        );
+                      }),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: discountController,
+                                    decoration: const InputDecoration(
+                                      label: Text('Discount'),
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                            decimal: true),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(
+                                        RegExp('[0-9.,]'),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 32,
+                                ),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: discountDescriptionController,
+                                    decoration: const InputDecoration(
+                                      label: Text('Description'),
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 16,
+                            ),
+                            BlocBuilder<LoanBloc, LoanState>(
+                                buildWhen: (previous, current) =>
+                                    current is LoanSuccessState,
+                                builder: (context, state) {
+                                  return Row(
+                                    children: [
+                                      for (var i = 0;
+                                          i < loanBloc.discounts.length;
+                                          i++)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(right: 16),
+                                          child: Chip(
+                                            padding: const EdgeInsets.only(
+                                                left: 8,
+                                                top: 8,
+                                                bottom: 8,
+                                                right: 16),
+                                            label: Text(
+                                              'Less: ${loanBloc.discounts[i].description}: ${loanBloc.discounts[i].discount.toCurrency()}',
+                                            ),
+                                            onDeleted: () => loanBloc
+                                                .removeDiscount(position: i),
+                                            deleteIcon:
+                                                const Icon(Icons.cancel),
+                                          ),
+                                        )
+                                    ],
+                                  );
+                                }),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                const SizedBox(
-                  width: 16,
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      loanBloc.addDiscount(
-                        discount: discountController.text,
-                        description: discountDescriptionController.text,
-                      );
-                      discountController.text = '';
-                      discountDescriptionController.text = '';
-                    },
-                    style: ElevatedButton.styleFrom(
-                        padding: buttonPadding,
-                        backgroundColor: Theme.of(context).colorScheme.primary),
-                    child: Text(
-                      'Add discount',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.apply(color: Colors.white),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        loanBloc.addDiscount(
+                          discount: discountController.text,
+                          description: discountDescriptionController.text,
+                        );
+                        discountController.text = '';
+                        discountDescriptionController.text = '';
+                      },
+                      style: ElevatedButton.styleFrom(
+                          padding: buttonPadding,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary),
+                      child: Text(
+                        'Add discount',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.apply(color: Colors.white),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            Row(
-              children: [
-                Text(
-                  'Lot description',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ],
-            ),
-            BlocBuilder<LoanBloc, LoanState>(
-              buildWhen: (previous, current) => current is LoanSuccessState,
-              builder: (context, state) {
-                String? description = '';
-
-                if (loanBloc.selectedLot != null) {
-                  description = loanBloc.selectedLot?.description;
-                }
-
-                return Text(
-                  '${' ' * 16}$description',
-                );
-              },
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () => loanBloc.calculateLoan(
-                    downPayment: downpaymentController.text,
-                    yearsToPay: loanDurationController.text,
+                  const SizedBox(
+                    height: 32,
                   ),
-                  style: ElevatedButton.styleFrom(
-                      padding: buttonPadding,
-                      backgroundColor: Theme.of(context).colorScheme.primary),
-                  child: Text(
-                    'Calculate loan',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.apply(color: Colors.white),
+                  Row(
+                    children: [
+                      Text(
+                        'Lot description',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
                   ),
-                )
-              ],
+                  BlocBuilder<LoanBloc, LoanState>(
+                    buildWhen: (previous, current) =>
+                        current is LoanSuccessState,
+                    builder: (context, state) {
+                      String? description = '';
+
+                      if (loanBloc.selectedLot != null) {
+                        description = loanBloc.selectedLot?.description;
+                      }
+
+                      return Text(
+                        '${' ' * 16}$description',
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () => loanBloc.calculateLoan(
+                          downPayment: downpaymentController.text,
+                          yearsToPay: loanDurationController.text,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                            padding: buttonPadding,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary),
+                        child: Text(
+                          'Calculate loan',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.apply(color: Colors.white),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(
               height: 32,
@@ -436,13 +536,12 @@ class AddLoanScreen extends StatelessWidget {
             const SizedBox(
               height: 16,
             ),
-            Row(
-              children: [
-                Text(
-                  'Computation',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ],
+            Padding(
+              padding: EdgeInsets.only(left: 16),
+              child: Text(
+                'Computation',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
             ),
             const SizedBox(
               height: 16,
@@ -451,103 +550,77 @@ class AddLoanScreen extends StatelessWidget {
                 buildWhen: (previous, current) => current is LoanSuccessState,
                 builder: (context, state) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    padding: const EdgeInsets.only(left: 32.0, right: 16.0),
+                    child: Column(
                       children: [
-                        SizedBox(
-                          width: computationDetailsWidth,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Lot area:'),
-                                  Text(loanBloc.selectedLot?.description ?? ''),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Price per sqm:'),
-                                  Text(
-                                      '${loanBloc.settings?.perSquareMeterRate.toCurrency() ?? 0.toCurrency()} per sqm'),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Total contract price:'),
-                                  Text(loanBloc.computeTCP().toCurrency()),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Loan duration:'),
-                                  Text(
-                                      '${loanDurationController.text} years to pay (${loanBloc.yearsToMonths(years: loanDurationController.text)} mos.)'),
-                                ],
-                              ),
-                            ],
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Lot area:'),
+                            Text(loanBloc.selectedLot?.description ?? ''),
+                          ],
                         ),
-                        SizedBox(
-                          width: screenSize.width * 0.2,
-                          child: Column(
-                            children: [
-                              ...loanBloc.discounts
-                                  .map(
-                                    (discount) => Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text('Less: ${discount.description}:'),
-                                        Text(
-                                          discount.discount
-                                              .toCurrency(isDeduction: true),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                  .toList(),
-                              Row(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Price per sqm:'),
+                            Text(
+                                '${loanBloc.settings?.perSquareMeterRate.toCurrency() ?? 0.toCurrency()} per sqm'),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Total contract price:'),
+                            Text(loanBloc.computeTCP().toCurrency()),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Loan duration:'),
+                            Text(
+                                '${loanDurationController.text} years to pay (${loanBloc.yearsToMonths(years: loanDurationController.text)} mos.)'),
+                          ],
+                        ),
+                        ...loanBloc.discounts
+                            .map(
+                              (discount) => Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Add: Incidental fee:'),
-                                  Text(loanBloc
-                                      .computeIncidentalFee()
-                                      .toCurrency()),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Outstanding balance:'),
+                                  Text('Less: ${discount.description}:'),
                                   Text(
-                                      loanBloc.outstandingBalance.toCurrency()),
-                                ],
-                              ),
-                              const Divider(),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Monthly due:'),
-                                  Text(
-                                    loanBloc.monthlyAmortization.toCurrency(),
+                                    discount.discount
+                                        .toCurrency(isDeduction: true),
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
+                            )
+                            .toList(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Add: Incidental fee:'),
+                            Text(loanBloc.computeIncidentalFee().toCurrency()),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Outstanding balance:'),
+                            Text(loanBloc.outstandingBalance.toCurrency()),
+                          ],
+                        ),
+                        const Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Monthly due:'),
+                            Text(
+                              loanBloc.monthlyAmortization.toCurrency(),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -562,13 +635,12 @@ class AddLoanScreen extends StatelessWidget {
             const SizedBox(
               height: 32,
             ),
-            Row(
-              children: [
-                Text(
-                  'Loan schedule',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ],
+            Padding(
+              padding: EdgeInsets.only(left: 16),
+              child: Text(
+                'Loan schedule',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
             ),
             const SizedBox(
               height: 32,
@@ -583,7 +655,7 @@ class AddLoanScreen extends StatelessWidget {
                   child: DataTable(
                     dataRowHeight: 72,
                     headingRowColor: MaterialStateColor.resolveWith(
-                          (states) => Theme.of(context)
+                      (states) => Theme.of(context)
                           .colorScheme
                           .secondaryContainer
                           .withOpacity(0.32),
@@ -592,66 +664,67 @@ class AddLoanScreen extends StatelessWidget {
                       for (String name in Constants.loan_schedule_table_columns)
                         DataColumn(
                             label: Text(
-                              name.toUpperCase(),
-                              style: Theme.of(context).textTheme.titleMedium?.apply(
+                          name.toUpperCase(),
+                          style: Theme.of(context).textTheme.titleMedium?.apply(
                                 fontWeightDelta: 3,
                                 color: Theme.of(context).colorScheme.secondary,
                               ),
-                            ))
+                        ))
                     ],
                     rows: loanBloc.clientLoanSchedules
                         .map(
                           (schedule) => DataRow(
-                        cells: [
-                          DataCell(
-                            defaultCellText(
-                              text: Constants.defaultDateFormat.format(
-                                DateTime.fromMillisecondsSinceEpoch(
-                                  schedule.date.toInt(),
+                            cells: [
+                              DataCell(
+                                defaultCellText(
+                                  text: Constants.defaultDateFormat.format(
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                      schedule.date.toInt(),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          DataCell(
-                            Center(
-                              child: defaultCellText(
-                                text:
-                                schedule.outstandingBalance.toCurrency(),
+                              DataCell(
+                                Center(
+                                  child: defaultCellText(
+                                    text: schedule.outstandingBalance
+                                        .toCurrency(),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          DataCell(
-                            Center(
-                              child: defaultCellText(
-                                text:
-                                schedule.monthlyAmortization.toCurrency(),
+                              DataCell(
+                                Center(
+                                  child: defaultCellText(
+                                    text: schedule.monthlyAmortization
+                                        .toCurrency(),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          DataCell(
-                            Center(
-                              child: defaultCellText(
-                                text: schedule.principalPayment.toCurrency(),
+                              DataCell(
+                                Center(
+                                  child: defaultCellText(
+                                    text:
+                                        schedule.principalPayment.toCurrency(),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          DataCell(
-                            Center(
-                              child: defaultCellText(
-                                text: schedule.interestPayment.toCurrency(),
+                              DataCell(
+                                Center(
+                                  child: defaultCellText(
+                                    text: schedule.interestPayment.toCurrency(),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          DataCell(
-                            Center(
-                              child: defaultCellText(
-                                text: schedule.incidentalFee.toCurrency(),
+                              DataCell(
+                                Center(
+                                  child: defaultCellText(
+                                    text: schedule.incidentalFee.toCurrency(),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                    )
+                        )
                         .toList(),
                   ),
                 );
@@ -660,27 +733,27 @@ class AddLoanScreen extends StatelessWidget {
             const SizedBox(
               height: 32,
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => loanBloc.addLoan(
-                      yearsToPay: loanDurationController.text,
-                      downPayment: downpaymentController.text,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                        padding: buttonPadding,
-                        backgroundColor: Theme.of(context).colorScheme.primary),
-                    child: Text(
-                      'Add loan',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.apply(color: Colors.white),
-                    ),
-                  ),
-                )
-              ],
+            Padding(
+              padding: EdgeInsets.only(left: 16, right: 16),
+              child: ElevatedButton(
+                onPressed: () => loanBloc.addLoan(
+                  yearsToPay: loanDurationController.text,
+                  downPayment: downpaymentController.text,
+                ),
+                style: ElevatedButton.styleFrom(
+                    padding: buttonPadding,
+                    backgroundColor: Theme.of(context).colorScheme.primary),
+                child: Text(
+                  'Add loan',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.apply(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 32,
             ),
           ],
         ),
