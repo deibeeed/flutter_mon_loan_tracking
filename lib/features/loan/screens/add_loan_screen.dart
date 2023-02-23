@@ -184,7 +184,7 @@ class AddLoanScreen extends StatelessWidget {
                   ),
                 ),
               ),
-        body: isMobile()
+        body: shortestSide <= Constants.smallScreenShortestSideBreakPoint
             ? _buildSmallScreenBody(context: context)
             : _buildLargeScreenBody(context: context),
       ),
