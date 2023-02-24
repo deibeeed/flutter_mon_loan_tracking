@@ -26,6 +26,7 @@ dependencies:
   infinite_scroll_pagination: ^3.2.0
   intl: ^0.17.0
   json_annotation: ^4.7.0
+  pdf: ^3.9.0
 
 dev_dependencies:
   bloc_test: ^9.1.0
