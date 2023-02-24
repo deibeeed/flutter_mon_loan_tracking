@@ -27,6 +27,7 @@ dependencies:
   intl: ^0.17.0
   json_annotation: ^4.7.0
   pdf: ^3.9.0
+  printing: ^5.10.1
 
 dev_dependencies:
   bloc_test: ^9.1.0
