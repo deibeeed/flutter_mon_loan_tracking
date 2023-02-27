@@ -9,9 +9,6 @@ import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
-import 'package:pdf/widgets.dart' as pw;
 
 class MainWebScreenMenu extends StatelessWidget {
   @override
@@ -92,15 +89,7 @@ class MainWebScreenMenu extends StatelessWidget {
                   visible: page <= 2,
                   child: InkWell(
                     onTap: () {
-                      // GoRouter.of(context).push(addButtonPath);
-                      Printing.layoutPdf(
-                        // [onLayout] will be called multiple times
-                        // when the user changes the printer or printer settings
-                        onLayout: (PdfPageFormat format) {
-                          // Any valid Pdf document can be returned here as a list of int
-                          return buildPdf(format);
-                        },
-                      );
+                      GoRouter.of(context).push(addButtonPath);
                     },
                     child: DottedBorder(
                       borderType: BorderType.RRect,
@@ -220,66 +209,5 @@ class MainWebScreenMenu extends StatelessWidget {
       title: titleWidget,
       onTap: onTap,
     );
-  }
-
-  // sample
-  Future<Uint8List> buildPdf(PdfPageFormat format) async {
-    // Create the Pdf document
-    final pw.Document doc = pw.Document();
-
-    // Add one page with centered text "Hello World"
-    doc.addPage(
-      pw.Page(
-        pageFormat: format,
-        build: (pw.Context context) {
-          return pw.ConstrainedBox(
-            constraints: pw.BoxConstraints.expand(),
-            child: pw.FittedBox(
-              child: pw.Text('Hello World'),
-            ),
-          );
-        },
-      ),
-    );
-
-    doc.addPage(
-      pw.Page(
-        pageFormat: format,
-        build: (pw.Context context) {
-          return pw.ConstrainedBox(
-            constraints: pw.BoxConstraints.tightFor(),
-            child: pw.Container(
-              color: PdfColors.cyan,
-              padding: pw.EdgeInsets.all(32),
-              child: pw.Table(
-                border: pw.TableBorder.all(),
-                children: [
-                  pw.TableRow(
-                    children: [
-                      pw.Text('index'),
-                      pw.Text('title 1'),
-                      pw.Text('title 2'),
-                      pw.Text('title 3'),
-                    ]
-                  ),
-                  for (int i = 0; i < 4000; i++)
-                    pw.TableRow(
-                        children: [
-                          pw.Text('$i'),
-                          pw.Text('content 1'),
-                          pw.Text('content 2'),
-                          pw.Text('content 3'),
-                        ]
-                    ),
-                ]
-              ),
-            ),
-          );
-        },
-      ),
-    );
-
-    // Build and return the final Pdf file data
-    return await doc.save();
   }
 }

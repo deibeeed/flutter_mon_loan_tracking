@@ -9,6 +9,7 @@ import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:flutter_mon_loan_tracking/widgets/pdf_generator.dart';
 import 'package:flutter_mon_loan_tracking/widgets/widget_utils.dart';
 import 'package:go_router/go_router.dart';
 
@@ -98,6 +99,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       );
       appBarBottomPadding = 24;
     }
+    printd('size: ${MediaQuery.of(context).size}');
 
     return BlocListener<UserBloc, UserState>(
       listener: (context, state) {
@@ -402,9 +404,15 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         ),
         Padding(
           padding: EdgeInsets.all(16),
-          child: Text(
-            'Loan schedule',
-            style: Theme.of(context).textTheme.titleLarge,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Loan schedule',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              ElevatedButton(onPressed: () => PdfGenerator.generatePdf(), child: Text('Generate PDF'))
+            ],
           ),
         ),
         const SizedBox(
@@ -710,11 +718,13 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
           height: 32,
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               'Loan schedule',
               style: Theme.of(context).textTheme.titleLarge,
             ),
+            ElevatedButton(onPressed: () => PdfGenerator.generatePdf(), child: Text('Generate PDF', style: Theme.of(context).textTheme.labelLarge,))
           ],
         ),
         const SizedBox(
