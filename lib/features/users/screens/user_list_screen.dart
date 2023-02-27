@@ -36,6 +36,7 @@ class UserListScreen extends StatelessWidget {
     );
     var searchButtonPadding = const EdgeInsets.all(22);
     var searchTextFieldWidth = screenSize.width * 0.3;
+    var isLargeScreenBreakpoint = false;
 
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       searchTextFieldPadding = const EdgeInsets.only(
@@ -47,6 +48,7 @@ class UserListScreen extends StatelessWidget {
       searchContainerPadding = const EdgeInsets.all(16);
       searchButtonPadding = const EdgeInsets.all(16);
       searchTextFieldWidth = screenSize.width * 0.5;
+      isLargeScreenBreakpoint = true;
     }
 
     userBloc.getAllUsers();
@@ -61,8 +63,7 @@ class UserListScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Padding(
-                    padding:
-                        searchContainerPadding,
+                    padding: searchContainerPadding,
                     child: Row(
                       children: [
                         // OutlinedButton(
@@ -157,7 +158,7 @@ class UserListScreen extends StatelessWidget {
                         ),
                         BlocBuilder<UserBloc, UserState>(
                           buildWhen: (previous, current) =>
-                          current is UserLoadingState ||
+                              current is UserLoadingState ||
                               current is UserErrorState,
                           builder: (context, state) {
                             if (state is UserLoadingState) {
@@ -185,95 +186,18 @@ class UserListScreen extends StatelessWidget {
                         buildWhen: (previous, current) =>
                             current is UserSuccessState,
                         builder: (context, state) {
+                          if (!isLargeScreenBreakpoint) {
+                            return _buildTableDashboard(
+                              context: context,
+                              userBloc: userBloc,
+                            );
+                          }
+
                           return SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            child: SingleChildScrollView(
-                              child: DataTable(
-                                showCheckboxColumn: false,
-                                dataRowHeight: 72,
-                                headingRowColor: MaterialStateColor.resolveWith(
-                                      (states) => Theme.of(context)
-                                      .colorScheme
-                                      .secondaryContainer
-                                      .withOpacity(0.32),
-                                ),
-                                columns: [
-                                  for (String name
-                                  in Constants.user_list_table_colums)
-                                    DataColumn(
-                                        label: Text(
-                                          name.toUpperCase(),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.apply(
-                                            fontWeightDelta: 3,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                          ),
-                                        ))
-                                ],
-                                rows: userBloc.filteredUsers
-                                    .map(
-                                      (user) => DataRow(
-                                    onSelectChanged: (value) {
-                                      userBloc.selectUser(userId: user.id);
-                                      if (isMobile()) {
-                                        GoRouter.of(context)
-                                            .push('/users/${user.id}');
-                                      } else {
-                                        Constants.menuItems.add(
-                                          DynamicMenuItem(
-                                            name: user.completeName,),
-                                        );
-                                        context.read<MenuSelectionCubit>().select(
-                                          page:
-                                          Constants.menuItems.length - 1,
-                                        );
-                                        GoRouter.of(context)
-                                            .go('/users/${user.id}');
-                                      }
-                                    },
-                                    cells: [
-                                      DataCell(
-                                        Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                          children: [
-                                            defaultCellText(
-                                              text: user.completeName,
-                                            ),
-                                            Text(
-                                              user.email,
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      DataCell(
-                                        defaultCellText(
-                                          text: user.civilStatus.value,
-                                        ),
-                                      ),
-                                      DataCell(
-                                        defaultCellText(text: user.type.value),
-                                      ),
-                                      DataCell(
-                                        defaultCellText(
-                                            text: user.mobileNumber),
-                                      ),
-                                      DataCell(
-                                        defaultCellText(
-                                          text: user.birthDate,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                )
-                                    .toList(),
-                              ),
+                            child: _buildTableDashboard(
+                              context: context,
+                              userBloc: userBloc,
                             ),
                           );
                         },
@@ -295,6 +219,89 @@ class UserListScreen extends StatelessWidget {
       style: const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  Widget _buildTableDashboard({
+    required BuildContext context,
+    required UserBloc userBloc,
+  }) {
+    return SingleChildScrollView(
+      child: DataTable(
+        showCheckboxColumn: false,
+        dataRowHeight: 72,
+        headingRowColor: MaterialStateColor.resolveWith(
+          (states) => Theme.of(context)
+              .colorScheme
+              .secondaryContainer
+              .withOpacity(0.32),
+        ),
+        columns: [
+          for (String name in Constants.user_list_table_colums)
+            DataColumn(
+                label: Text(
+              name.toUpperCase(),
+              style: Theme.of(context).textTheme.titleMedium?.apply(
+                    fontWeightDelta: 3,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+            ))
+        ],
+        rows: userBloc.filteredUsers
+            .map(
+              (user) => DataRow(
+                onSelectChanged: (value) {
+                  userBloc.selectUser(userId: user.id);
+                  if (isMobile()) {
+                    GoRouter.of(context).push('/users/${user.id}');
+                  } else {
+                    Constants.menuItems.add(
+                      DynamicMenuItem(
+                        name: user.completeName,
+                      ),
+                    );
+                    context.read<MenuSelectionCubit>().select(
+                          page: Constants.menuItems.length - 1,
+                        );
+                    GoRouter.of(context).go('/users/${user.id}');
+                  }
+                },
+                cells: [
+                  DataCell(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        defaultCellText(
+                          text: user.completeName,
+                        ),
+                        Text(
+                          user.email,
+                        )
+                      ],
+                    ),
+                  ),
+                  DataCell(
+                    defaultCellText(
+                      text: user.civilStatus.value,
+                    ),
+                  ),
+                  DataCell(
+                    defaultCellText(text: user.type.value),
+                  ),
+                  DataCell(
+                    defaultCellText(text: user.mobileNumber),
+                  ),
+                  DataCell(
+                    defaultCellText(
+                      text: user.birthDate,
+                    ),
+                  )
+                ],
+              ),
+            )
+            .toList(),
       ),
     );
   }

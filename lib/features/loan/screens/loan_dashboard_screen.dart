@@ -73,6 +73,7 @@ class LoanDashboardScreen extends StatelessWidget {
     );
     var searchButtonPadding = const EdgeInsets.all(22);
     var searchTextFieldWidth = screenSize.width * 0.3;
+    var isLargeScreenBreakpoint = false;
 
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       searchTextFieldPadding = const EdgeInsets.only(
@@ -84,6 +85,8 @@ class LoanDashboardScreen extends StatelessWidget {
       searchContainerPadding = const EdgeInsets.all(16);
       searchButtonPadding = const EdgeInsets.all(16);
       searchTextFieldWidth = screenSize.width * 0.5;
+
+      isLargeScreenBreakpoint = true;
     }
 
     return Scaffold(
@@ -239,7 +242,7 @@ class LoanDashboardScreen extends StatelessWidget {
                         ),
                         BlocBuilder<LoanBloc, LoanState>(
                           buildWhen: (previous, current) =>
-                          current is LoanLoadingState ||
+                              current is LoanLoadingState ||
                               current is LoanErrorState,
                           builder: (context, state) {
                             if (state is LoanLoadingState) {
@@ -267,111 +270,19 @@ class LoanDashboardScreen extends StatelessWidget {
                         buildWhen: (previous, current) =>
                             current is LoanSuccessState,
                         builder: (context, state) {
+                          if (!isLargeScreenBreakpoint) {
+                            return _buildTableDashboard(
+                              context: context,
+                              loanBloc: loanBloc,
+                            );
+                          }
+
                           return SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            child: NotificationListener(
-                                onNotification: (ScrollMetricsNotification
-                                    scrollNotification) {
-                                  if (!loanBloc.loansBottomReached) {
-                                    if (scrollNotification.metrics.pixels ==
-                                            0 &&
-                                        scrollNotification.metrics.pixels ==
-                                            scrollNotification
-                                                .metrics.maxScrollExtent) {
-                                      loanBloc.getAllLoans();
-                                    }
-                                  }
-                                  /*else if (scrollNotification.metrics.atEdge) {
-                                  loanBloc.getAllLoans();
-                                }*/
-                                  return true;
-                                },
-                                child: SingleChildScrollView(
-                                  controller: _scrollController,
-                                  child: DataTable(
-                                    dataRowHeight: 72,
-                                    headingRowColor:
-                                        MaterialStateColor.resolveWith(
-                                      (states) => Theme.of(context)
-                                          .colorScheme
-                                          .secondaryContainer,
-                                    ),
-                                    columns:
-                                        Constants.loan_dashboard_table_columns
-                                            .map(
-                                              (name) => DataColumn(
-                                                label: Text(
-                                                  name.toUpperCase(),
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleMedium
-                                                      ?.apply(
-                                                        fontWeightDelta: 3,
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .secondary,
-                                                      ),
-                                                ),
-                                              ),
-                                            )
-                                            .toList(),
-                                    rows: loanBloc.filteredLoans
-                                        .map((loanDisplay) => DataRow(cells: [
-                                              DataCell(
-                                                defaultCellText(
-                                                  text: loanDisplay
-                                                      .schedule.date
-                                                      .toDefaultDate(),
-                                                ),
-                                              ),
-                                              DataCell(
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    defaultCellText(
-                                                      text: loanBloc
-                                                          .mappedUsers[
-                                                              loanDisplay.loan
-                                                                  .clientId]!
-                                                          .completeName,
-                                                    ),
-                                                    Text(loanBloc
-                                                        .mappedUsers[loanDisplay
-                                                            .loan.clientId]!
-                                                        .email)
-                                                  ],
-                                                ),
-                                              ),
-                                              DataCell(
-                                                defaultCellText(
-                                                  text: loanBloc
-                                                      .mappedLots[loanDisplay
-                                                          .loan.lotId]!
-                                                      .completeBlockLotNo,
-                                                ),
-                                              ),
-                                              DataCell(
-                                                paymentStatusWidget(
-                                                  context: context,
-                                                  schedule:
-                                                      loanDisplay.schedule,
-                                                ),
-                                              ),
-                                              DataCell(
-                                                defaultCellText(
-                                                    text: loanDisplay.schedule
-                                                        .monthlyAmortization
-                                                        .toCurrency()),
-                                              ),
-                                              DataCell(defaultCellText(
-                                                  text: 'DAVID DULDULAO'))
-                                            ]))
-                                        .toList(),
-                                  ),
-                                )),
+                            child: _buildTableDashboard(
+                              context: context,
+                              loanBloc: loanBloc,
+                            ),
                           );
                         },
                       ),
@@ -382,6 +293,93 @@ class LoanDashboardScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTableDashboard(
+      {required BuildContext context, required LoanBloc loanBloc}) {
+    return NotificationListener(
+      onNotification: (ScrollMetricsNotification scrollNotification) {
+        if (!loanBloc.loansBottomReached) {
+          if (scrollNotification.metrics.pixels == 0 &&
+              scrollNotification.metrics.pixels ==
+                  scrollNotification.metrics.maxScrollExtent) {
+            loanBloc.getAllLoans();
+          }
+        }
+        /*else if (scrollNotification.metrics.atEdge) {
+                                  loanBloc.getAllLoans();
+                                }*/
+        return true;
+      },
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        child: DataTable(
+          dataRowHeight: 72,
+          headingRowColor: MaterialStateColor.resolveWith(
+            (states) => Theme.of(context).colorScheme.secondaryContainer,
+          ),
+          columns: Constants.loan_dashboard_table_columns
+              .map(
+                (name) => DataColumn(
+                  label: Text(
+                    name.toUpperCase(),
+                    style: Theme.of(context).textTheme.titleMedium?.apply(
+                          fontWeightDelta: 3,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                  ),
+                ),
+              )
+              .toList(),
+          rows: loanBloc.filteredLoans
+              .map(
+                (loanDisplay) => DataRow(
+                  cells: [
+                    DataCell(
+                      defaultCellText(
+                        text: loanDisplay.schedule.date.toDefaultDate(),
+                      ),
+                    ),
+                    DataCell(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          defaultCellText(
+                            text: loanBloc
+                                .mappedUsers[loanDisplay.loan.clientId]!
+                                .completeName,
+                          ),
+                          Text(loanBloc
+                              .mappedUsers[loanDisplay.loan.clientId]!.email)
+                        ],
+                      ),
+                    ),
+                    DataCell(
+                      defaultCellText(
+                        text: loanBloc.mappedLots[loanDisplay.loan.lotId]!
+                            .completeBlockLotNo,
+                      ),
+                    ),
+                    DataCell(
+                      paymentStatusWidget(
+                        context: context,
+                        schedule: loanDisplay.schedule,
+                      ),
+                    ),
+                    DataCell(
+                      defaultCellText(
+                          text: loanDisplay.schedule.monthlyAmortization
+                              .toCurrency()),
+                    ),
+                    DataCell(defaultCellText(text: 'DAVID DULDULAO'))
+                  ],
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }
