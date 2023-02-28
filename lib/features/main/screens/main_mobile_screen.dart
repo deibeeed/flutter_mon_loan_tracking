@@ -195,7 +195,7 @@ class MainSmallScreen extends StatelessWidget {
       bottomNavigationBar: Container(
         margin: EdgeInsets.only(left: 16, right: 16, bottom: 16),
         child: BottomAppBar(
-          elevation: 16,
+          elevation: 24,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           shape: const AutomaticNotchedShape(
             // RoundedRectangleBorder(
