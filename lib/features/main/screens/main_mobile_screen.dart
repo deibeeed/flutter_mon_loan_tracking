@@ -46,14 +46,15 @@ class MainSmallScreen extends StatelessWidget {
     var bottomMenuSelectedColor = Theme
         .of(context)
         .colorScheme
-        .tertiary;
+        .tertiary
+    .withOpacity(0.8);
     var bottomMenuUnselectedColor =
         Theme
             .of(context)
             .colorScheme
             .primaryContainer;
     const bottomBarSelectedBorderRadius = BorderRadius.all(
-      Radius.circular(8));
+      Radius.circular(24));
 
     if (appBarHeight > Constants.maxAppBarHeight) {
       appBarHeight = Constants.maxAppBarHeight;
@@ -191,79 +192,87 @@ class MainSmallScreen extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: BottomAppBar(
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        shape: const AutomaticNotchedShape(
-          RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              )),
-          StadiumBorder(),
-        ),
-        child: BlocBuilder<MenuSelectionCubit, MenuSelectionState>(
-          builder: (context, state) {
-            var page = 0;
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        child: BottomAppBar(
+          elevation: 16,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          shape: const AutomaticNotchedShape(
+            // RoundedRectangleBorder(
+            //     borderRadius: BorderRadius.only(
+            //       topLeft: Radius.circular(16),
+            //       topRight: Radius.circular(16),
+            //     )),
+            RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                    Radius.circular(56)
+                )),
+            StadiumBorder(),
+          ),
+          child: BlocBuilder<MenuSelectionCubit, MenuSelectionState>(
+            builder: (context, state) {
+              var page = 0;
 
-            if (state is MenuPageSelected) {
-              page = state.page;
-            }
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: Constants.menuItems
-                  .where((item) => !item.isSeparator && !item.isDynamic)
-                  .mapIndexed(
-                    (i, item) =>
-                    InkWell(
-                      borderRadius: bottomBarSelectedBorderRadius,
-                      onTap: () {
-                        menuSelection.select(page: i);
-                        GoRouter.of(context).go(item.goPath);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: bottomBarSelectedBorderRadius,
-                          color: page == i ? bottomMenuUnselectedColor : null,
-                        ),
-                        width: 72,
-                        height: 72,
-                        child: Column(
-                          children: [
-                            Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    if (item.iconSvgAssetPath != null)
-                                      SvgPicture.asset(
-                                        item.iconSvgAssetPath!,
-                                        width: 24,
-                                        height: 24,
-                                        color: bottomMenuSelectedColor,
+              if (state is MenuPageSelected) {
+                page = state.page;
+              }
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: Constants.menuItems
+                    .where((item) => !item.isSeparator && !item.isDynamic)
+                    .mapIndexed(
+                      (i, item) =>
+                      InkWell(
+                        borderRadius: bottomBarSelectedBorderRadius,
+                        onTap: () {
+                          menuSelection.select(page: i);
+                          GoRouter.of(context).go(item.goPath);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: bottomBarSelectedBorderRadius,
+                            color: page == i ? bottomMenuSelectedColor : null,
+                          ),
+                          width: 68,
+                          height: 68,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (item.iconSvgAssetPath != null)
+                                        SvgPicture.asset(
+                                          item.iconSvgAssetPath!,
+                                          width: 20,
+                                          height: 20,
+                                          color: page == i ? bottomMenuUnselectedColor : bottomMenuSelectedColor,
+                                        )
+                                      else
+                                        SvgPicture.asset(
+                                          'assets/icons/mortgage-loan.svg',
+                                          width: 24,
+                                          height: 24,
+                                          color:  page == i ? bottomMenuUnselectedColor : bottomMenuSelectedColor,
+                                        ),
+                                      Text(
+                                        item.computedShortName,
+                                        style: TextStyle(
+                                          color: page == i ? bottomMenuUnselectedColor : bottomMenuSelectedColor,
+                                        ),
                                       )
-                                    else
-                                      SvgPicture.asset(
-                                        'assets/icons/mortgage-loan.svg',
-                                        width: 24,
-                                        height: 24,
-                                        color: bottomMenuSelectedColor,
-                                      ),
-                                    Text(
-                                      item.computedShortName,
-                                      style: TextStyle(
-                                        color: bottomMenuSelectedColor,
-                                      ),
-                                    )
-                                  ],
-                                ))
-                          ],
+                                    ],
+                                  ))
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-              )
-                  .toList(),
-            );
-          },
+                )
+                    .toList(),
+              );
+            },
+          ),
         ),
       ),
       body: Padding(
