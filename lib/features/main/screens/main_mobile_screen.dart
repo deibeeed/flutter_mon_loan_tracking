@@ -19,7 +19,9 @@ class MainSmallScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final menuSelection = BlocProvider.of<MenuSelectionCubit>(context);
     final userBloc = BlocProvider.of<UserBloc>(context);
-    final screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery
+        .of(context)
+        .size;
     final width = screenSize.width;
     final computedWidth = width * 0.88;
     final shortestSide = screenSize.shortestSide;
@@ -30,14 +32,28 @@ class MainSmallScreen extends StatelessWidget {
     var buttonPadding = 24.0;
     var loginContainerRadius = Constants.defaultRadius;
     var loginContainerMarginTop = 64.0;
-    var titleTextStyle = Theme.of(context).textTheme.displaySmall;
-    var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
+    var titleTextStyle = Theme
+        .of(context)
+        .textTheme
+        .displaySmall;
+    var avatarTextStyle = Theme
+        .of(context)
+        .textTheme
+        .titleLarge;
     var avatarSize = 56.0;
     var contentPadding = const EdgeInsets.all(58);
     var appBarBottomPadding = 48.0;
-    var bottomMenuSelectedColor = Theme.of(context).colorScheme.primary;
+    var bottomMenuSelectedColor = Theme
+        .of(context)
+        .colorScheme
+        .tertiary;
     var bottomMenuUnselectedColor =
-        Theme.of(context).colorScheme.primaryContainer;
+        Theme
+            .of(context)
+            .colorScheme
+            .primaryContainer;
+    const bottomBarSelectedBorderRadius = BorderRadius.all(
+      Radius.circular(8));
 
     if (appBarHeight > Constants.maxAppBarHeight) {
       appBarHeight = Constants.maxAppBarHeight;
@@ -50,8 +66,14 @@ class MainSmallScreen extends StatelessWidget {
       buttonPadding = 8;
       loginContainerRadius = const Radius.circular(64);
       loginContainerMarginTop = 32;
-      titleTextStyle = Theme.of(context).textTheme.headlineMedium;
-      avatarTextStyle = Theme.of(context).textTheme.titleSmall;
+      titleTextStyle = Theme
+          .of(context)
+          .textTheme
+          .headlineMedium;
+      avatarTextStyle = Theme
+          .of(context)
+          .textTheme
+          .titleSmall;
       avatarSize = 48;
       contentPadding = const EdgeInsets.only(
         left: 32,
@@ -66,7 +88,11 @@ class MainSmallScreen extends StatelessWidget {
         preferredSize: Size.fromHeight(appBarHeight),
         child: AppBar(
           backgroundColor:
-              Theme.of(context).colorScheme.primary.withOpacity(0.48),
+          Theme
+              .of(context)
+              .colorScheme
+              .primary
+              .withOpacity(0.48),
           leading: Container(),
           bottom: PreferredSize(
             preferredSize: Size.zero,
@@ -100,19 +126,24 @@ class MainSmallScreen extends StatelessWidget {
                                 ),
                               );
                               context.read<MenuSelectionCubit>().select(
-                                    page: Constants.menuItems.length - 1,
-                                  );
+                                page: Constants.menuItems.length - 1,
+                              );
                               userBloc.selectUser(userId: user.id);
                               GoRouter.of(context).go('/users/${user.id}');
                             }
                           },
                           child: CircleAvatar(
                             backgroundColor:
-                                Theme.of(context).colorScheme.primaryContainer,
+                            Theme
+                                .of(context)
+                                .colorScheme
+                                .primaryContainer,
                             child: Padding(
                               padding: const EdgeInsets.all(8),
                               child: Text(
-                                userBloc.getLoggedInUser()?.initials ?? 'No',
+                                userBloc
+                                    .getLoggedInUser()
+                                    ?.initials ?? 'No',
                                 style: avatarTextStyle,
                               ),
                             ),
@@ -161,13 +192,13 @@ class MainSmallScreen extends StatelessWidget {
         },
       ),
       bottomNavigationBar: BottomAppBar(
-        color: Theme.of(context).colorScheme.tertiary.withOpacity(0.8),
+        clipBehavior: Clip.antiAliasWithSaveLayer,
         shape: const AutomaticNotchedShape(
           RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
-          )),
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              )),
           StadiumBorder(),
         ),
         child: BlocBuilder<MenuSelectionCubit, MenuSelectionState>(
@@ -182,66 +213,54 @@ class MainSmallScreen extends StatelessWidget {
               children: Constants.menuItems
                   .where((item) => !item.isSeparator && !item.isDynamic)
                   .mapIndexed(
-                    (i, item) => InkWell(
+                    (i, item) =>
+                    InkWell(
+                      borderRadius: bottomBarSelectedBorderRadius,
                       onTap: () {
                         menuSelection.select(page: i);
                         GoRouter.of(context).go(item.goPath);
                       },
                       child: Container(
-                        color: page == i ? bottomMenuUnselectedColor : null,
+                        decoration: BoxDecoration(
+                          borderRadius: bottomBarSelectedBorderRadius,
+                          color: page == i ? bottomMenuUnselectedColor : null,
+                        ),
                         width: 72,
-                        height: 64,
+                        height: 72,
                         child: Column(
                           children: [
-                            Container(
-                              height: 6,
-                              decoration: BoxDecoration(
-                                  color: page == i
-                                      ? bottomMenuSelectedColor
-                                      : null,
-                                  borderRadius: const BorderRadius.only(
-                                    bottomLeft: Radius.circular(8),
-                                    bottomRight: Radius.circular(8),
-                                  )),
-                            ),
                             Expanded(
                                 child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (item.iconSvgAssetPath != null)
-                                  SvgPicture.asset(
-                                    item.iconSvgAssetPath!,
-                                    width: 24,
-                                    height: 24,
-                                    color: page == i
-                                        ? bottomMenuSelectedColor
-                                        : bottomMenuUnselectedColor,
-                                  )
-                                else
-                                  SvgPicture.asset(
-                                    'assets/icons/mortgage-loan.svg',
-                                    width: 24,
-                                    height: 24,
-                                    color: page == i
-                                        ? bottomMenuSelectedColor
-                                        : bottomMenuUnselectedColor,
-                                  ),
-                                Text(
-                                  item.computedShortName,
-                                  style: TextStyle(
-                                    color: page == i
-                                        ? bottomMenuSelectedColor
-                                        : bottomMenuUnselectedColor,
-                                  ),
-                                )
-                              ],
-                            ))
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (item.iconSvgAssetPath != null)
+                                      SvgPicture.asset(
+                                        item.iconSvgAssetPath!,
+                                        width: 24,
+                                        height: 24,
+                                        color: bottomMenuSelectedColor,
+                                      )
+                                    else
+                                      SvgPicture.asset(
+                                        'assets/icons/mortgage-loan.svg',
+                                        width: 24,
+                                        height: 24,
+                                        color: bottomMenuSelectedColor,
+                                      ),
+                                    Text(
+                                      item.computedShortName,
+                                      style: TextStyle(
+                                        color: bottomMenuSelectedColor,
+                                      ),
+                                    )
+                                  ],
+                                ))
                           ],
                         ),
                       ),
                     ),
-                  )
+              )
                   .toList(),
             );
           },
