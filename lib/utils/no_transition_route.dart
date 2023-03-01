@@ -20,6 +20,7 @@ class RouteUtils {
           if (userId != null) {
             child.userId = userId;
           }
+          child.isProfile = state.path?.contains('profile') ?? false;
         } else if (child is LotDetailsScreen) {
           final lotId = state.params['lotId'];
 

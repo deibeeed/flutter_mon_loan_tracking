@@ -5,11 +5,24 @@ import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
 
-class AuthenticationScreen extends StatelessWidget {
+class AuthenticationScreen extends StatefulWidget {
   AuthenticationScreen({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _AuthenticationScreenState();
+
+}
+
+class _AuthenticationScreenState extends State<AuthenticationScreen> {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<AuthenticationBloc>().initialize();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +99,7 @@ class AuthenticationScreen extends StatelessWidget {
             );
           }
         },
-        child: Container(
+        child: authenticationBloc.isLoggedIn() ? Container() : Container(
           margin: EdgeInsets.only(
             top: loginContainerMarginTop,
             bottom: !isMobileScreen ? 0 : loginContainerMarginTop,

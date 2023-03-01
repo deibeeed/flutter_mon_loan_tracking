@@ -18,6 +18,7 @@ class UserDetailsScreen extends StatefulWidget {
 
   // NOTE: userId is required
   String? userId;
+  bool isProfile = false;
 
   @override
   State<StatefulWidget> createState() {
@@ -99,6 +100,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       );
       appBarBottomPadding = 24;
     }
+    final shouldShowAppBar = !widget.isMobile() || widget.isProfile;
     printd('size: ${MediaQuery.of(context).size}');
 
     return BlocListener<UserBloc, UserState>(
@@ -142,14 +144,20 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         }
       },
       child: Scaffold(
-        appBar: !widget.isMobile()
+        appBar: shouldShowAppBar
             ? null
             : PreferredSize(
                 preferredSize: Size.fromHeight(appBarHeight),
                 child: AppBar(
                   backgroundColor:
                       Theme.of(context).colorScheme.primary.withOpacity(0.48),
-                  leading: Container(),
+                  leading: !widget.isMobile() ?  Container() : IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => GoRouter.of(context).pop(),
+                  ),
                   bottom: PreferredSize(
                     preferredSize: Size.zero,
                     child: Container(

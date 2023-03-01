@@ -130,7 +130,7 @@ class MainSmallScreen extends StatelessWidget {
                                 page: Constants.menuItems.length - 1,
                               );
                               userBloc.selectUser(userId: user.id);
-                              GoRouter.of(context).go('/users/${user.id}');
+                              GoRouter.of(context).go('/profile/${user.id}');
                             }
                           },
                           child: CircleAvatar(

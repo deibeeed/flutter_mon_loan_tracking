@@ -25,10 +25,15 @@ class AuthenticationBloc
     // });
     on(_handleLogin);
     on(_handleLogoutEvent);
+    on(_handleInitializeEvent);
   }
 
   final AuthenticationService authenticationService;
   final UserRepository usersRepository;
+
+  void initialize() {
+    add(InitializeEvent());
+  }
 
   void login({required String email, required String password}) {
     add(LoginEvent(email: email, password: password));
@@ -36,6 +41,14 @@ class AuthenticationBloc
 
   void logout() {
     add(LogoutEvent());
+  }
+
+  bool isLoggedIn() {
+    return authenticationService.isLoggedIn();
+  }
+
+  User? getLoggedInUser() {
+    return usersRepository.getLoggedInUser();
   }
 
   Future<void> _handleLogin(
@@ -81,6 +94,18 @@ class AuthenticationBloc
       printd(err);
       emit(LoginLoadingState());
       emit(LoginErrorState(message: 'Something went wrong while logging out'));
+    }
+  }
+
+  Future<void> _handleInitializeEvent(InitializeEvent event, Emitter<AuthenticationState> emit,) async {
+    try {
+      if (authenticationService.isLoggedIn()) {
+        final user = await usersRepository.get(id: authenticationService.loggedInUser!.uid);
+        usersRepository.setLoggedInUser(user: user);
+        emit(LoginSuccessState(message: 'Welcome back ${user.firstName}', user: user));
+      }
+    } catch (err) {
+      printd(err);
     }
   }
 }

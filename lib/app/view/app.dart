@@ -102,6 +102,10 @@ class _AppState extends State<App> {
               path: '/loan-calculator',
               child: LoanCalculatorScreen(),
             ),
+            RouteUtils.buildNoTransitionRoute(
+              path: '/profile/:userId',
+              child: UserDetailsScreen(),
+            ),
             if (!widget.isMobile())
               ...[
                 RouteUtils.buildNoTransitionRoute(

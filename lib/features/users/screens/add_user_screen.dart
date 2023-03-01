@@ -96,7 +96,7 @@ class AddUserScreen extends StatelessWidget {
           child: AppBar(
             backgroundColor:
             Theme.of(context).colorScheme.primary.withOpacity(0.48),
-            leading: IconButton(
+            leading: !isMobile() ? Container() : IconButton(
               icon: const Icon(
                 Icons.arrow_back_rounded,
                 color: Colors.white,
