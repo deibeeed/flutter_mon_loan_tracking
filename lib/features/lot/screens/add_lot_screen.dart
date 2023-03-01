@@ -9,8 +9,22 @@ import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
 
-class AddLotScreen extends StatelessWidget {
+class AddLotScreen extends StatefulWidget {
   AddLotScreen({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _AddLotScreenState();
+
+}
+class _AddLotScreenState extends State<AddLotScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+
+    final lotBloc = BlocProvider.of<LotBloc>(context);
+    lotBloc.initialize();
+  }
 
   final blockLotNumberController = TextEditingController();
   final lotDescriptionController = TextEditingController();
@@ -19,7 +33,6 @@ class AddLotScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lotBloc = BlocProvider.of<LotBloc>(context);
-    lotBloc.initialize();
 
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
@@ -105,14 +118,20 @@ class AddLotScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        appBar: !isMobile()
+        appBar: !widget.isMobile()
             ? null
             : PreferredSize(
                 preferredSize: Size.fromHeight(appBarHeight),
                 child: AppBar(
                   backgroundColor:
                       Theme.of(context).colorScheme.primary.withOpacity(0.48),
-                  leading: Container(),
+                  leading: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => GoRouter.of(context).pop(),
+                  ),
                   bottom: PreferredSize(
                     preferredSize: Size.zero,
                     child: Container(
@@ -122,7 +141,7 @@ class AddLotScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Add loan',
+                            'Add lot',
                             style: titleTextStyle?.apply(color: Colors.white),
                           ),
                           SizedBox(
@@ -229,7 +248,8 @@ class AddLotScreen extends StatelessWidget {
                   controller: blockLotNumberController,
                   decoration: const InputDecoration(
                       label: Text('Block and lot numbers'),
-                      border: OutlineInputBorder()),
+                      helperText: 'Format: block:lot[,block:lot,etc]',
+                      border: OutlineInputBorder(),),
                 ),
                 const SizedBox(
                   height: 32,

@@ -129,7 +129,13 @@ class AddLoanScreen extends StatelessWidget {
                 child: AppBar(
                   backgroundColor:
                       Theme.of(context).colorScheme.primary.withOpacity(0.48),
-                  leading: Container(),
+                  leading: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => GoRouter.of(context).pop(),
+                  ),
                   bottom: PreferredSize(
                     preferredSize: Size.zero,
                     child: Container(
@@ -235,7 +241,7 @@ class AddLoanScreen extends StatelessWidget {
     return ListView(
       children: [
         Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -567,7 +573,7 @@ class AddLoanScreen extends StatelessWidget {
           height: 16,
         ),
         Padding(
-          padding: EdgeInsets.only(left: 16),
+          padding: const EdgeInsets.only(left: 16),
           child: Text(
             'Computation',
             style: Theme.of(context).textTheme.titleLarge,
@@ -664,7 +670,7 @@ class AddLoanScreen extends StatelessWidget {
           height: 32,
         ),
         Padding(
-          padding: EdgeInsets.only(left: 16),
+          padding: const EdgeInsets.only(left: 16),
           child: Text(
             'Loan schedule',
             style: Theme.of(context).textTheme.titleLarge,
@@ -759,7 +765,7 @@ class AddLoanScreen extends StatelessWidget {
           height: 32,
         ),
         Padding(
-          padding: EdgeInsets.only(left: 16, right: 16),
+          padding: const EdgeInsets.only(left: 16, right: 16),
           child: ElevatedButton(
             onPressed: () => loanBloc.addLoan(
               yearsToPay: loanDurationController.text,
@@ -830,9 +836,9 @@ class AddLoanScreen extends StatelessWidget {
       children: [
         Autocomplete(
           optionsBuilder: (value) => loanBloc.users.where(
-                (user) => user.lastName.toLowerCase().contains(
-              value.text.toLowerCase(),
-            ),
+            (user) => user.lastName.toLowerCase().contains(
+                  value.text.toLowerCase(),
+                ),
           ),
           displayStringForOption: (user) => user.completeName,
           onSelected: (user) => loanBloc.selectUser(user: user),
@@ -914,8 +920,8 @@ class AddLoanScreen extends StatelessWidget {
                         label: Text('Lot Area (sqm)'),
                         border: OutlineInputBorder(),
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                       ],
@@ -950,7 +956,7 @@ class AddLoanScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+                    const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                 ],
@@ -968,7 +974,7 @@ class AddLoanScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+                    const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                 ],
@@ -1001,7 +1007,7 @@ class AddLoanScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+                    const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                 ],
@@ -1055,13 +1061,11 @@ class AddLoanScreen extends StatelessWidget {
                   ),
                   BlocBuilder<LoanBloc, LoanState>(
                       buildWhen: (previous, current) =>
-                      current is LoanSuccessState,
+                          current is LoanSuccessState,
                       builder: (context, state) {
                         return Row(
                           children: [
-                            for (var i = 0;
-                            i < loanBloc.discounts.length;
-                            i++)
+                            for (var i = 0; i < loanBloc.discounts.length; i++)
                               Padding(
                                 padding: const EdgeInsets.only(right: 16),
                                 child: Chip(
@@ -1231,25 +1235,24 @@ class AddLoanScreen extends StatelessWidget {
                           ...loanBloc.discounts
                               .map(
                                 (discount) => Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Less: ${discount.description}:'),
-                                Text(
-                                  discount.discount
-                                      .toCurrency(isDeduction: true),
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Less: ${discount.description}:'),
+                                    Text(
+                                      discount.discount
+                                          .toCurrency(isDeduction: true),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          )
+                              )
                               .toList(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Add: Incidental fee:'),
-                              Text(loanBloc
-                                  .computeIncidentalFee()
-                                  .toCurrency()),
+                              Text(
+                                  loanBloc.computeIncidentalFee().toCurrency()),
                             ],
                           ),
                           Row(
@@ -1306,7 +1309,7 @@ class AddLoanScreen extends StatelessWidget {
               child: DataTable(
                 dataRowHeight: 72,
                 headingRowColor: MaterialStateColor.resolveWith(
-                      (states) => Theme.of(context)
+                  (states) => Theme.of(context)
                       .colorScheme
                       .secondaryContainer
                       .withOpacity(0.32),
@@ -1315,66 +1318,64 @@ class AddLoanScreen extends StatelessWidget {
                   for (String name in Constants.loan_schedule_table_columns)
                     DataColumn(
                         label: Text(
-                          name.toUpperCase(),
-                          style: Theme.of(context).textTheme.titleMedium?.apply(
+                      name.toUpperCase(),
+                      style: Theme.of(context).textTheme.titleMedium?.apply(
                             fontWeightDelta: 3,
                             color: Theme.of(context).colorScheme.secondary,
                           ),
-                        ))
+                    ))
                 ],
                 rows: loanBloc.clientLoanSchedules
                     .map(
                       (schedule) => DataRow(
-                    cells: [
-                      DataCell(
-                        defaultCellText(
-                          text: Constants.defaultDateFormat.format(
-                            DateTime.fromMillisecondsSinceEpoch(
-                              schedule.date.toInt(),
+                        cells: [
+                          DataCell(
+                            defaultCellText(
+                              text: Constants.defaultDateFormat.format(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                  schedule.date.toInt(),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                          child: defaultCellText(
-                            text:
-                            schedule.outstandingBalance.toCurrency(),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.outstandingBalance.toCurrency(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                          child: defaultCellText(
-                            text:
-                            schedule.monthlyAmortization.toCurrency(),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.monthlyAmortization.toCurrency(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                          child: defaultCellText(
-                            text: schedule.principalPayment.toCurrency(),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.principalPayment.toCurrency(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                          child: defaultCellText(
-                            text: schedule.interestPayment.toCurrency(),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.interestPayment.toCurrency(),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      DataCell(
-                        Center(
-                          child: defaultCellText(
-                            text: schedule.incidentalFee.toCurrency(),
+                          DataCell(
+                            Center(
+                              child: defaultCellText(
+                                text: schedule.incidentalFee.toCurrency(),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
+                    )
                     .toList(),
               ),
             );

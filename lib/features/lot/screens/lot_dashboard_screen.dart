@@ -319,7 +319,7 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                               lotBloc.filteredGroupedLots.keys.first;
                         }
 
-                        return Row(
+                        return Wrap(
                           children:
                               lotBloc.filteredGroupedLots.keys.map((blockNo) {
                             var opacity = 0.4;

@@ -50,6 +50,9 @@ class MainScreen extends StatelessWidget {
               printd(err);
             }
           }
+        } else if (state is LoginErrorState) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       child: child,

@@ -83,6 +83,9 @@ class AddUserScreen extends StatelessWidget {
               ),
             );
           }
+        } else if (state is UserErrorState) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       child: Scaffold(
@@ -93,7 +96,13 @@ class AddUserScreen extends StatelessWidget {
           child: AppBar(
             backgroundColor:
             Theme.of(context).colorScheme.primary.withOpacity(0.48),
-            leading: Container(),
+            leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_rounded,
+                color: Colors.white,
+              ),
+              onPressed: () => GoRouter.of(context).pop(),
+            ),
             bottom: PreferredSize(
               preferredSize: Size.zero,
               child: Container(
@@ -103,7 +112,7 @@ class AddUserScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Add loan',
+                      'Add user',
                       style: titleTextStyle?.apply(color: Colors.white),
                     ),
                     SizedBox(

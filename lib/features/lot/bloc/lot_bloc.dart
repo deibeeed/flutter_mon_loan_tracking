@@ -170,6 +170,7 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
       if (!blockLotNosSplit
           .every((element) => element.split(':').length == 2)) {
+        initialize();
         emit(LotLoadingState());
         emit(
           LotErrorState(message: '1 or more Block or Lot does not have a pair'),

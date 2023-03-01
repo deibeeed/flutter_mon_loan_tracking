@@ -366,6 +366,9 @@ class SettingsScreen extends StatelessWidget {
                   settingsBloc.settings.perSquareMeterRate.toString();
               allowTextControllerUpdate = false;
             }
+          } else if (state is SettingsErrorState) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         child: Row(

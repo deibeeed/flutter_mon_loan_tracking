@@ -204,6 +204,9 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
               _areaController.text = lot.area.toString();
               _descriptionController.text = lot.description;
             }
+          } else if (state is LotErrorState) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         child: Padding(
