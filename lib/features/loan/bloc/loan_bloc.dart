@@ -117,12 +117,17 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   bool _isFilteringByStatus = false;
 
+  Loan? _selectedLoan;
+
+  Loan? get selectedLoan => _selectedLoan;
+
   void reset() {
     _selectedLot = null;
     _blockNo = null;
     _lotNo = null;
     _discounts.clear();
     _loans.clear();
+    _selectedLoan = null;
     _clientLoanSchedules.clear();
     emit(LoanSuccessState(message: 'successfully reset values'));
   }
@@ -508,6 +513,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           (loan) => loan.clientId == event.clientId,
         );
         _loans.addAll({for (var loan in clientLoans) loan.id: loan});
+        _selectedLoan = clientLoans.firstOrNull;
+
+        final lots = await lotRepository.all();
+        _selectedLot = lots.firstWhereOrNull((lot) => lot.id == _selectedLoan!.lotId);
 
         final futureClientLoanSchedules = clientLoans.map(
           (loan) => loanScheduleRepository.allByLoanId(loanId: loan.id),

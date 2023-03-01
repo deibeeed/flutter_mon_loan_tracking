@@ -411,7 +411,24 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 'Loan schedule',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              ElevatedButton(onPressed: () => PdfGenerator.generatePdf(), child: Text('Generate PDF'))
+              ElevatedButton(
+                  onPressed: () {
+                    var user = userBloc.selectedUser;
+                    var loan = loanBloc.selectedLoan;
+                    var lot = loanBloc.selectedLot;
+
+                    if (user == null || loan == null || lot == null) {
+                      return;
+                    }
+
+                    PdfGenerator.generatePdf(
+                      user: user,
+                      schedules: loanBloc.clientLoanSchedules,
+                      loan: loan,
+                      lot: lot,
+                    );
+                  },
+                  child: Text('Generate PDF'))
             ],
           ),
         ),
@@ -724,7 +741,27 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
               'Loan schedule',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            ElevatedButton(onPressed: () => PdfGenerator.generatePdf(), child: Text('Generate PDF', style: Theme.of(context).textTheme.labelLarge,))
+            ElevatedButton(
+                onPressed: () {
+                  var user = userBloc.selectedUser;
+                  var loan = loanBloc.selectedLoan;
+                  var lot = loanBloc.selectedLot;
+
+                  if (user == null || loan == null || lot == null) {
+                    return;
+                  }
+
+                  PdfGenerator.generatePdf(
+                    user: user,
+                    schedules: loanBloc.clientLoanSchedules,
+                    loan: loan,
+                    lot: lot,
+                  );
+                },
+                child: Text(
+                  'Generate PDF',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ))
           ],
         ),
         const SizedBox(
