@@ -46,6 +46,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     on(_handleGetAllLotsEvent);
     on(_handleSearchLoanEvent);
     on(_handleFilterByStatusEvent);
+    on(_handlePayLoanScheduleEvent);
     getAllUsers();
     getAllLots();
     getAllLoans();
@@ -77,7 +78,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   Lot? get selectedLot => _selectedLot;
 
-  num _yearsToPay = 0;
+  final num _yearsToPay = 0;
 
   num _monthlyAmortization = 0;
 
@@ -95,9 +96,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   num get outstandingBalance => _outstandingBalance;
 
-  List<LoanDisplay> _allLoans = [];
+  final List<LoanDisplay> _allLoans = [];
 
-  List<LoanDisplay> _filteredLoans = [];
+  final List<LoanDisplay> _filteredLoans = [];
 
   List<LoanDisplay> get filteredLoans => _filteredLoans;
 
@@ -242,6 +243,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         _lotNo!.isNotEmpty) {
       add(SearchLotEvent(blockNo: _blockNo!, lotNo: _lotNo!));
     }
+  }
+
+  void payLoanSchedule({required LoanSchedule schedule}) {
+    add(PayLoanScheduleEvent(schedule: schedule));
   }
 
   num computeTCP() {
@@ -516,7 +521,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         _selectedLoan = clientLoans.firstOrNull;
 
         final lots = await lotRepository.all();
-        _selectedLot = lots.firstWhereOrNull((lot) => lot.id == _selectedLoan!.lotId);
+        _selectedLot =
+            lots.firstWhereOrNull((lot) => lot.id == _selectedLoan!.lotId);
 
         final futureClientLoanSchedules = clientLoans.map(
           (loan) => loanScheduleRepository.allByLoanId(loanId: loan.id),
@@ -525,8 +531,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         final schedules = await Future.wait(futureClientLoanSchedules)
             .then((value) => value.flattened);
         _clientLoanSchedules
-        ..clear()
-        ..addAll(schedules.sortedBy((schedule) => schedule.date).toList());
+          ..clear()
+          ..addAll(schedules.sortedBy((schedule) => schedule.date).toList());
       } else {
         if (_loans.isEmpty) {
           final loans = await loanRepository.all();
@@ -683,6 +689,24 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       emit(LoanLoadingState());
       emit(LoanErrorState(
           message: 'Something went wrong while filtering loan schedules'));
+    }
+  }
+
+  Future<void> _handlePayLoanScheduleEvent(
+    PayLoanScheduleEvent event,
+    Emitter<LoanState> emit,
+  ) async {
+    try {
+      emit(LoanLoadingState(isLoading: true));
+      final schedule = event.schedule
+      ..paidOn = DateTime.now().millisecondsSinceEpoch;
+      await loanScheduleRepository.update(data: schedule);
+      emit(LoanLoadingState());
+      emit(LoanSuccessState(message: 'Successfully paid loan schedule'));
+    } catch (err) {
+      printd(err);
+      emit(LoanLoadingState());
+      emit(LoanErrorState(message: 'Something went wrong while paying schedule'));
     }
   }
 

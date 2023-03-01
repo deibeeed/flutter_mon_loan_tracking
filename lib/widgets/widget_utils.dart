@@ -4,8 +4,9 @@ import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/models/payment_status.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-Text defaultCellText({ required String text }) {
+Text defaultCellText({required String text}) {
   return Text(
     text,
     style: const TextStyle(
@@ -18,9 +19,9 @@ Text defaultCellText({ required String text }) {
 Widget paymentStatusWidget({
   required BuildContext context,
   required LoanSchedule schedule,
+  required LoanBloc loanBloc,
 }) {
-  final status =
-  context.read<LoanBloc>().getPaymentStatus(schedule: schedule);
+  final status = context.read<LoanBloc>().getPaymentStatus(schedule: schedule);
   // success text color 0xff007F00
   // success background color 0xffCDFFCD
   final themeColorScheme = Theme.of(context).colorScheme;
@@ -39,28 +40,54 @@ Widget paymentStatusWidget({
     payStatus = 'Pay on ${schedule.date.toDefaultDate()}';
   }
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Chip(
-        label: Text(
-          status.value,
-          style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
+  return SizedBox(
+    width: 184,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Chip(
+              label: Text(
+                status.value,
+                style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
+              ),
+              backgroundColor: backgroundColor,
+              avatar: Icon(
+                Icons.fiber_manual_record_rounded,
+                color: textColor,
+                size: 14,
+              ),
+            ),
+            const SizedBox(
+              height: 4,
+            ),
+            Text(
+              payStatus,
+            )
+          ],
         ),
-        backgroundColor: backgroundColor,
-        avatar: Icon(
-          Icons.fiber_manual_record_rounded,
-          color: textColor,
-          size: 14,
+        const SizedBox(
+          width: 8,
         ),
-      ),
-      const SizedBox(
-        height: 4,
-      ),
-      Text(
-        payStatus,
-      )
-    ],
+        Visibility(
+          visible: schedule.paidOn == null,
+          child: InkWell(
+          onTap: () {
+            loanBloc.payLoanSchedule(schedule: schedule);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: SvgPicture.asset(
+              'assets/icons/online-payment.svg',
+              width: 24,
+              height: 24,
+            ),
+          ),
+        ),),
+      ],
+    )
   );
 }

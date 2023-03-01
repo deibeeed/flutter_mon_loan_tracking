@@ -336,6 +336,10 @@ class LoanDashboardScreen extends StatelessWidget {
           rows: loanBloc.filteredLoans
               .map(
                 (loanDisplay) => DataRow(
+                  // selected: true,
+                  // onSelectChanged: (value) {
+                  //   printd(value);
+                  // },
                   cells: [
                     DataCell(
                       defaultCellText(
@@ -367,6 +371,7 @@ class LoanDashboardScreen extends StatelessWidget {
                       paymentStatusWidget(
                         context: context,
                         schedule: loanDisplay.schedule,
+                        loanBloc: loanBloc,
                       ),
                     ),
                     DataCell(

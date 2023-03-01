@@ -58,3 +58,9 @@ class FilterByStatusDashboardLoanEvent extends LoanEvent {
 
   FilterByStatusDashboardLoanEvent({ required this.status });
 }
+
+class PayLoanScheduleEvent extends LoanEvent{
+  final LoanSchedule schedule;
+
+  PayLoanScheduleEvent({ required this.schedule });
+}

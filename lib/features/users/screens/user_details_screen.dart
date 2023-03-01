@@ -514,6 +514,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                             paymentStatusWidget(
                               context: context,
                               schedule: schedule,
+                              loanBloc: loanBloc,
                             ),
                           ),
                         ],
@@ -843,6 +844,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                           paymentStatusWidget(
                             context: context,
                             schedule: schedule,
+                            loanBloc: loanBloc,
                           ),
                         ),
                       ],
