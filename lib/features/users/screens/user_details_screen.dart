@@ -6,6 +6,7 @@ import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
+import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -46,12 +47,18 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     context.read<UserBloc>().getAllUsers();
-    final authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
-    final loanBloc = BlocProvider.of<LoanBloc>(context)
+    context.read<LoanBloc>()
       ..getAllLots()
       ..getAllLoans(clearList: true, clientId: widget.userId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+    final loanBloc = BlocProvider.of<LoanBloc>(context);
 
     final userBloc = BlocProvider.of<UserBloc>(context);
 
@@ -96,7 +103,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       );
       appBarBottomPadding = 24;
     }
-    final shouldShowAppBar = !widget.isMobile() || widget.isProfile;
+    final shouldShowAppBar = widget.isMobile() || widget.isProfile;
     printd('size: ${MediaQuery.of(context).size}');
 
     return BlocListener<UserBloc, UserState>(
@@ -140,20 +147,22 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         }
       },
       child: Scaffold(
-        appBar: shouldShowAppBar
+        appBar: !shouldShowAppBar
             ? null
             : PreferredSize(
                 preferredSize: Size.fromHeight(appBarHeight),
                 child: AppBar(
                   backgroundColor:
                       Theme.of(context).colorScheme.primary.withOpacity(0.48),
-                  leading: !widget.isMobile() ?  Container() : IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_rounded,
-                      color: Colors.white,
-                    ),
-                    onPressed: () => GoRouter.of(context).pop(),
-                  ),
+                  leading: !shouldShowAppBar
+                      ? Container()
+                      : IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => GoRouter.of(context).pop(),
+                        ),
                   bottom: PreferredSize(
                     preferredSize: Size.zero,
                     child: Container(
@@ -364,16 +373,41 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                         style: ElevatedButton.styleFrom(
                             padding: buttonPadding,
                             backgroundColor:
-                                Theme.of(context).colorScheme.error),
+                                Theme.of(context).colorScheme.errorContainer),
                         child: Text(
                           'Logout',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.apply(color: Colors.white),
+                          style: Theme.of(context).textTheme.titleMedium?.apply(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
                         ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              Visibility(
+                visible: userBloc.getLoggedInUser()?.type == UserType.admin,
+                child: Column(
+                  children: [
+                    const SizedBox(
+                      height: 32,
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: authenticationBloc.logout,
+                        style: ElevatedButton.styleFrom(
+                            padding: buttonPadding,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.errorContainer),
+                        child: Text(
+                          'Delete',
+                          style: Theme.of(context).textTheme.titleMedium?.apply(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -519,6 +553,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                               context: context,
                               schedule: schedule,
                               loanBloc: loanBloc,
+                              userBloc: userBloc,
                             ),
                           ),
                         ],
@@ -709,6 +744,32 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             ],
           ),
         ),
+        Visibility(
+          visible: userBloc.getLoggedInUser()?.type == UserType.admin,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 32,
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: authenticationBloc.logout,
+                  style: ElevatedButton.styleFrom(
+                      padding: buttonPadding,
+                      backgroundColor:
+                      Theme.of(context).colorScheme.errorContainer),
+                  child: Text(
+                    'Delete',
+                    style: Theme.of(context).textTheme.titleMedium?.apply(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
         const SizedBox(
           height: 32,
         ),
@@ -849,6 +910,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                             context: context,
                             schedule: schedule,
                             loanBloc: loanBloc,
+                            userBloc: userBloc,
                           ),
                         ),
                       ],

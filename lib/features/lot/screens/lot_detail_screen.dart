@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:go_router/go_router.dart';
@@ -87,7 +88,15 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
               child: AppBar(
                 backgroundColor:
                     Theme.of(context).colorScheme.primary.withOpacity(0.48),
-                leading: Container(),
+                leading: !widget.isMobile()
+                    ? Container()
+                    : IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: Colors.white,
+                        ),
+                        onPressed: () => GoRouter.of(context).pop(),
+                      ),
                 bottom: PreferredSize(
                   preferredSize: Size.zero,
                   child: Container(
@@ -212,7 +221,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
           }
         },
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,7 +341,8 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                     builder: (context, state) {
                       return Text(
                         userBloc.mappedUsers[lotBloc.selectedLot?.reservedTo]
-                            ?.completeName ?? 'Available',
+                                ?.completeName ??
+                            'Available',
                       );
                     },
                   ),
@@ -465,30 +475,52 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
               const SizedBox(
                 height: 56,
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => lotBloc.updateLot(
-                        area: _areaController.text,
-                        blockNo: _blockNoController.text,
-                        lotNo: _lotNoController.text,
-                        description: _descriptionController.text,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                          padding: buttonPadding,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary),
-                      child: Text(
-                        'Update lot',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.apply(color: Colors.white),
-                      ),
+              Visibility(
+                visible: [UserType.admin, UserType.subAdmin]
+                    .contains(userBloc.getLoggedInUser()?.type),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => lotBloc.updateLot(
+                      area: _areaController.text,
+                      blockNo: _blockNoController.text,
+                      lotNo: _lotNoController.text,
+                      description: _descriptionController.text,
                     ),
-                  )
-                ],
+                    style: ElevatedButton.styleFrom(
+                        padding: buttonPadding,
+                        backgroundColor: Theme.of(context).colorScheme.primary),
+                    child: Text(
+                      'Update lot',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.apply(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              Visibility(
+                visible: userBloc.getLoggedInUser()?.type == UserType.admin,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => lotBloc.deleteLot(),
+                    style: ElevatedButton.styleFrom(
+                        padding: buttonPadding,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.errorContainer),
+                    child: Text(
+                      'Delete lot',
+                      style: Theme.of(context).textTheme.titleMedium?.apply(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -680,8 +712,11 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                         },
                         builder: (context, state) {
                           return Text(
-                            userBloc.mappedUsers[lotBloc.selectedLot?.reservedTo]
-                                ?.completeName ?? 'Available',
+                            userBloc
+                                    .mappedUsers[
+                                        lotBloc.selectedLot?.reservedTo]
+                                    ?.completeName ??
+                                'Available',
                           );
                         },
                       ),
@@ -701,8 +736,10 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                         },
                         builder: (context, state) {
                           return Text(
-                            userBloc.mappedUsers[lotBloc.selectedLot?.agentAssisted]
-                                ?.completeName ??
+                            userBloc
+                                    .mappedUsers[
+                                        lotBloc.selectedLot?.agentAssisted]
+                                    ?.completeName ??
                                 'Available',
                           );
                         },
@@ -824,24 +861,61 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => lotBloc.updateLot(
-                                area: _areaController.text,
-                                blockNo: _blockNoController.text,
-                                lotNo: _lotNoController.text,
-                                description: _descriptionController.text,
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                  padding: buttonPadding,
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary),
-                              child: Text(
-                                'Update lot',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.apply(color: Colors.white),
-                              ),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () => lotBloc.updateLot(
+                                      area: _areaController.text,
+                                      blockNo: _blockNoController.text,
+                                      lotNo: _lotNoController.text,
+                                      description: _descriptionController.text,
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                        padding: buttonPadding,
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .primary),
+                                    child: Text(
+                                      'Update lot',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.apply(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 32,
+                                ),
+                                Visibility(
+                                  visible: userBloc.getLoggedInUser()?.type ==
+                                      UserType.admin,
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () => lotBloc.deleteLot(),
+                                      style: ElevatedButton.styleFrom(
+                                          padding: buttonPadding,
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .errorContainer),
+                                      child: Text(
+                                        'Delete lot',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.apply(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
                           )
                         ],

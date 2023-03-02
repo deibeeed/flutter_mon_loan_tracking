@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
+import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/services/environments.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -96,4 +98,27 @@ class Constants {
     'Incidental fees',
     'Status'
   ];
+
+  static List<MenuItemModel> getMenuByUserType({UserType? type}) {
+    if (type == null) {
+      return [];
+    }
+
+    switch (type) {
+      case UserType.customer:
+        return menuItems
+            .whereNot((item) => ['users', 'calculator', 'settings']
+                .contains(item.computedShortName.toLowerCase()))
+            .toList();
+      case UserType.agent:
+        return menuItems
+            .whereNot((item) =>
+                ['settings'].contains(item.computedShortName.toLowerCase()))
+            .toList();
+      case UserType.accountant:
+      case UserType.subAdmin:
+      case UserType.admin:
+        return menuItems;
+    }
+  }
 }

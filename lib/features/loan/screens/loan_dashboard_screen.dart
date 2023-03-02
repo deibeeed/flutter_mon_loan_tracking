@@ -6,6 +6,7 @@ import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/models/payment_status.dart';
+import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -31,10 +32,16 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
   void initState() {
     super.initState();
 
-    context.read<UserBloc>().getAllUsers();
+    final userBloc = context.read<UserBloc>()..getAllUsers();
+    String? clientId;
+
+    if (userBloc.getLoggedInUser()?.type == UserType.customer) {
+      clientId = userBloc.getLoggedInUser()?.id;
+    }
+
     context.read<LoanBloc>()
       ..getAllLots()
-      ..getAllLoans(clearList: true);
+      ..getAllLoans(clearList: true, clientId: clientId);
   }
 
   @override
@@ -315,7 +322,9 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
   }
 
   Widget _buildTableDashboard(
-      {required BuildContext context, required LoanBloc loanBloc, required UserBloc userBloc}) {
+      {required BuildContext context,
+      required LoanBloc loanBloc,
+      required UserBloc userBloc}) {
     return NotificationListener(
       onNotification: (ScrollMetricsNotification scrollNotification) {
         if (!loanBloc.loansBottomReached) {
@@ -389,6 +398,7 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                         context: context,
                         schedule: loanDisplay.schedule,
                         loanBloc: loanBloc,
+                        userBloc: userBloc,
                       ),
                     ),
                     DataCell(

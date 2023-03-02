@@ -105,8 +105,12 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     );
   }
 
-  void deleteLot({required Lot lot}) {
-    add(DeleteLotEvent(lot: lot));
+  void deleteLot() {
+    var lot = selectedLot;
+
+    if (lot != null) {
+      add(DeleteLotEvent(lot: lot));
+    }
   }
 
   void initialize() {
@@ -118,7 +122,10 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     emit(SelectedLotCategoryLotState(selectedLotCategory: lotCategory!));
   }
 
-  List<List<Lot>> chunkedLots({required List<Lot> lots, int size = 4,}) {
+  List<List<Lot>> chunkedLots({
+    required List<Lot> lots,
+    int size = 4,
+  }) {
     lots.sortBy((element) => element.lotNo);
     final len = lots.length;
     final chunks = <List<Lot>>[];
@@ -131,10 +138,8 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     return chunks;
   }
 
-  Future<void> _handleInitializeEvent(
-    InitializeLotEvent event,
-    Emitter<LotState> emit,
-  ) async {
+  Future<void> _handleInitializeEvent(InitializeLotEvent event,
+      Emitter<LotState> emit,) async {
     try {
       emit(LotLoadingState(isLoading: true));
       final settings = await settingsRepository.all();
@@ -146,7 +151,8 @@ class LotBloc extends Bloc<LotEvent, LotState> {
       final grouped = groupBy(lots, (p0) => p0.blockNo);
       _groupedLots.addAll(
         Map.fromEntries(
-          grouped.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)),
+          grouped.entries.toList()
+            ..sort((e1, e2) => e1.key.compareTo(e2.key)),
         ),
       );
       _filteredGroupedLots.addAll(_groupedLots);
@@ -157,8 +163,8 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     }
   }
 
-  Future<void> _handleAddLotEvent(
-      AddLotEvent event, Emitter<LotState> emit) async {
+  Future<void> _handleAddLotEvent(AddLotEvent event,
+      Emitter<LotState> emit) async {
     try {
       if (_selectedLotCategory == null) {
         emit(LotErrorState(message: 'Please select lot category first'));
@@ -169,7 +175,10 @@ class LotBloc extends Bloc<LotEvent, LotState> {
       final blockLotNosSplit = event.blockLotNos.split(',');
 
       if (!blockLotNosSplit
-          .every((element) => element.split(':').length == 2)) {
+          .every((element) =>
+      element
+          .split(':')
+          .length == 2)) {
         initialize();
         emit(LotLoadingState());
         emit(
@@ -207,8 +216,8 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     }
   }
 
-  Future<void> _handleUpdateLotEvent(
-      UpdateLotEvent event, Emitter<LotState> emit) async {
+  Future<void> _handleUpdateLotEvent(UpdateLotEvent event,
+      Emitter<LotState> emit) async {
     try {
       if (_selectedLotCategory == null) {
         emit(LotErrorState(message: 'Please select lot category first'));
@@ -244,25 +253,29 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     }
   }
 
-  Future<void> _handleDeleteLotEvent(
-      DeleteLotEvent event, Emitter<LotState> emit) async {
+  Future<void> _handleDeleteLotEvent(DeleteLotEvent event,
+      Emitter<LotState> emit) async {
     try {
       emit(LotLoadingState(isLoading: true));
+
+      if (event.lot.reservedTo != null) {
+        throw Exception('Cannot delete lot. Already taken');
+      }
 
       final lot = await lotRepository.delete(data: event.lot);
 
       emit(LotLoadingState());
       emit(LotSuccessState(lot: lot, message: 'Successfully deleted lot'));
     } catch (err) {
-      emit(LotErrorState(message: 'Something went wrong when deleting lot'));
       printd(err);
+      emit(LotLoadingState());
+      emit(LotErrorState(
+          message: 'Something went wrong when deleting lot: $err'));
     }
   }
 
-  Future<void> _handleSearchLotEvent(
-    SearchLotEvent event,
-    Emitter<LotState> emit,
-  ) async {
+  Future<void> _handleSearchLotEvent(SearchLotEvent event,
+      Emitter<LotState> emit,) async {
     try {
       emit(LotLoadingState(isLoading: true));
       final query = event.query;
@@ -270,7 +283,7 @@ class LotBloc extends Bloc<LotEvent, LotState> {
       if (query.isNotEmpty) {
         final lots = await lotRepository.allCache();
         final filteredList = lots.where(
-          (lot) {
+              (lot) {
             if (!query.contains(':')) {
               return lot.blockNo == query || lot.lotNo == query;
             }
@@ -282,7 +295,8 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
         final grouped = groupBy(filteredList, (p0) => p0.blockNo);
         final groupedFilteredList = Map.fromEntries(
-          grouped.entries.toList()..sort((e1, e2) => e1.key.compareTo(e2.key)),
+          grouped.entries.toList()
+            ..sort((e1, e2) => e1.key.compareTo(e2.key)),
         );
         _filteredGroupedLots
           ..clear()
@@ -303,8 +317,8 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     }
   }
 
-  Future<void> _handleFilterByAvailabilityEvent(
-      FilterByAvailabilityEvent event, Emitter<LotState> emit) async {
+  Future<void> _handleFilterByAvailabilityEvent(FilterByAvailabilityEvent event,
+      Emitter<LotState> emit) async {
     try {
       emit(LotLoadingState(isLoading: true));
       final filter = event.filter.toLowerCase();
@@ -315,7 +329,7 @@ class LotBloc extends Bloc<LotEvent, LotState> {
           final filteredList = lots
               .where(
                 (lot) => lot.reservedTo == null,
-              )
+          )
               .toList();
 
           final grouped = groupBy(filteredList, (p0) => p0.blockNo);
@@ -331,7 +345,7 @@ class LotBloc extends Bloc<LotEvent, LotState> {
           final filteredList = lots
               .where(
                 (lot) => lot.reservedTo != null,
-              )
+          )
               .toList();
 
           final grouped = groupBy(filteredList, (p0) => p0.blockNo);

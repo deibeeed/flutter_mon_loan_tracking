@@ -102,10 +102,6 @@ class _AppState extends State<App> {
               path: '/loan-calculator',
               child: LoanCalculatorScreen(),
             ),
-            RouteUtils.buildNoTransitionRoute(
-              path: '/profile/:userId',
-              child: UserDetailsScreen(),
-            ),
             if (!widget.isMobile())
               ...[
                 RouteUtils.buildNoTransitionRoute(
@@ -127,6 +123,10 @@ class _AppState extends State<App> {
                 RouteUtils.buildNoTransitionRoute(
                   path: '/lots/:lotId',
                   child: LotDetailsScreen(),
+                ),
+                RouteUtils.buildNoTransitionRoute(
+                  path: '/profile/:userId',
+                  child: UserDetailsScreen(),
                 ),
               ],
           ],
@@ -157,6 +157,11 @@ class _AppState extends State<App> {
               path: '/lots/:lotId',
               parentNavigatorKey: rootNavigatorKey,
               child: LotDetailsScreen(),
+            ),
+            RouteUtils.buildNoTransitionRoute(
+              path: '/profile/:userId',
+              parentNavigatorKey: rootNavigatorKey,
+              child: UserDetailsScreen(),
             ),
           ],
       ],

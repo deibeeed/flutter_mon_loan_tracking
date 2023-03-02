@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
+import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +17,7 @@ class MainWebScreenMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+    final userBloc = BlocProvider.of<UserBloc>(context);
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
     var loginContainerRadius = Constants.defaultRadius;
@@ -87,7 +90,9 @@ class MainWebScreenMenu extends StatelessWidget {
                 margin: dottedButtonMargin,
                 height: dottedButtonHeight,
                 child: Visibility(
-                  visible: page <= 2,
+                  visible: page <= 2 &&
+                      [UserType.admin, UserType.subAdmin]
+                          .contains(userBloc.getLoggedInUser()?.type),
                   child: InkWell(
                     onTap: () {
                       GoRouter.of(context).push(addButtonPath);
@@ -122,18 +127,21 @@ class MainWebScreenMenu extends StatelessWidget {
                   ),
                 ),
               ),
-              ...Constants.menuItems
+              ...Constants.getMenuByUserType(
+                      type: userBloc.getLoggedInUser()?.type)
                   .where((menu) => !menu.isDynamic)
-              .mapIndexed((i, menu) => _buildMenuItem(
-                context: context,
-                item: menu,
-                selected: page == i,
-                onTap: () {
-                  menuSelection.select(page: i);
-                  GoRouter.of(context).go(menu.goPath);
-                },
-              ),).toList()
-
+                  .mapIndexed(
+                    (i, menu) => _buildMenuItem(
+                      context: context,
+                      item: menu,
+                      selected: page == i,
+                      onTap: () {
+                        menuSelection.select(page: i);
+                        GoRouter.of(context).go(menu.goPath);
+                      },
+                    ),
+                  )
+                  .toList()
             ],
           );
         },
