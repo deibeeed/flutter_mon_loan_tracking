@@ -34,6 +34,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final lotBloc = BlocProvider.of<LotBloc>(context);
+    final loanBloc = BlocProvider.of<LoanBloc>(context);
 
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
@@ -149,6 +150,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
 
   Widget _buildSmallScreenBody({required BuildContext context}) {
     final lotBloc = BlocProvider.of<LotBloc>(context);
+    final userBloc = BlocProvider.of<UserBloc>(context);
 
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
@@ -329,7 +331,30 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                     },
                     builder: (context, state) {
                       return Text(
-                        lotBloc.selectedLot?.reservedTo ?? 'Available',
+                        userBloc.mappedUsers[lotBloc.selectedLot?.reservedTo]
+                            ?.completeName ?? 'Available',
+                      );
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 32,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Assisting agent'),
+                  BlocBuilder<LoanBloc, LoanState>(
+                    buildWhen: (previousState, currentState) {
+                      return currentState is LotSuccessState;
+                    },
+                    builder: (context, state) {
+                      return Text(
+                        userBloc.mappedUsers[lotBloc.selectedLot?.agentAssisted]
+                                ?.completeName ??
+                            'Available',
                       );
                     },
                   ),
@@ -474,6 +499,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
 
   Widget _buildLargeScreenBody({required BuildContext context}) {
     final lotBloc = BlocProvider.of<LotBloc>(context);
+    final userBloc = BlocProvider.of<UserBloc>(context);
 
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
@@ -654,7 +680,30 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                         },
                         builder: (context, state) {
                           return Text(
-                            lotBloc.selectedLot?.reservedTo ?? 'Available',
+                            userBloc.mappedUsers[lotBloc.selectedLot?.reservedTo]
+                                ?.completeName ?? 'Available',
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Assisting agent'),
+                      BlocBuilder<LoanBloc, LoanState>(
+                        buildWhen: (previousState, currentState) {
+                          return currentState is LotSuccessState;
+                        },
+                        builder: (context, state) {
+                          return Text(
+                            userBloc.mappedUsers[lotBloc.selectedLot?.agentAssisted]
+                                ?.completeName ??
+                                'Available',
                           );
                         },
                       ),

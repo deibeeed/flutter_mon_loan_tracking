@@ -40,14 +40,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     on(_handleCalculateLoanEvent);
     on(_handleSearchLotEvent);
     on(_handleGetSettingsEvent);
-    on(_handleGetAllUsersEvent);
     on(_handleAddLoanEvent);
     on(_handleGetAllLoansEvent);
     on(_handleGetAllLotsEvent);
     on(_handleSearchLoanEvent);
     on(_handleFilterByStatusEvent);
     on(_handlePayLoanScheduleEvent);
-    getAllUsers();
     getAllLots();
     getAllLoans();
     getSettings();
@@ -84,14 +82,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   num get monthlyAmortization => _monthlyAmortization;
 
-  List<User> _customers = [];
-
-  List<User> get customers => _customers;
-
-  List<User> _agents = [];
-
-  List<User> get agents => _agents;
-
   User? _selectedUser;
 
   User? get selectedUser => _selectedUser;
@@ -111,10 +101,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   List<LoanDisplay> get filteredLoans => _filteredLoans;
 
   final Map<String, Loan> _loans = {};
-
-  final Map<String, User> _mappedUsers = {};
-
-  Map<String, User> get mappedUsers => _mappedUsers;
 
   final Map<String, Lot> _mappedLots = {};
 
@@ -165,10 +151,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   void getSettings() {
     add(GetSettingsEvent());
-  }
-
-  void getAllUsers() {
-    add(GetAllUsersEvent());
   }
 
   void getAllLoans({bool clearList = false, String? clientId}) {
@@ -429,21 +411,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           message: 'Something went wrong while getting settings',
         ),
       );
-    }
-  }
-
-  Future<void> _handleGetAllUsersEvent(
-      GetAllUsersEvent event, Emitter<LoanState> emit) async {
-    try {
-      _customers = await userRepository.customers();
-      _agents = await userRepository.agents();
-      _mappedUsers.addAll({for (var user in _customers) user.id: user});
-      _mappedUsers.addAll({for (var user in _agents) user.id: user});
-      emit(LoanSuccessState(message: 'Successfully retrieved all users'));
-    } catch (err) {
-      printd(err);
-      emit(LoanErrorState(
-          message: 'Something went wrong while getting all users'));
     }
   }
 

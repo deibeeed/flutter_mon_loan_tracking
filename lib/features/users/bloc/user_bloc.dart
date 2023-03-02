@@ -45,6 +45,16 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   UserType? _selectedType;
 
+  Map<String, User> get mappedUsers => userRepository.mappedUsers;
+
+  List<User> _customers = [];
+
+  List<User> get customers => _customers;
+
+  List<User> _agents = [];
+
+  List<User> get agents => _agents;
+
   void search({required String query}) {
     add(SearchUsersEvent(query: query));
   }
@@ -226,6 +236,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       _filteredUsers
         ..clear()
         ..addAll(tmpUsers);
+      _customers = await userRepository.customers();
+      _agents = await userRepository.agents();
       emit(UserLoadingState());
       emit(UserSuccessState(message: 'Successfully loaded all users'));
     } catch (err) {

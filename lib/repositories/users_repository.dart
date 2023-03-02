@@ -14,6 +14,8 @@ class UserRepository extends BaseRepository<UserModel.User> {
   final UserFirestoreService firestoreService;
   final UserCacheService cacheService;
 
+  Map<String, User> get mappedUsers => cacheService.mappedUsers;
+
   @override
   Future<UserModel.User> add({required UserModel.User data}) {
     return firestoreService

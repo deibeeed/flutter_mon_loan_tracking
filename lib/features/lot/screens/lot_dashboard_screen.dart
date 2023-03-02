@@ -319,37 +319,40 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                               lotBloc.filteredGroupedLots.keys.first;
                         }
 
-                        return Wrap(
-                          children:
-                              lotBloc.filteredGroupedLots.keys.map((blockNo) {
-                            var opacity = 0.4;
-                            if (blockNo == _selectedBlock) {
-                              opacity = 0.8;
-                            }
+                        return SizedBox(
+                          width: double.infinity,
+                          child: Wrap(
+                            children:
+                            lotBloc.filteredGroupedLots.keys.map((blockNo) {
+                              var opacity = 0.4;
+                              if (blockNo == _selectedBlock) {
+                                opacity = 0.8;
+                              }
 
-                            return Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(16),
-                                onTap: () {
-                                  _selectedBlock = blockNo;
-                                  lotBloc.selectBlock(blockNo: blockNo);
-                                },
-                                child: Chip(
-                                  backgroundColor: Theme.of(context)
-                                      .colorScheme
-                                      .tertiary
-                                      .withOpacity(opacity),
-                                  surfaceTintColor: Colors.red,
-                                  padding: chipPadding,
-                                  label: Text(
-                                    'Block $blockNo',
-                                    style: chipTextStyle?.apply(color: Colors.white),
+                              return Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(16),
+                                  onTap: () {
+                                    _selectedBlock = blockNo;
+                                    lotBloc.selectBlock(blockNo: blockNo);
+                                  },
+                                  child: Chip(
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .tertiary
+                                        .withOpacity(opacity),
+                                    surfaceTintColor: Colors.red,
+                                    padding: chipPadding,
+                                    label: Text(
+                                      'Block $blockNo',
+                                      style: chipTextStyle?.apply(color: Colors.white),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          }).toList(),
+                              );
+                            }).toList(),
+                          ),
                         );
                       },
                     ),

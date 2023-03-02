@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -36,13 +37,16 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    context.read<UserBloc>().getAllUsers();
+    context.read<LoanBloc>().getSettings();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loanBloc = BlocProvider.of<LoanBloc>(context)
-      ..getSettings()
-      ..getAllUsers();
-    // loanBloc
-    //   ..getSettings()
-    //   ..getAllUsers();
+      ..getSettings();
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);

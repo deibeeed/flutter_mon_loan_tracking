@@ -28,12 +28,9 @@ class AddLoanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<UserBloc>().getAllUsers();
     final loanBloc = BlocProvider.of<LoanBloc>(context)
-      ..getSettings()
-      ..getAllUsers();
-    // loanBloc
-    //   ..getSettings()
-    //   ..getAllUsers();
+      ..getSettings();
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
@@ -203,6 +200,7 @@ class AddLoanScreen extends StatelessWidget {
 
   Widget _buildSmallScreenBody({required BuildContext context}) {
     final loanBloc = BlocProvider.of<LoanBloc>(context);
+    final userBloc = BlocProvider.of<UserBloc>(context);
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
@@ -253,7 +251,7 @@ class AddLoanScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Autocomplete(
-                optionsBuilder: (value) => loanBloc.agents.where(
+                optionsBuilder: (value) => userBloc.agents.where(
                       (user) => user.completeName.toLowerCase().contains(
                     value.text.toLowerCase(),
                   ),
@@ -274,7 +272,7 @@ class AddLoanScreen extends StatelessWidget {
                 },
               ),
               Autocomplete(
-                optionsBuilder: (value) => loanBloc.customers.where(
+                optionsBuilder: (value) => userBloc.customers.where(
                   (user) => user.lastName.toLowerCase().contains(
                         value.text.toLowerCase(),
                       ),
@@ -834,6 +832,7 @@ class AddLoanScreen extends StatelessWidget {
 
   Widget _buildLargeScreenBody({required BuildContext context}) {
     final loanBloc = BlocProvider.of<LoanBloc>(context);
+    final userBloc = BlocProvider.of<UserBloc>(context);
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
@@ -882,7 +881,7 @@ class AddLoanScreen extends StatelessWidget {
           height: 8,
         ),
         Autocomplete(
-          optionsBuilder: (value) => loanBloc.agents.where(
+          optionsBuilder: (value) => userBloc.agents.where(
                 (user) => user.completeName.toLowerCase().contains(
               value.text.toLowerCase(),
             ),
@@ -906,7 +905,7 @@ class AddLoanScreen extends StatelessWidget {
           height: 32,
         ),
         Autocomplete(
-          optionsBuilder: (value) => loanBloc.customers.where(
+          optionsBuilder: (value) => userBloc.customers.where(
             (user) => user.lastName.toLowerCase().contains(
                   value.text.toLowerCase(),
                 ),

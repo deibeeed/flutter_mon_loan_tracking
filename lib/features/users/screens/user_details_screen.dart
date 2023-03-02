@@ -47,9 +47,9 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    context.read<UserBloc>().getAllUsers();
     final authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
     final loanBloc = BlocProvider.of<LoanBloc>(context)
-      ..getAllUsers()
       ..getAllLots()
       ..getAllLoans(clearList: true, clientId: widget.userId);
 

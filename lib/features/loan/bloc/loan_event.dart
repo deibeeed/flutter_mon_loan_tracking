@@ -25,8 +25,6 @@ class SearchLotEvent extends LoanEvent {
 
 class GetSettingsEvent extends LoanEvent {}
 
-class GetAllUsersEvent extends LoanEvent {}
-
 class AddLoanEvent extends LoanEvent {
   final num downPayment;
   final num yearsToPay;

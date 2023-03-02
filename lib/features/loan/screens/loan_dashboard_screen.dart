@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/models/payment_status.dart';
@@ -30,8 +31,8 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
   void initState() {
     super.initState();
 
-    BlocProvider.of<LoanBloc>(context)
-      ..getAllUsers()
+    context.read<UserBloc>().getAllUsers();
+    context.read<LoanBloc>()
       ..getAllLots()
       ..getAllLoans(clearList: true);
   }
@@ -39,6 +40,7 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final loanBloc = BlocProvider.of<LoanBloc>(context);
+    final userBloc = BlocProvider.of<UserBloc>(context);
 
     if (!_didAddPageRequestListener) {
       // _pagingController.addPageRequestListener((pageKey) {
@@ -287,6 +289,7 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                             return _buildTableDashboard(
                               context: context,
                               loanBloc: loanBloc,
+                              userBloc: userBloc,
                             );
                           }
 
@@ -294,6 +297,7 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                             scrollDirection: Axis.horizontal,
                             child: _buildTableDashboard(
                               context: context,
+                              userBloc: userBloc,
                               loanBloc: loanBloc,
                             ),
                           );
@@ -311,7 +315,7 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
   }
 
   Widget _buildTableDashboard(
-      {required BuildContext context, required LoanBloc loanBloc}) {
+      {required BuildContext context, required LoanBloc loanBloc, required UserBloc userBloc}) {
     return NotificationListener(
       onNotification: (ScrollMetricsNotification scrollNotification) {
         if (!loanBloc.loansBottomReached) {
@@ -365,11 +369,11 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           defaultCellText(
-                            text: loanBloc
+                            text: userBloc
                                 .mappedUsers[loanDisplay.loan.clientId]!
                                 .completeName,
                           ),
-                          Text(loanBloc
+                          Text(userBloc
                               .mappedUsers[loanDisplay.loan.clientId]!.email)
                         ],
                       ),
@@ -393,7 +397,7 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                               .toCurrency()),
                     ),
                     DataCell(defaultCellText(
-                        text: loanBloc
+                        text: userBloc
                             .mappedUsers[loanDisplay.lot.agentAssisted]!
                             .completeName))
                   ],

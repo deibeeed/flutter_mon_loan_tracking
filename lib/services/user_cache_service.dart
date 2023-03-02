@@ -4,6 +4,8 @@ import 'package:flutter_mon_loan_tracking/services/base_cache_service.dart';
 
 class UserCacheService extends BaseCacheService<User> {
   final Map<String, User> _mappedUsers = {};
+  Map<String, User> get mappedUsers => _mappedUsers;
+
   User? loggedInUser;
 
   @override
