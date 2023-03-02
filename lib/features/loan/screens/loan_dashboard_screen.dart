@@ -17,7 +17,6 @@ class LoanDashboardScreen extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _LoanDashboardScreenState();
-
 }
 
 class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
@@ -367,11 +366,11 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                         children: [
                           defaultCellText(
                             text: loanBloc
-                                .mappedCustomers[loanDisplay.loan.clientId]!
+                                .mappedUsers[loanDisplay.loan.clientId]!
                                 .completeName,
                           ),
                           Text(loanBloc
-                              .mappedCustomers[loanDisplay.loan.clientId]!.email)
+                              .mappedUsers[loanDisplay.loan.clientId]!.email)
                         ],
                       ),
                     ),
@@ -393,7 +392,10 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                           text: loanDisplay.schedule.monthlyAmortization
                               .toCurrency()),
                     ),
-                    DataCell(defaultCellText(text: 'DAVID DULDULAO'))
+                    DataCell(defaultCellText(
+                        text: loanBloc
+                            .mappedUsers[loanDisplay.lot.agentAssisted]!
+                            .completeName))
                   ],
                 ),
               )

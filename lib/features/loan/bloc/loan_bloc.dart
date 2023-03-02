@@ -112,9 +112,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   final Map<String, Loan> _loans = {};
 
-  final Map<String, User> _mappedCustomers = {};
+  final Map<String, User> _mappedUsers = {};
 
-  Map<String, User> get mappedCustomers => _mappedCustomers;
+  Map<String, User> get mappedUsers => _mappedUsers;
 
   final Map<String, Lot> _mappedLots = {};
 
@@ -437,7 +437,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     try {
       _customers = await userRepository.customers();
       _agents = await userRepository.agents();
-      _mappedCustomers.addAll({for (var user in _customers) user.id: user});
+      _mappedUsers.addAll({for (var user in _customers) user.id: user});
+      _mappedUsers.addAll({for (var user in _agents) user.id: user});
       emit(LoanSuccessState(message: 'Successfully retrieved all users'));
     } catch (err) {
       printd(err);
@@ -573,7 +574,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             _loans[loan.id] = loan;
           }
 
-          final display = LoanDisplay(loan: loan, schedule: schedule);
+          final display = LoanDisplay(
+              loan: loan, schedule: schedule, lot: _mappedLots[loan.lotId]!);
           _allLoans.add(display);
           _filteredLoans.add(display);
         }
