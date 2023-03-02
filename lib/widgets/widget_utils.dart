@@ -43,8 +43,7 @@ Widget paymentStatusWidget({
     payStatus = 'Pay on ${schedule.date.toDefaultDate()}';
   }
 
-  return SizedBox(
-      width: 184,
+  return Expanded(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -7,6 +7,10 @@ import 'package:flutter_mon_loan_tracking/services/base_firebase_service.dart';
 class LoanScheduleFirestoreService extends BaseFirestoreService<LoanSchedule> {
   DocumentSnapshot? _lastDocumentSnapshot;
 
+  void reset() {
+    _lastDocumentSnapshot = null;
+  }
+
   @override
   Future<LoanSchedule> add({required LoanSchedule data}) async {
     final doc = root.doc();
@@ -39,10 +43,14 @@ class LoanScheduleFirestoreService extends BaseFirestoreService<LoanSchedule> {
     return schedules;
   }
 
-  Future<List<LoanSchedule>> next({ bool isClear = false}) async {
+  Future<List<LoanSchedule>> next({ bool reset = false}) async {
     var query = root.orderBy('createdAt');
+    
+    if (reset) {
+      _lastDocumentSnapshot = null;
+    }
 
-    if (_lastDocumentSnapshot != null && !isClear) {
+    if (_lastDocumentSnapshot != null) {
       query = query.startAfterDocument(_lastDocumentSnapshot!);
     }
 

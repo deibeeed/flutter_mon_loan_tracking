@@ -116,7 +116,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   Loan? get selectedLoan => _selectedLoan;
 
-  void reset() {
+  void reset({bool isLogout = false}) {
+    if (isLogout) {
+      loanScheduleRepository.reset();
+      _allLoans.clear();
+      _filteredLoans.clear();
+    }
+
     _selectedLot = null;
     _blockNo = null;
     _lotNo = null;
@@ -519,10 +525,26 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         );
 
         final schedules = await Future.wait(futureClientLoanSchedules)
-            .then((value) => value.flattened);
+            .then((value) => value.flattened.toList());
         _clientLoanSchedules
           ..clear()
           ..addAll(schedules.sortedBy((schedule) => schedule.date).toList());
+        _allLoans
+          ..clear()
+          ..addAll(
+            clientLoans
+                .map((clientLoan) => _clientLoanSchedules
+                    .where((schedule) => schedule.loanId == clientLoan.id)
+                    .map((schedule) => LoanDisplay(
+                        loan: clientLoan,
+                        schedule: schedule,
+                        lot: _mappedLots[clientLoan.lotId]!)))
+                .flattened
+                .toList(),
+          );
+        _filteredLoans
+          ..clear()
+          ..addAll(_allLoans);
       } else {
         if (_loans.isEmpty) {
           final loans = await loanRepository.all();
@@ -531,7 +553,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         }
 
         final schedules =
-            await loanScheduleRepository.next(isClear: event.clearList);
+            await loanScheduleRepository.next(reset: event.clearList);
 
         for (final schedule in schedules) {
           var loan = _loans[schedule.loanId];

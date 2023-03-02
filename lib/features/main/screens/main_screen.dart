@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_mobile_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_web_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +30,8 @@ class MainScreen extends StatelessWidget {
     return BlocListener<AuthenticationBloc, AuthenticationState>(
       listener: (context, state) {
         if (state is LogoutSuccessState) {
+          context.read<LoanBloc>().reset(isLogout: true);
+          context.read<UserBloc>().reset();
           context.read<MenuSelectionCubit>().select(
             page: 0,
           );
