@@ -25,16 +25,16 @@ dependencies:
   http: ^0.13.5
   infinite_scroll_pagination: ^3.2.0
   intl: ^0.17.0
-  json_annotation: ^4.7.0
+  json_annotation: ^4.8.0
   pdf: ^3.9.0
   printing: ^5.10.1
 
 dev_dependencies:
   bloc_test: ^9.1.0
-  build_runner: ^2.3.0
+  build_runner: ^2.3.3
   flutter_test:
     sdk: flutter
-  json_serializable: ^6.5.4
+  json_serializable: ^6.6.1
   mocktail: ^0.3.0
   very_good_analysis: ^3.1.0
 
