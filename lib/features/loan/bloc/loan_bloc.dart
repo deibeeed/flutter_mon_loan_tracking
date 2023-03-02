@@ -84,13 +84,21 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   num get monthlyAmortization => _monthlyAmortization;
 
-  List<User> _users = [];
+  List<User> _customers = [];
 
-  List<User> get users => _users;
+  List<User> get customers => _customers;
+
+  List<User> _agents = [];
+
+  List<User> get agents => _agents;
 
   User? _selectedUser;
 
   User? get selectedUser => _selectedUser;
+
+  User? _selectedAgent;
+
+  User? get selectedAgent => _selectedAgent;
 
   num _outstandingBalance = 0;
 
@@ -104,9 +112,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   final Map<String, Loan> _loans = {};
 
-  final Map<String, User> _mappedUsers = {};
+  final Map<String, User> _mappedCustomers = {};
 
-  Map<String, User> get mappedUsers => _mappedUsers;
+  Map<String, User> get mappedCustomers => _mappedCustomers;
 
   final Map<String, Lot> _mappedLots = {};
 
@@ -130,6 +138,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _loans.clear();
     _selectedLoan = null;
     _clientLoanSchedules.clear();
+    _selectedUser = null;
+    _selectedAgent = null;
     emit(LoanSuccessState(message: 'successfully reset values'));
   }
 
@@ -175,6 +185,11 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   void selectUser({required User user}) {
     _selectedUser = user;
+    emit(LoanSuccessState(message: 'Successfully selected user'));
+  }
+
+  void selectAgent({required User user}) {
+    _selectedAgent = user;
     emit(LoanSuccessState(message: 'Successfully selected user'));
   }
 
@@ -420,8 +435,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   Future<void> _handleGetAllUsersEvent(
       GetAllUsersEvent event, Emitter<LoanState> emit) async {
     try {
-      _users = await userRepository.all();
-      _mappedUsers.addAll({for (var user in _users) user.id: user});
+      _customers = await userRepository.customers();
+      _agents = await userRepository.agents();
+      _mappedCustomers.addAll({for (var user in _customers) user.id: user});
       emit(LoanSuccessState(message: 'Successfully retrieved all users'));
     } catch (err) {
       printd(err);
@@ -440,6 +456,11 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
       if (_selectedUser == null) {
         emit(LoanErrorState(message: 'Please select user'));
+        return;
+      }
+
+      if (_selectedAgent == null) {
+        emit(LoanErrorState(message: 'Please select agent'));
         return;
       }
 
@@ -486,6 +507,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
       await Future.wait(futureLoanSchedules);
       _selectedLot!.reservedTo = _selectedUser!.id;
+      _selectedLot!.agentAssisted = _selectedAgent!.id;
 
       await lotRepository.update(data: _selectedLot!);
 

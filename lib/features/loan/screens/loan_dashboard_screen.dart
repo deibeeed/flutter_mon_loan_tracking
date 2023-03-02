@@ -367,11 +367,11 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                         children: [
                           defaultCellText(
                             text: loanBloc
-                                .mappedUsers[loanDisplay.loan.clientId]!
+                                .mappedCustomers[loanDisplay.loan.clientId]!
                                 .completeName,
                           ),
                           Text(loanBloc
-                              .mappedUsers[loanDisplay.loan.clientId]!.email)
+                              .mappedCustomers[loanDisplay.loan.clientId]!.email)
                         ],
                       ),
                     ),
