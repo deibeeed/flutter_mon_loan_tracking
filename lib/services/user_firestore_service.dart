@@ -6,12 +6,12 @@ class UserFirestoreService extends BaseFirestoreService<User> {
 
   @override
   Future<User> add({required User data}) async {
-    final doc = root.doc();
-    final updatedUser = User.updateId(id: doc.id, user: data);
+    final doc = root.doc(data.id);
+    // final updatedUser = User.updateId(id: doc.id, user: data);
 
-    await doc.set(updatedUser.toJson());
+    await doc.set(data.toJson());
 
-    return updatedUser;
+    return data;
   }
 
   @override

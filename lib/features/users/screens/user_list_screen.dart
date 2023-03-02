@@ -253,13 +253,13 @@ class UserListScreen extends StatelessWidget {
               (user) => DataRow(
                 onSelectChanged: (value) {
                   userBloc.selectUser(userId: user.id);
+                  Constants.appBarTitle = user.completeName;
+                  context.read<MenuSelectionCubit>().select(
+                    page: 2,
+                  );
                   if (isMobile()) {
                     GoRouter.of(context).push('/users/${user.id}');
                   } else {
-                    Constants.appBarTitle = user.completeName;
-                    context.read<MenuSelectionCubit>().select(
-                          page: 2,
-                        );
                     GoRouter.of(context).go('/users/${user.id}');
                   }
                 },

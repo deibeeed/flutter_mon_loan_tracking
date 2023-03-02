@@ -11,8 +11,8 @@ class AddUserEvent extends UserEvent {
   final String civilStatus;
   final String mobileNumber;
   final UserType type;
-  String? password;
-  String? confirmPassword;
+  final String password;
+  final String confirmPassword;
 
   AddUserEvent({
     required this.firstName,
@@ -22,8 +22,8 @@ class AddUserEvent extends UserEvent {
     required this.civilStatus,
     required this.mobileNumber,
     required this.type,
-    this.password,
-    this.confirmPassword,
+    required this.password,
+    required this.confirmPassword,
   });
 }
 

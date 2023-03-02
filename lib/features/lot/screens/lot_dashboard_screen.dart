@@ -410,16 +410,17 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                                                   (lot) => InkWell(
                                                 radius: 64,
                                                 onTap: () {
-                                                  if (widget.isMobile()) {
-                                                    Constants.appBarTitle = lot.completeBlockLotNo;
-                                                    context.read<MenuSelectionCubit>().select(
-                                                      page:
-                                                      Constants.menuItems.length - 1,
-                                                    );
-                                                  }
+                                                  Constants.appBarTitle = lot.completeBlockLotNo;
+                                                  context.read<MenuSelectionCubit>().select(
+                                                    page: 1,
+                                                  );
                                                   lotBloc
                                                       .selectLot(lot: lot);
-                                                  GoRouter.of(context).push('/lots/${lot.id}');
+                                                  if (widget.isMobile()) {
+                                                    GoRouter.of(context).push('/lots/${lot.id}');
+                                                  } else {
+                                                    GoRouter.of(context).go('/lots/${lot.id}');
+                                                  }
                                                 },
                                                 child: Container(
                                                   decoration: BoxDecoration(

@@ -32,3 +32,11 @@ class UserLoadingState extends UserState {
     this.message,
   });
 }
+
+class SelectedUserTypeState extends UserState {
+  final UserType type;
+
+  SelectedUserTypeState({ required this.type});
+}
+
+class CloseScreenState extends UserState { }

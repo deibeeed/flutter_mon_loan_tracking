@@ -234,6 +234,7 @@ class _AppState extends State<App> {
               BlocProvider<UserBloc>.value(
                 value: UserBloc(
                   userRepository: context.read<UserRepository>(),
+                  authenticationService: context.read<AuthenticationService>(),
                 ),
               ),
               BlocProvider<LoanBloc>.value(

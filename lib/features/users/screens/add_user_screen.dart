@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -86,85 +87,89 @@ class AddUserScreen extends StatelessWidget {
         } else if (state is UserErrorState) {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(state.message)));
+        } else if (state is CloseScreenState) {
+          GoRouter.of(context).pop();
         }
       },
       child: Scaffold(
         appBar: !isMobile()
             ? null
             : PreferredSize(
-          preferredSize: Size.fromHeight(appBarHeight),
-          child: AppBar(
-            backgroundColor:
-            Theme.of(context).colorScheme.primary.withOpacity(0.48),
-            leading: !isMobile() ? Container() : IconButton(
-              icon: const Icon(
-                Icons.arrow_back_rounded,
-                color: Colors.white,
-              ),
-              onPressed: () => GoRouter.of(context).pop(),
-            ),
-            bottom: PreferredSize(
-              preferredSize: Size.zero,
-              child: Container(
-                width: computedWidth,
-                margin: EdgeInsets.only(bottom: appBarBottomPadding),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Add user',
-                      style: titleTextStyle?.apply(color: Colors.white),
-                    ),
-                    SizedBox(
-                      width: avatarSize,
-                      height: avatarSize,
-                      child: InkWell(
-                        onTap: () {
-                          final user =
-                          context.read<UserBloc>().getLoggedInUser();
-                          if (user != null) {
-                            GoRouter.of(context)
-                                .push('/users/${user.id}');
-                          }
-                        },
-                        child: CircleAvatar(
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .primaryContainer,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Text(
-                              context
-                                  .read<UserBloc>()
-                                  .getLoggedInUser()
-                                  ?.initials ??
-                                  'No',
-                              style: avatarTextStyle,
+                preferredSize: Size.fromHeight(appBarHeight),
+                child: AppBar(
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.48),
+                  leading: !isMobile()
+                      ? Container()
+                      : IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => GoRouter.of(context).pop(),
+                        ),
+                  bottom: PreferredSize(
+                    preferredSize: Size.zero,
+                    child: Container(
+                      width: computedWidth,
+                      margin: EdgeInsets.only(bottom: appBarBottomPadding),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Add user',
+                            style: titleTextStyle?.apply(color: Colors.white),
+                          ),
+                          SizedBox(
+                            width: avatarSize,
+                            height: avatarSize,
+                            child: InkWell(
+                              onTap: () {
+                                final user =
+                                    context.read<UserBloc>().getLoggedInUser();
+                                if (user != null) {
+                                  GoRouter.of(context)
+                                      .push('/users/${user.id}');
+                                }
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Text(
+                                    context
+                                            .read<UserBloc>()
+                                            .getLoggedInUser()
+                                            ?.initials ??
+                                        'No',
+                                    style: avatarTextStyle,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: loginContainerRadius,
+                      bottomRight: loginContainerRadius,
+                    ),
+                  ),
                 ),
               ),
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomLeft: loginContainerRadius,
-                bottomRight: loginContainerRadius,
-              ),
-            ),
-          ),
-        ),
         body: shortestSide <= Constants.smallScreenShortestSideBreakPoint
-        ? _buildSmallScreenBody(context: context)
-        : _buildLargeScreenBody(context: context),
+            ? _buildSmallScreenBody(context: context)
+            : _buildLargeScreenBody(context: context),
       ),
     );
   }
 
-  Widget _buildSmallScreenBody({ required BuildContext context }) {
+  Widget _buildSmallScreenBody({required BuildContext context}) {
     final userBloc = BlocProvider.of<UserBloc>(context);
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
@@ -176,9 +181,29 @@ class AddUserScreen extends StatelessWidget {
 
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            BlocBuilder<UserBloc, UserState>(
+              builder: (context, state) {
+                var type = UserType.customer;
+
+                if (state is SelectedUserTypeState) {
+                  type = state.type;
+                }
+
+                return DropdownButton<UserType>(
+                  value: type,
+                  items: UserType.values.map((type) {
+                    return DropdownMenuItem<UserType>(
+                      value: type,
+                      child: Text(type.value),
+                    );
+                  }).toList(),
+                  onChanged: (value) => userBloc.selectUserType(type: value),
+                );
+              },
+            ),
             TextFormField(
               controller: lastNameController,
               decoration: const InputDecoration(
@@ -222,7 +247,7 @@ class AddUserScreen extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
+                  const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -295,7 +320,7 @@ class AddUserScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLargeScreenBody({ required BuildContext context }) {
+  Widget _buildLargeScreenBody({required BuildContext context}) {
     final userBloc = BlocProvider.of<UserBloc>(context);
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
@@ -305,7 +330,38 @@ class AddUserScreen extends StatelessWidget {
       buttonPadding = const EdgeInsets.all(16);
     }
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const Text('User type'),
+        const SizedBox(
+          height: 8,
+        ),
+        BlocBuilder<UserBloc, UserState>(
+          builder: (context, state) {
+            var type = UserType.customer;
+
+            if (state is SelectedUserTypeState) {
+              type = state.type;
+            }
+
+            return SizedBox(
+              width: double.infinity,
+              child: DropdownButton<UserType>(
+                value: type,
+                items: UserType.values.map((type) {
+                  return DropdownMenuItem<UserType>(
+                    value: type,
+                    child: Text(type.value),
+                  );
+                }).toList(),
+                onChanged: (value) => userBloc.selectUserType(type: value),
+              ),
+            );
+          },
+        ),
+        const SizedBox(
+          height: 32,
+        ),
         TextFormField(
           controller: lastNameController,
           decoration: const InputDecoration(
@@ -356,7 +412,7 @@ class AddUserScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+                    const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                 ],
@@ -378,32 +434,32 @@ class AddUserScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(
-              width: 32,
-            ),
-            Expanded(
-              child: TextFormField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  label: Text('Password'),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(
-              width: 32,
-            ),
-            Expanded(
-              child: TextFormField(
-                controller: confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  label: Text('Confirm password'),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
+            // const SizedBox(
+            //   width: 32,
+            // ),
+            // Expanded(
+            //   child: TextFormField(
+            //     controller: passwordController,
+            //     obscureText: true,
+            //     decoration: const InputDecoration(
+            //       label: Text('Password'),
+            //       border: OutlineInputBorder(),
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(
+            //   width: 32,
+            // ),
+            // Expanded(
+            //   child: TextFormField(
+            //     controller: confirmPasswordController,
+            //     obscureText: true,
+            //     decoration: const InputDecoration(
+            //       label: Text('Confirm password'),
+            //       border: OutlineInputBorder(),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
         const SizedBox(
