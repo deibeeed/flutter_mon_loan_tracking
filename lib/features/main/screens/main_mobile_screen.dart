@@ -121,13 +121,9 @@ class MainSmallScreen extends StatelessWidget {
                           onTap: () {
                             final user = userBloc.getLoggedInUser();
                             if (user != null) {
-                              Constants.menuItems.add(
-                                DynamicMenuItem(
-                                  name: user.completeName,
-                                ),
-                              );
+                              Constants.appBarTitle = user.completeName;
                               context.read<MenuSelectionCubit>().select(
-                                page: Constants.menuItems.length - 1,
+                                page: 2,
                               );
                               userBloc.selectUser(userId: user.id);
                               GoRouter.of(context).go('/profile/${user.id}');

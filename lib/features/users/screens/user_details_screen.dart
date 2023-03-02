@@ -38,11 +38,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
   @override
   void deactivate() {
-    final menuItemLast = Constants.menuItems.last;
-
-    if (menuItemLast.isDynamic) {
-      Constants.menuItems.removeLast();
-    }
+    Constants.appBarTitle = null;
 
     context.read<UserBloc>().reset();
     context.read<LoanBloc>().reset();

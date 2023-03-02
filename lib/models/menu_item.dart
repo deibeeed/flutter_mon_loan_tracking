@@ -40,13 +40,3 @@ class MenuItemSeparator extends MenuItemModel {
     isSeparator: true,
   );
 }
-
-class DynamicMenuItem extends MenuItemModel {
-  const DynamicMenuItem({ required String name}):
-    super(
-      name: name,
-      goPath: '/$name',
-      isSeparator: false,
-      isDynamic: true,
-    );
-}

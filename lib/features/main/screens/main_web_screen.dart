@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
@@ -77,7 +78,7 @@ class MainLargeScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        menuItemName,
+                        Constants.appBarTitle ?? menuItemName,
                         style: titleTextStyle?.apply(color: Colors.white),
                       ),
                       SizedBox(
@@ -87,13 +88,9 @@ class MainLargeScreen extends StatelessWidget {
                           onTap: () {
                             final user = userBloc.getLoggedInUser();
                             if (user != null) {
-                              Constants.menuItems.add(
-                                DynamicMenuItem(
-                                  name: user.completeName,),
-                              );
+                              Constants.appBarTitle = user.completeName;
                               context.read<MenuSelectionCubit>().select(
-                                page:
-                                Constants.menuItems.length - 1,
+                                page: 2,
                               );
                               userBloc.selectUser(userId: user.id);
                               GoRouter.of(context).go('/profile/${user.id}');

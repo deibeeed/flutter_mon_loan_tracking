@@ -166,7 +166,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       _allLoans.clear();
       _filteredLoans.clear();
     }
-    add(GetAllLoansEvent(clientId: clientId));
+    add(GetAllLoansEvent(clientId: clientId, clearList: clearList));
   }
 
   void getAllLots() {
@@ -540,7 +540,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           _loans.addAll({for (var loan in loans) loan.id: loan});
         }
 
-        final schedules = await loanScheduleRepository.next();
+        final schedules =
+            await loanScheduleRepository.next(isClear: event.clearList);
 
         for (final schedule in schedules) {
           var loan = _loans[schedule.loanId];
@@ -699,14 +700,15 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     try {
       emit(LoanLoadingState(isLoading: true));
       final schedule = event.schedule
-      ..paidOn = DateTime.now().millisecondsSinceEpoch;
+        ..paidOn = DateTime.now().millisecondsSinceEpoch;
       await loanScheduleRepository.update(data: schedule);
       emit(LoanLoadingState());
       emit(LoanSuccessState(message: 'Successfully paid loan schedule'));
     } catch (err) {
       printd(err);
       emit(LoanLoadingState());
-      emit(LoanErrorState(message: 'Something went wrong while paying schedule'));
+      emit(LoanErrorState(
+          message: 'Something went wrong while paying schedule'));
     }
   }
 

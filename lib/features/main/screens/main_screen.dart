@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_mobile_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_web_screen.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
@@ -26,6 +27,9 @@ class MainScreen extends StatelessWidget {
     return BlocListener<AuthenticationBloc, AuthenticationState>(
       listener: (context, state) {
         if (state is LogoutSuccessState) {
+          context.read<MenuSelectionCubit>().select(
+            page: 0,
+          );
           GoRouter.of(context).go('/login');
         } else if (state is LoginLoadingState) {
           if (state.isLoading) {

@@ -411,10 +411,7 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                                                 radius: 64,
                                                 onTap: () {
                                                   if (widget.isMobile()) {
-                                                    Constants.menuItems.add(
-                                                      DynamicMenuItem(
-                                                        name: lot.completeBlockLotNo,),
-                                                    );
+                                                    Constants.appBarTitle = lot.completeBlockLotNo;
                                                     context.read<MenuSelectionCubit>().select(
                                                       page:
                                                       Constants.menuItems.length - 1,

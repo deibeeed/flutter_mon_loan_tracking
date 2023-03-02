@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -121,21 +122,18 @@ class MainWebScreenMenu extends StatelessWidget {
                   ),
                 ),
               ),
-              for (var i = 0;
-                  i <
-                      Constants.menuItems
-                          .where((menu) => !menu.isDynamic)
-                          .length;
-                  i++)
-                _buildMenuItem(
-                  context: context,
-                  item: Constants.menuItems[i],
-                  selected: page == i,
-                  onTap: () {
-                    menuSelection.select(page: i);
-                    GoRouter.of(context).go(Constants.menuItems[i].goPath);
-                  },
-                ),
+              ...Constants.menuItems
+                  .where((menu) => !menu.isDynamic)
+              .mapIndexed((i, menu) => _buildMenuItem(
+                context: context,
+                item: menu,
+                selected: page == i,
+                onTap: () {
+                  menuSelection.select(page: i);
+                  GoRouter.of(context).go(menu.goPath);
+                },
+              ),).toList()
+
             ],
           );
         },

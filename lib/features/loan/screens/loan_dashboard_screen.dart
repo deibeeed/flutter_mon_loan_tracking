@@ -12,9 +12,15 @@ import 'package:flutter_mon_loan_tracking/widgets/widget_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-class LoanDashboardScreen extends StatelessWidget {
+class LoanDashboardScreen extends StatefulWidget {
   LoanDashboardScreen({super.key}) : super();
 
+  @override
+  State<StatefulWidget> createState() => _LoanDashboardScreenState();
+
+}
+
+class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
   final _pagingController = PagingController<int, LoanDisplay>(firstPageKey: 0);
   bool _didAddPageRequestListener = false;
 
@@ -22,10 +28,18 @@ class LoanDashboardScreen extends StatelessWidget {
   final _searchController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    final loanBloc = BlocProvider.of<LoanBloc>(context)
+  void initState() {
+    super.initState();
+
+    BlocProvider.of<LoanBloc>(context)
       ..getAllUsers()
-      ..getAllLots();
+      ..getAllLots()
+      ..getAllLoans(clearList: true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loanBloc = BlocProvider.of<LoanBloc>(context);
 
     if (!_didAddPageRequestListener) {
       // _pagingController.addPageRequestListener((pageKey) {

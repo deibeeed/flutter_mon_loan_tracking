@@ -256,13 +256,9 @@ class UserListScreen extends StatelessWidget {
                   if (isMobile()) {
                     GoRouter.of(context).push('/users/${user.id}');
                   } else {
-                    Constants.menuItems.add(
-                      DynamicMenuItem(
-                        name: user.completeName,
-                      ),
-                    );
+                    Constants.appBarTitle = user.completeName;
                     context.read<MenuSelectionCubit>().select(
-                          page: Constants.menuItems.length - 1,
+                          page: 2,
                         );
                     GoRouter.of(context).go('/users/${user.id}');
                   }

@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 class Constants {
+  static String? appBarTitle;
   static const maxAppBarHeight = 220.0;
   static const largeScreenShortestSideBreakPoint = 800;
   static const smallScreenShortestSideBreakPoint = 420;

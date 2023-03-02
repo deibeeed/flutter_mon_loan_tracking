@@ -39,8 +39,9 @@ class AddLoanEvent extends LoanEvent {
 
 class GetAllLoansEvent extends LoanEvent {
   final String? clientId;
+  final bool clearList;
 
-  GetAllLoansEvent({ this.clientId});
+  GetAllLoansEvent({ this.clientId, this.clearList = false});
 }
 
 class GetAllLotsEvent extends LoanEvent {}

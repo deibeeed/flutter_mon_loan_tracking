@@ -22,8 +22,8 @@ class LoanScheduleRepository extends BaseRepository<LoanSchedule> {
     return firestoreService.allByLoanId(loanId: loanId);
   }
 
-  Future<List<LoanSchedule>> next() {
-    return firestoreService.next();
+  Future<List<LoanSchedule>> next({ bool isClear = false}) {
+    return firestoreService.next(isClear: isClear);
   }
 
   @override
