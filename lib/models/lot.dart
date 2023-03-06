@@ -18,7 +18,7 @@ class Lot extends Equatable {
   // user id of the customer that bought the lot
   String? reservedTo;
 
-  // user id of the agent that assisted
+  // name of the agent that assisted
   String? agentAssisted;
 
   Lot({
