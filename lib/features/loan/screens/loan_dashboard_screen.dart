@@ -403,13 +403,15 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                     ),
                     DataCell(
                       defaultCellText(
-                          text: loanDisplay.schedule.monthlyAmortization
-                              .toCurrency()),
+                        text: loanDisplay.schedule.monthlyAmortization
+                            .toCurrency(),
+                      ),
                     ),
-                    DataCell(defaultCellText(
-                        text: userBloc
-                            .mappedUsers[loanDisplay.lot.agentAssisted]!
-                            .completeName))
+                    DataCell(
+                      defaultCellText(
+                        text: loanDisplay.loan.assistingAgent ?? 'None',
+                      ),
+                    )
                   ],
                 ),
               )

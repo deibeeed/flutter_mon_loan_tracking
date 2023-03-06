@@ -25,12 +25,12 @@ class AddLoanScreen extends StatelessWidget {
   final downpaymentController = TextEditingController();
   final discountController = TextEditingController();
   final discountDescriptionController = TextEditingController();
+  final agentAssistedController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     context.read<UserBloc>().getAllUsers();
-    final loanBloc = BlocProvider.of<LoanBloc>(context)
-      ..getSettings();
+    final loanBloc = BlocProvider.of<LoanBloc>(context)..getSettings();
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
@@ -250,26 +250,16 @@ class AddLoanScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Autocomplete(
-                optionsBuilder: (value) => userBloc.agents.where(
-                      (user) => user.completeName.toLowerCase().contains(
-                    value.text.toLowerCase(),
-                  ),
+              TextFormField(
+                controller: agentAssistedController,
+                enabled: false,
+                decoration: const InputDecoration(
+                  label: Text('Assisting agent'),
+                  border: OutlineInputBorder(),
                 ),
-                displayStringForOption: (user) => user.completeName,
-                onSelected: (user) => loanBloc.selectUser(user: user),
-                fieldViewBuilder: (context, textEditingController, focusNode,
-                    onFieldSubmitted) {
-                  return TextFormField(
-                    controller: textEditingController,
-                    focusNode: focusNode,
-                    onFieldSubmitted: (value) => onFieldSubmitted(),
-                    decoration: const InputDecoration(
-                      label: Text('Assisting agent'),
-                      border: OutlineInputBorder(),
-                    ),
-                  );
-                },
+              ),
+              const SizedBox(
+                height: 32,
               ),
               Autocomplete(
                 optionsBuilder: (value) => userBloc.customers.where(
@@ -299,7 +289,9 @@ class AddLoanScreen extends StatelessWidget {
                 controller: firstNameController,
                 enabled: false,
                 decoration: const InputDecoration(
-                    label: Text('First name'), border: OutlineInputBorder()),
+                  label: Text('First name'),
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(
                 height: 32,
@@ -732,9 +724,9 @@ class AddLoanScreen extends StatelessWidget {
           padding: const EdgeInsets.only(left: 16, right: 16),
           child: ElevatedButton(
             onPressed: () => loanBloc.addLoan(
-              yearsToPay: loanDurationController.text,
-              downPayment: downpaymentController.text,
-            ),
+                yearsToPay: loanDurationController.text,
+                downPayment: downpaymentController.text,
+                agentAssisted: agentAssistedController.text),
             style: ElevatedButton.styleFrom(
                 padding: buttonPadding,
                 backgroundColor: Theme.of(context).colorScheme.primary),
@@ -880,26 +872,13 @@ class AddLoanScreen extends StatelessWidget {
         const SizedBox(
           height: 8,
         ),
-        Autocomplete(
-          optionsBuilder: (value) => userBloc.agents.where(
-                (user) => user.completeName.toLowerCase().contains(
-              value.text.toLowerCase(),
-            ),
+        TextFormField(
+          controller: agentAssistedController,
+          enabled: false,
+          decoration: const InputDecoration(
+            label: Text('Assisting agent'),
+            border: OutlineInputBorder(),
           ),
-          displayStringForOption: (user) => user.completeName,
-          onSelected: (user) => loanBloc.selectUser(user: user),
-          fieldViewBuilder: (context, textEditingController, focusNode,
-              onFieldSubmitted) {
-            return TextFormField(
-              controller: textEditingController,
-              focusNode: focusNode,
-              onFieldSubmitted: (value) => onFieldSubmitted(),
-              decoration: const InputDecoration(
-                label: Text('Assisting agent'),
-                border: OutlineInputBorder(),
-              ),
-            );
-          },
         ),
         const SizedBox(
           height: 32,
@@ -932,7 +911,9 @@ class AddLoanScreen extends StatelessWidget {
           controller: firstNameController,
           enabled: false,
           decoration: const InputDecoration(
-              label: Text('First name'), border: OutlineInputBorder()),
+            label: Text('First name'),
+            border: OutlineInputBorder(),
+          ),
         ),
         const SizedBox(
           height: 32,
@@ -1397,9 +1378,9 @@ class AddLoanScreen extends StatelessWidget {
             Expanded(
               child: ElevatedButton(
                 onPressed: () => loanBloc.addLoan(
-                  yearsToPay: loanDurationController.text,
-                  downPayment: downpaymentController.text,
-                ),
+                    yearsToPay: loanDurationController.text,
+                    downPayment: downpaymentController.text,
+                    agentAssisted: agentAssistedController.text),
                 style: ElevatedButton.styleFrom(
                     padding: buttonPadding,
                     backgroundColor: Theme.of(context).colorScheme.primary),

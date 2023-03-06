@@ -86,10 +86,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   User? get selectedUser => _selectedUser;
 
-  User? _selectedAgent;
-
-  User? get selectedAgent => _selectedAgent;
-
   num _outstandingBalance = 0;
 
   num get outstandingBalance => _outstandingBalance;
@@ -131,7 +127,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _selectedLoan = null;
     _clientLoanSchedules.clear();
     _selectedUser = null;
-    _selectedAgent = null;
     _monthlyAmortization = 0;
     emit(LoanSuccessState(message: 'successfully reset values'));
   }
@@ -177,11 +172,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     emit(LoanSuccessState(message: 'Successfully selected user'));
   }
 
-  void selectAgent({required User user}) {
-    _selectedAgent = user;
-    emit(LoanSuccessState(message: 'Successfully selected user'));
-  }
-
   void calculateLoan({
     required String yearsToPay,
     required String downPayment,
@@ -201,12 +191,14 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   void addLoan({
     required String yearsToPay,
     required String downPayment,
+    required String agentAssisted,
   }) {
     try {
       add(
         AddLoanEvent(
           downPayment: num.parse(downPayment),
           yearsToPay: num.parse(yearsToPay),
+          assistingAgent: agentAssisted,
         ),
       );
     } catch (err) {
@@ -434,11 +426,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         return;
       }
 
-      if (_selectedAgent == null) {
-        emit(LoanErrorState(message: 'Please select agent'));
-        return;
-      }
-
       if (_selectedLot == null) {
         emit(LoanErrorState(message: 'Please select block and lot number'));
         return;
@@ -458,19 +445,21 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
       final incidentalFee = totalContractPrice * incidentalFeeRate;
       final loan = Loan.create(
-          clientId: _selectedUser!.id,
-          preparedBy: authenticationService.loggedInUser!.uid,
-          lotId: _selectedLot!.id,
-          loanInterestRate: _settings!.loanInterestRate,
-          incidentalFeeRate: _settings!.incidentalFeeRate,
-          reservationFee: _settings!.reservationFee,
-          perSquareMeterRate: _settings!.perSquareMeterRate,
-          outstandingBalance: outstandingBalance,
-          totalContractPrice: totalContractPrice,
-          incidentalFees: incidentalFee,
-          downPayment: event.downPayment,
-          yearsToPay: event.yearsToPay,
-          deductions: _discounts);
+        clientId: _selectedUser!.id,
+        preparedBy: authenticationService.loggedInUser!.uid,
+        lotId: _selectedLot!.id,
+        loanInterestRate: _settings!.loanInterestRate,
+        incidentalFeeRate: _settings!.incidentalFeeRate,
+        reservationFee: _settings!.reservationFee,
+        perSquareMeterRate: _settings!.perSquareMeterRate,
+        outstandingBalance: outstandingBalance,
+        totalContractPrice: totalContractPrice,
+        incidentalFees: incidentalFee,
+        downPayment: event.downPayment,
+        yearsToPay: event.yearsToPay,
+        deductions: _discounts,
+        assistingAgent: event.assistingAgent,
+      );
       final loanWithId = await loanRepository.add(data: loan);
       final futureLoanSchedules = _clientLoanSchedules.map(
         (schedule) {
@@ -482,7 +471,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
       await Future.wait(futureLoanSchedules);
       _selectedLot!.reservedTo = _selectedUser!.id;
-      _selectedLot!.agentAssisted = _selectedAgent!.id;
 
       await lotRepository.update(data: _selectedLot!);
 

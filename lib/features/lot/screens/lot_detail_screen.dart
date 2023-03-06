@@ -348,28 +348,28 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 32,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Assisting agent'),
-                  BlocBuilder<LoanBloc, LoanState>(
-                    buildWhen: (previousState, currentState) {
-                      return currentState is LotSuccessState;
-                    },
-                    builder: (context, state) {
-                      return Text(
-                        userBloc.mappedUsers[lotBloc.selectedLot?.agentAssisted]
-                                ?.completeName ??
-                            'Available',
-                      );
-                    },
-                  ),
-                ],
-              ),
+              // const SizedBox(
+              //   height: 32,
+              // ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     const Text('Assisting agent'),
+              //     BlocBuilder<LoanBloc, LoanState>(
+              //       buildWhen: (previousState, currentState) {
+              //         return currentState is LotSuccessState;
+              //       },
+              //       builder: (context, state) {
+              //         return Text(
+              //           userBloc.mappedUsers[lotBloc.selectedLot?.assistingAgent]
+              //                   ?.completeName ??
+              //               'Available',
+              //         );
+              //       },
+              //     ),
+              //   ],
+              // ),
               const SizedBox(
                 height: 32,
               ),
@@ -722,30 +722,30 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Assisting agent'),
-                      BlocBuilder<LoanBloc, LoanState>(
-                        buildWhen: (previousState, currentState) {
-                          return currentState is LotSuccessState;
-                        },
-                        builder: (context, state) {
-                          return Text(
-                            userBloc
-                                    .mappedUsers[
-                                        lotBloc.selectedLot?.agentAssisted]
-                                    ?.completeName ??
-                                'Available',
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                  // const SizedBox(
+                  //   height: 16,
+                  // ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     const Text('Assisting agent'),
+                  //     BlocBuilder<LoanBloc, LoanState>(
+                  //       buildWhen: (previousState, currentState) {
+                  //         return currentState is LotSuccessState;
+                  //       },
+                  //       builder: (context, state) {
+                  //         return Text(
+                  //           userBloc
+                  //                   .mappedUsers[
+                  //                       lotBloc.selectedLot?.assistingAgent]
+                  //                   ?.completeName ??
+                  //               'Available',
+                  //         );
+                  //       },
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
             ),

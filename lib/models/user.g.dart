@@ -40,4 +40,5 @@ const _$UserTypeEnumMap = {
   UserType.admin: 'admin',
   UserType.agent: 'agent',
   UserType.accountant: 'accountant',
+  UserType.subAdmin: 'subAdmin',
 };

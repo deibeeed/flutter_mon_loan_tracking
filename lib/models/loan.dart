@@ -37,7 +37,7 @@ class Loan extends Equatable {
   final num incidentalFees;
   final num downPayment;
   final num yearsToPay;
-  // final String agentId;
+  final String? assistingAgent;
 
   Loan({
     required this.id,
@@ -55,7 +55,7 @@ class Loan extends Equatable {
     required this.incidentalFees,
     required this.downPayment,
     required this.yearsToPay,
-    // required this.agentId,
+    this.assistingAgent,
   });
 
   factory Loan.create({
@@ -72,6 +72,7 @@ class Loan extends Equatable {
     required num downPayment,
     required num yearsToPay,
     required List<Discount> deductions,
+    String? assistingAgent,
   }) =>
       Loan(
         id: Constants.NO_ID,
@@ -89,6 +90,7 @@ class Loan extends Equatable {
         downPayment: downPayment,
         yearsToPay: yearsToPay,
         deductions: deductions,
+        assistingAgent: assistingAgent
       );
 
   factory Loan.updateId({
@@ -111,6 +113,7 @@ class Loan extends Equatable {
         downPayment: loan.downPayment,
         yearsToPay: loan.yearsToPay,
         deductions: loan.deductions,
+        assistingAgent: loan.assistingAgent
       );
 
   factory Loan.fromJson(Map<String, dynamic> json) => _$LoanFromJson(json);

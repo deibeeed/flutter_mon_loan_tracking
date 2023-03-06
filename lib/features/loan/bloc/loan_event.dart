@@ -28,10 +28,12 @@ class GetSettingsEvent extends LoanEvent {}
 class AddLoanEvent extends LoanEvent {
   final num downPayment;
   final num yearsToPay;
+  final String assistingAgent;
 
   AddLoanEvent({
     required this.downPayment,
     required this.yearsToPay,
+    required this.assistingAgent,
   });
 }
 
