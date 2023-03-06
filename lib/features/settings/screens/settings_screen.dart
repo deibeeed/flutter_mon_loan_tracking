@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/settings/bloc/setting_field.dart';
 import 'package:flutter_mon_loan_tracking/features/settings/bloc/settings_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
@@ -33,12 +35,12 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       body: shortestSide <= Constants.smallScreenShortestSideBreakPoint
-      ? _buildSmallScreenBody(context: context)
-      : _buildLargeScreenBody(context: context),
+          ? _buildSmallScreenBody(context: context)
+          : _buildLargeScreenBody(context: context),
     );
   }
 
-  Widget _buildSmallScreenBody({ required BuildContext context}) {
+  Widget _buildSmallScreenBody({required BuildContext context}) {
     final settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
     final screenSize = MediaQuery.of(context).size;
@@ -62,6 +64,39 @@ class SettingsScreen extends StatelessWidget {
               perSqmController.text =
                   settingsBloc.settings.perSquareMeterRate.toString();
               allowTextControllerUpdate = false;
+
+              if (state.message != null) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(state.message!)));
+              }
+              context.read<LoanBloc>().getSettings();
+              context.read<LotBloc>().initialize();
+            }
+          } else if (state is SettingsErrorState) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message)));
+          } else if (state is LoadingSettingsState) {
+            if (state.isLoading) {
+              showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return const AlertDialog(
+                      content: SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  });
+            } else {
+              try {
+                if (Navigator.of(context, rootNavigator: true).canPop()) {
+                  Navigator.of(context, rootNavigator: true).pop();
+                }
+              } catch (err) {
+                printd(err);
+              }
             }
           }
         },
@@ -124,8 +159,7 @@ class SettingsScreen extends StatelessWidget {
                   },
                   builder: (context, state) {
                     return Text(
-                      settingsBloc.settings.perSquareMeterRate
-                          .toCurrency(),
+                      settingsBloc.settings.perSquareMeterRate.toCurrency(),
                     );
                   },
                 ),
@@ -168,7 +202,7 @@ class SettingsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         for (var category
-                        in settingsBloc.settings.lotCategories) ...[
+                            in settingsBloc.settings.lotCategories) ...[
                           Text(category),
                           const SizedBox(
                             height: 4,
@@ -188,7 +222,7 @@ class SettingsScreen extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
+                  const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -216,7 +250,7 @@ class SettingsScreen extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
+                  const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -235,7 +269,7 @@ class SettingsScreen extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
+                  const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -254,7 +288,7 @@ class SettingsScreen extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
+                  const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -296,13 +330,13 @@ class SettingsScreen extends StatelessWidget {
                       runSpacing: 16,
                       children: [
                         for (var category
-                        in settingsBloc.settings.lotCategories)
+                            in settingsBloc.settings.lotCategories)
                           Chip(
                             padding: const EdgeInsets.only(
                                 left: 8, top: 8, bottom: 8, right: 16),
                             label: Text(category),
-                            onDeleted: () => settingsBloc
-                                .removeLotCategory(category: category),
+                            onDeleted: () => settingsBloc.removeLotCategory(
+                                category: category),
                             deleteIcon: const Icon(Icons.cancel),
                           ),
                       ],
@@ -321,8 +355,7 @@ class SettingsScreen extends StatelessWidget {
                     onPressed: settingsBloc.saveUpdatedSettings,
                     style: ElevatedButton.styleFrom(
                         padding: buttonPadding,
-                        backgroundColor:
-                        Theme.of(context).colorScheme.primary),
+                        backgroundColor: Theme.of(context).colorScheme.primary),
                     child: Text(
                       'Update settings',
                       style: Theme.of(context)
@@ -340,7 +373,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLargeScreenBody({ required BuildContext context }) {
+  Widget _buildLargeScreenBody({required BuildContext context}) {
     final settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
     final screenSize = MediaQuery.of(context).size;
@@ -365,10 +398,41 @@ class SettingsScreen extends StatelessWidget {
               perSqmController.text =
                   settingsBloc.settings.perSquareMeterRate.toString();
               allowTextControllerUpdate = false;
+
+              if (state.message != null) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(state.message!)));
+              }
+
+              context.read<LoanBloc>().getSettings();
+              context.read<LotBloc>().initialize();
             }
           } else if (state is SettingsErrorState) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));
+          } else if (state is LoadingSettingsState) {
+            if (state.isLoading) {
+              showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return const AlertDialog(
+                      content: SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  });
+            } else {
+              try {
+                if (Navigator.of(context, rootNavigator: true).canPop()) {
+                  Navigator.of(context, rootNavigator: true).pop();
+                }
+              } catch (err) {
+                printd(err);
+              }
+            }
           }
         },
         child: Row(
@@ -479,7 +543,7 @@ class SettingsScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               for (var category
-                              in settingsBloc.settings.lotCategories) ...[
+                                  in settingsBloc.settings.lotCategories) ...[
                                 Text(category),
                                 const SizedBox(
                                   height: 4,
@@ -506,7 +570,7 @@ class SettingsScreen extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                     ],
@@ -534,7 +598,7 @@ class SettingsScreen extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                     ],
@@ -553,7 +617,7 @@ class SettingsScreen extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                     ],
@@ -572,7 +636,7 @@ class SettingsScreen extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                     ],
@@ -614,7 +678,7 @@ class SettingsScreen extends StatelessWidget {
                             runSpacing: 16,
                             children: [
                               for (var category
-                              in settingsBloc.settings.lotCategories)
+                                  in settingsBloc.settings.lotCategories)
                                 Chip(
                                   padding: const EdgeInsets.only(
                                       left: 8, top: 8, bottom: 8, right: 16),
@@ -640,7 +704,7 @@ class SettingsScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                               padding: buttonPadding,
                               backgroundColor:
-                              Theme.of(context).colorScheme.primary),
+                                  Theme.of(context).colorScheme.primary),
                           child: Text(
                             'Update settings',
                             style: Theme.of(context)

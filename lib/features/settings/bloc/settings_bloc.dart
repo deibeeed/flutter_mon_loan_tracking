@@ -39,7 +39,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     add(UpdateSettingsEvent(updatedSettings: _settings));
   }
 
-  void updateSettings({ required SettingField field, required String value}) {
+  void updateSettings({required SettingField field, required String value}) {
     if (value.isEmpty) return;
 
     switch (field) {
@@ -63,7 +63,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     add(UpdateSettingsUiEvent(updatedSettings: _settings));
   }
 
-  void removeLotCategory({ required String category }) {
+  void removeLotCategory({required String category}) {
     _settings.lotCategories.removeWhere((element) => element == category);
     add(UpdateSettingsUiEvent(updatedSettings: _settings));
   }
@@ -95,8 +95,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     try {
       emit(const LoadingSettingsState(isLoading: true));
 
+      event.updatedSettings.createdAt = DateTime.now().millisecondsSinceEpoch;
+
       final settingsList =
-          await settingsRepository.update(data: event.updatedSettings);
+          await settingsRepository.add(data: event.updatedSettings);
       _settings = event.updatedSettings;
 
       emit(const LoadingSettingsState());
@@ -111,7 +113,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     }
   }
 
-  void _handleUIupdate(UpdateSettingsUiEvent event, Emitter<SettingsState> emit) {
+  void _handleUIupdate(
+      UpdateSettingsUiEvent event, Emitter<SettingsState> emit) {
     emit(SettingsSuccessState(settings: _settings));
   }
 }

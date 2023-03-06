@@ -15,7 +15,7 @@ class SettingsFireStoreService extends BaseFirestoreService<Settings> {
 
   @override
   Future<List<Settings>> all() async {
-    final doc = await root.get();
+    final doc = await root.orderBy('createdAt', descending: true).get();
     final Settingss = doc.docs
         .map((e) => Settings.fromJson(e.data() as Map<String, dynamic>))
         .toList();

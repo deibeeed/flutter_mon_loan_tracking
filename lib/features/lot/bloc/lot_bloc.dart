@@ -142,10 +142,10 @@ class LotBloc extends Bloc<LotEvent, LotState> {
       Emitter<LotState> emit,) async {
     try {
       emit(LotLoadingState(isLoading: true));
-      final settings = await settingsRepository.all();
+      final settings = await settingsRepository.getLatest();
       _lotCategories
         ..clear()
-        ..addAll(settings[0].lotCategories);
+        ..addAll(settings.lotCategories);
       _selectedLotCategory = _lotCategories.first;
       final lots = await lotRepository.all();
       final grouped = groupBy(lots, (p0) => p0.blockNo);
