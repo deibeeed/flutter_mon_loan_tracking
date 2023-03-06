@@ -132,7 +132,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _clientLoanSchedules.clear();
     _selectedUser = null;
     _selectedAgent = null;
-    _monthlyAmortization = null;
+    _monthlyAmortization = 0;
     emit(LoanSuccessState(message: 'successfully reset values'));
   }
 
