@@ -11,10 +11,9 @@ Settings _$SettingsFromJson(Map<String, dynamic> json) => Settings(
       incidentalFeeRate: json['incidentalFeeRate'] as num,
       reservationFee: json['reservationFee'] as num,
       lotCategories: (json['lotCategories'] as List<dynamic>)
-          .map((e) => e as String)
+          .map((e) => LotCategory.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: json['id'] as String? ?? Constants.NO_ID,
-      perSquareMeterRate: json['perSquareMeterRate'] as num,
       createdAt: json['createdAt'] as num? ?? Constants.NO_DATE,
     );
 
@@ -22,7 +21,6 @@ Map<String, dynamic> _$SettingsToJson(Settings instance) => <String, dynamic>{
       'loanInterestRate': instance.loanInterestRate,
       'incidentalFeeRate': instance.incidentalFeeRate,
       'reservationFee': instance.reservationFee,
-      'perSquareMeterRate': instance.perSquareMeterRate,
       'lotCategories': instance.lotCategories,
       'id': instance.id,
       'createdAt': instance.createdAt,

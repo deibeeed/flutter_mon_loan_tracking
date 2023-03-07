@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_mon_loan_tracking/models/lot_category.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -6,7 +7,7 @@ part 'lot.g.dart';
 
 @JsonSerializable()
 class Lot extends Equatable {
-  final String lotCategory;
+  final LotCategory lotCategory;
   final String blockNo;
   final String lotNo;
   final String description;
@@ -45,7 +46,7 @@ class Lot extends Equatable {
       );
 
   factory Lot.create({
-    required String lotCategory,
+    required LotCategory lotCategory,
     required String blockNo,
     required String lotNo,
     required String description,

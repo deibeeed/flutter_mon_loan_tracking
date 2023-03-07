@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_mon_loan_tracking/models/lot_category.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -12,7 +13,6 @@ class Settings extends Equatable {
     required this.reservationFee,
     required this.lotCategories,
     this.id = Constants.NO_ID,
-    required this.perSquareMeterRate,
     this.createdAt = Constants.NO_DATE,
   });
 
@@ -26,7 +26,6 @@ class Settings extends Equatable {
         reservationFee: settings.reservationFee,
         lotCategories: settings.lotCategories,
         id: id,
-        perSquareMeterRate: settings.perSquareMeterRate,
         createdAt: settings.createdAt,
       );
 
@@ -34,26 +33,30 @@ class Settings extends Equatable {
         loanInterestRate: 7,
         incidentalFeeRate: 10,
         lotCategories: const [
-          'Corner Lot',
-          'Interior Lot',
-          'Commercial Lot',
+          LotCategory(name: 'Corner Lot', perSquareMeterRate: 9000),
+          LotCategory(name: 'Interior Lot', perSquareMeterRate: 10000),
+          LotCategory(name: 'Commercial Lot', perSquareMeterRate: 11000),
         ],
         reservationFee: 30000,
-        perSquareMeterRate: 9000,
         createdAt: DateTime.now().millisecondsSinceEpoch,
       );
 
   num loanInterestRate;
   num incidentalFeeRate;
   num reservationFee;
-  num perSquareMeterRate;
-  List<String> lotCategories;
+  List<LotCategory> lotCategories;
   final String id;
   num createdAt;
 
   Map<String, dynamic> toJson() => _$SettingsToJson(this);
 
   @override
-  List<Object?> get props =>
-      [loanInterestRate, incidentalFeeRate, reservationFee, lotCategories, id];
+  List<Object?> get props => [
+        loanInterestRate,
+        incidentalFeeRate,
+        reservationFee,
+        lotCategories,
+        id,
+        createdAt,
+      ];
 }
