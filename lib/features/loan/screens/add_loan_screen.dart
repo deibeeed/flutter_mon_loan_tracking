@@ -874,7 +874,6 @@ class AddLoanScreen extends StatelessWidget {
         ),
         TextFormField(
           controller: agentAssistedController,
-          enabled: false,
           decoration: const InputDecoration(
             label: Text('Assisting agent'),
             border: OutlineInputBorder(),
