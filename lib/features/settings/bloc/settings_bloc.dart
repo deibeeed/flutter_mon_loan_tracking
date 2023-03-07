@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mon_loan_tracking/exceptions/settings_not_found_exception.dart';
 import 'package:flutter_mon_loan_tracking/features/settings/bloc/setting_field.dart';
+import 'package:flutter_mon_loan_tracking/models/lot_category.dart';
 import 'package:flutter_mon_loan_tracking/models/settings.dart';
 import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -52,18 +53,31 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       case SettingField.reservationFee:
         _settings.reservationFee = num.parse(value);
         break;
-      case SettingField.lotCategory:
-        _settings.lotCategories.add(value);
-        break;
-      case SettingField.perSquareMeterRate:
-        _settings.perSquareMeterRate = num.parse(value);
         break;
     }
 
     add(UpdateSettingsUiEvent(updatedSettings: _settings));
   }
 
-  void removeLotCategory({required String category}) {
+  void addLotCategory({
+    required String name,
+    required String ratePerSqm,
+  }) {
+    try {
+      _settings.lotCategories.add(
+        LotCategory(name: name, ratePerSquareMeter: num.parse(ratePerSqm)),
+      );
+      add(UpdateSettingsUiEvent(updatedSettings: _settings));
+    } catch (err) {
+      emit(
+        SettingsErrorState(
+          message: 'Something went wrong while adding lot category: $err',
+        ),
+      );
+    }
+  }
+
+  void removeLotCategory({required LotCategory category}) {
     _settings.lotCategories.removeWhere((element) => element == category);
     add(UpdateSettingsUiEvent(updatedSettings: _settings));
   }

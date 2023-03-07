@@ -33,9 +33,9 @@ class Settings extends Equatable {
         loanInterestRate: 7,
         incidentalFeeRate: 10,
         lotCategories: const [
-          LotCategory(name: 'Corner Lot', perSquareMeterRate: 9000),
-          LotCategory(name: 'Interior Lot', perSquareMeterRate: 10000),
-          LotCategory(name: 'Commercial Lot', perSquareMeterRate: 11000),
+          LotCategory(name: 'Corner Lot', ratePerSquareMeter: 9000),
+          LotCategory(name: 'Interior Lot', ratePerSquareMeter: 10000),
+          LotCategory(name: 'Commercial Lot', ratePerSquareMeter: 11000),
         ],
         reservationFee: 30000,
         createdAt: DateTime.now().millisecondsSinceEpoch,

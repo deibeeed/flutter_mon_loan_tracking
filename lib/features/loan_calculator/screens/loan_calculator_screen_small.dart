@@ -64,9 +64,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
             lotAreaController.text = lot.area.toString();
             lotCategoryController.text = lot.lotCategory;
             pricePerSqmController.text =
-                settings!.perSquareMeterRate.toCurrency();
+                settings!.ratePerSquareMeter.toCurrency();
             tcpController.text =
-                (lot.area * settings.perSquareMeterRate).toCurrency();
+                (lot.area * settings.ratePerSquareMeter).toCurrency();
           }
         } else if (state is LoanErrorState) {
           ScaffoldMessenger.of(context)
@@ -366,7 +366,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                   children: [
                     const Text('Price per sqm:'),
                     Text(
-                        '${loanBloc.settings?.perSquareMeterRate.toCurrency() ?? 0.toCurrency()} per sqm'),
+                        '${loanBloc.settings?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm'),
                   ],
                 ),
                 Row(

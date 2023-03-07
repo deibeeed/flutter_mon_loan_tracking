@@ -5,15 +5,16 @@ part 'lot_category.g.dart';
 
 @JsonSerializable()
 class LotCategory extends Equatable {
+  final String key;
   final String name;
-  final num perSquareMeterRate;
+  final num ratePerSquareMeter;
 
-  const LotCategory({required this.name, required this.perSquareMeterRate});
+  const LotCategory({required this.name, required this.ratePerSquareMeter});
 
   @override
   List<Object?> get props => [
         name,
-        perSquareMeterRate,
+        ratePerSquareMeter,
       ];
 
   Map<String, dynamic> toJson() => _$LotCategoryToJson(this);

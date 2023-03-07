@@ -68,6 +68,8 @@ class Lot extends Equatable {
 
   String get completeBlockLotNo => 'Blk $blockNo Lot $lotNo';
 
+  num get computedTotalContractPrice => area * lotCategory.ratePerSquareMeter;
+
   @override
   List<Object?> get props => [
         lotCategory,

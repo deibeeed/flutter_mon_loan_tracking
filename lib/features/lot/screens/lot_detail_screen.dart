@@ -440,7 +440,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                     var dropdownValue = lotBloc.lotCategories.first;
 
                     if (lotBloc.selectedLot != null) {
-                      dropdownValue = lotBloc.selectedLot!.lotCategory;
+                      dropdownValue = lotBloc.selectedLot!.lotCategory.name;
                     }
 
                     if (state is SelectedLotCategoryLotState) {
@@ -823,7 +823,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                             var dropdownValue = lotBloc.lotCategories.first;
 
                             if (lotBloc.selectedLot != null) {
-                              dropdownValue = lotBloc.selectedLot!.lotCategory;
+                              dropdownValue = lotBloc.selectedLot!.lotCategory.name;
                             }
 
                             if (state is SelectedLotCategoryLotState) {

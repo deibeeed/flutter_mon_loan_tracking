@@ -250,7 +250,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       return 0;
     }
 
-    return selectedLot!.area * settings!.perSquareMeterRate;
+    return selectedLot!.area * settings!.ratePerSquareMeter;
   }
 
   num computeIncidentalFee() {
@@ -258,7 +258,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       return 0;
     }
 
-    return (selectedLot!.area * settings!.perSquareMeterRate) *
+    return (selectedLot!.area * settings!.ratePerSquareMeter) *
         (settings!.incidentalFeeRate / 100);
   }
 
@@ -322,7 +322,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required num yearsToPay,
   }) {
     _clientLoanSchedules.clear();
-    var totalContractPrice = selectedLot!.area * _settings!.perSquareMeterRate;
+    var totalContractPrice = selectedLot!.area * _settings!.ratePerSquareMeter;
     var outstandingBalance = totalContractPrice;
     var annualInterestRate = settings!.loanInterestRate / 100;
 
@@ -441,7 +441,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         yearsToPay: event.yearsToPay,
       );
       var totalContractPrice =
-          selectedLot!.area * _settings!.perSquareMeterRate;
+          selectedLot!.area * _settings!.ratePerSquareMeter;
       var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
       final incidentalFee = totalContractPrice * incidentalFeeRate;
       final loan = Loan.create(
@@ -451,7 +451,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         loanInterestRate: _settings!.loanInterestRate,
         incidentalFeeRate: _settings!.incidentalFeeRate,
         reservationFee: _settings!.reservationFee,
-        perSquareMeterRate: _settings!.perSquareMeterRate,
+        perSquareMeterRate: _settings!.ratePerSquareMeter,
         outstandingBalance: outstandingBalance,
         totalContractPrice: totalContractPrice,
         incidentalFees: incidentalFee,

@@ -16,8 +16,8 @@ class SettingsScreen extends StatelessWidget {
   final loanInterestRateController = TextEditingController();
   final incidentalFeesRateController = TextEditingController();
   final reservationFeeController = TextEditingController();
-  final lotCategoryController = TextEditingController();
-  final perSqmController = TextEditingController();
+  final lotCategoryNameController = TextEditingController();
+  final lotCategoryPricePerSqmController = TextEditingController();
   bool allowTextControllerUpdate = true;
 
   @override
@@ -61,8 +61,6 @@ class SettingsScreen extends StatelessWidget {
                   settingsBloc.settings.incidentalFeeRate.toString();
               reservationFeeController.text =
                   settingsBloc.settings.reservationFee.toString();
-              perSqmController.text =
-                  settingsBloc.settings.perSquareMeterRate.toString();
               allowTextControllerUpdate = false;
 
               if (state.message != null) {
@@ -152,25 +150,6 @@ class SettingsScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Per square meter rate'),
-                BlocBuilder<SettingsBloc, SettingsState>(
-                  buildWhen: (previousState, currentState) {
-                    return currentState is SettingsSuccessState;
-                  },
-                  builder: (context, state) {
-                    return Text(
-                      settingsBloc.settings.perSquareMeterRate.toCurrency(),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
                 const Text('Reservation fee'),
                 BlocBuilder<SettingsBloc, SettingsState>(
                   buildWhen: (previousState, currentState) {
@@ -203,7 +182,9 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         for (var category
                             in settingsBloc.settings.lotCategories) ...[
-                          Text(category),
+                          Text(
+                            '${category.name} @ ${category.ratePerSquareMeter.toCurrency()}',
+                          ),
                           const SizedBox(
                             height: 4,
                           ),
@@ -263,25 +244,6 @@ class SettingsScreen extends StatelessWidget {
               height: 32,
             ),
             TextFormField(
-              controller: perSqmController,
-              decoration: const InputDecoration(
-                label: Text('Per square meter rate'),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-              ],
-              onChanged: (value) => settingsBloc.updateSettings(
-                field: SettingField.perSquareMeterRate,
-                value: value,
-              ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
               controller: reservationFeeController,
               decoration: const InputDecoration(
                 label: Text('Reservation fee'),
@@ -303,19 +265,29 @@ class SettingsScreen extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
-                  controller: lotCategoryController,
-                  decoration: InputDecoration(
-                    label: Text('Lot categories'),
-                    border: OutlineInputBorder(),
-                    suffix: IconButton(
-                      onPressed: () => settingsBloc.updateSettings(
-                        field: SettingField.lotCategory,
-                        value: lotCategoryController.text,
+                Row(
+                  children: [
+                    TextFormField(
+                      controller: lotCategoryNameController,
+                      decoration: InputDecoration(
+                        label: Text('Lot categories'),
+                        border: OutlineInputBorder(),
                       ),
+                    ),
+                    TextFormField(
+                      controller: lotCategoryPricePerSqmController,
+                      decoration: InputDecoration(
+                        label: Text('Rate per square meter'),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => settingsBloc.addLotCategory(
+                          name: lotCategoryNameController.text,
+                          ratePerSqm: lotCategoryPricePerSqmController.text),
                       icon: Icon(Icons.add),
                     ),
-                  ),
+                  ],
                 ),
                 const SizedBox(
                   height: 16,
@@ -334,7 +306,9 @@ class SettingsScreen extends StatelessWidget {
                           Chip(
                             padding: const EdgeInsets.only(
                                 left: 8, top: 8, bottom: 8, right: 16),
-                            label: Text(category),
+                            label: Text(
+                              '${category.name} @ ${category.ratePerSquareMeter.toCurrency()}',
+                            ),
                             onDeleted: () => settingsBloc.removeLotCategory(
                                 category: category),
                             deleteIcon: const Icon(Icons.cancel),
@@ -395,8 +369,6 @@ class SettingsScreen extends StatelessWidget {
                   settingsBloc.settings.incidentalFeeRate.toString();
               reservationFeeController.text =
                   settingsBloc.settings.reservationFee.toString();
-              perSqmController.text =
-                  settingsBloc.settings.perSquareMeterRate.toString();
               allowTextControllerUpdate = false;
 
               if (state.message != null) {
@@ -492,26 +464,6 @@ class SettingsScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Per square meter rate'),
-                      BlocBuilder<SettingsBloc, SettingsState>(
-                        buildWhen: (previousState, currentState) {
-                          return currentState is SettingsSuccessState;
-                        },
-                        builder: (context, state) {
-                          return Text(
-                            settingsBloc.settings.perSquareMeterRate
-                                .toCurrency(),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
                       const Text('Reservation fee'),
                       BlocBuilder<SettingsBloc, SettingsState>(
                         buildWhen: (previousState, currentState) {
@@ -544,7 +496,9 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               for (var category
                                   in settingsBloc.settings.lotCategories) ...[
-                                Text(category),
+                                Text(
+                                  '${category.name} @ ${category.ratePerSquareMeter.toCurrency()}',
+                                ),
                                 const SizedBox(
                                   height: 4,
                                 ),
@@ -611,25 +565,6 @@ class SettingsScreen extends StatelessWidget {
                     height: 32,
                   ),
                   TextFormField(
-                    controller: perSqmController,
-                    decoration: const InputDecoration(
-                      label: Text('Per square meter rate'),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                    ],
-                    onChanged: (value) => settingsBloc.updateSettings(
-                      field: SettingField.perSquareMeterRate,
-                      value: value,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 32,
-                  ),
-                  TextFormField(
                     controller: reservationFeeController,
                     decoration: const InputDecoration(
                       label: Text('Reservation fee'),
@@ -651,19 +586,30 @@ class SettingsScreen extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TextFormField(
-                        controller: lotCategoryController,
-                        decoration: InputDecoration(
-                          label: Text('Lot categories'),
-                          border: OutlineInputBorder(),
-                          suffix: IconButton(
-                            onPressed: () => settingsBloc.updateSettings(
-                              field: SettingField.lotCategory,
-                              value: lotCategoryController.text,
+                      Row(
+                        children: [
+                          TextFormField(
+                            controller: lotCategoryNameController,
+                            decoration: InputDecoration(
+                              label: Text('Lot categories'),
+                              border: OutlineInputBorder(),
                             ),
+                          ),
+                          TextFormField(
+                            controller: lotCategoryPricePerSqmController,
+                            decoration: InputDecoration(
+                              label: Text('Rate per square meter'),
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => settingsBloc.addLotCategory(
+                                name: lotCategoryNameController.text,
+                                ratePerSqm:
+                                    lotCategoryPricePerSqmController.text),
                             icon: Icon(Icons.add),
                           ),
-                        ),
+                        ],
                       ),
                       const SizedBox(
                         height: 16,
@@ -682,7 +628,9 @@ class SettingsScreen extends StatelessWidget {
                                 Chip(
                                   padding: const EdgeInsets.only(
                                       left: 8, top: 8, bottom: 8, right: 16),
-                                  label: Text(category),
+                                  label: Text(
+                                    '${category.name} @ ${category.ratePerSquareMeter.toCurrency()}',
+                                  ),
                                   onDeleted: () => settingsBloc
                                       .removeLotCategory(category: category),
                                   deleteIcon: const Icon(Icons.cancel),

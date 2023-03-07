@@ -8,11 +8,11 @@ part of 'lot_category.dart';
 
 LotCategory _$LotCategoryFromJson(Map<String, dynamic> json) => LotCategory(
       name: json['name'] as String,
-      perSquareMeterRate: json['perSquareMeterRate'] as num,
+      ratePerSquareMeter: json['perSquareMeterRate'] as num,
     );
 
 Map<String, dynamic> _$LotCategoryToJson(LotCategory instance) =>
     <String, dynamic>{
       'name': instance.name,
-      'perSquareMeterRate': instance.perSquareMeterRate,
+      'perSquareMeterRate': instance.ratePerSquareMeter,
     };
