@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mon_loan_tracking/exceptions/user_not_found_exception.dart';
 import 'package:flutter_mon_loan_tracking/models/user.dart';
@@ -30,6 +31,12 @@ class AuthenticationBloc
 
   final AuthenticationService authenticationService;
   final UserRepository usersRepository;
+
+  final storage = FirebaseStorage.instance;
+
+  String? _backgroundDownloadUrl;
+
+  String? get backgroundDownloadUrl => _backgroundDownloadUrl;
 
   void initialize() {
     add(InitializeEvent());
@@ -98,6 +105,14 @@ class AuthenticationBloc
   }
 
   Future<void> _handleInitializeEvent(InitializeEvent event, Emitter<AuthenticationState> emit,) async {
+    try {
+      final imageRef = storage.ref('login_bg.jpg');
+      _backgroundDownloadUrl = await imageRef.getDownloadURL();
+      emit(LoginSuccessState(message: ''));
+    } catch (err) {
+      printd(err);
+    }
+
     try {
       if (authenticationService.isLoggedIn()) {
         final user = await usersRepository.get(id: authenticationService.loggedInUser!.uid);

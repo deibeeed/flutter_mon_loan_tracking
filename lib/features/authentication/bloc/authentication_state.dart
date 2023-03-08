@@ -10,13 +10,14 @@ class AuthenticationInitial extends AuthenticationState {
 }
 
 class LoginSuccessState extends AuthenticationState {
-  const LoginSuccessState({ required this.message, required this.user });
+  const LoginSuccessState({ required this.message, this.user = null,});
   final String message;
-  final User user;
+  final User? user;
 
   @override
   List<Object?> get props => [
     message,
+    user
   ];
 
 }
