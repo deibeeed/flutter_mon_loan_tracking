@@ -18,6 +18,7 @@ import 'package:flutter_mon_loan_tracking/repositories/lot_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
+import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:meta/meta.dart';
 
@@ -176,12 +177,14 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   void calculateLoan({
     required String yearsToPay,
     required String downPayment,
+    required String date,
   }) {
     try {
       add(
         CalculateLoanEvent(
           downPayment: num.parse(downPayment),
           yearsToPay: num.parse(yearsToPay),
+          date: date,
         ),
       );
     } catch (err) {
@@ -193,6 +196,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required String yearsToPay,
     required String downPayment,
     required String agentAssisted,
+    required String date
   }) {
     try {
       add(
@@ -200,6 +204,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           downPayment: num.parse(downPayment),
           yearsToPay: num.parse(yearsToPay),
           assistingAgent: agentAssisted,
+          date: date,
         ),
       );
     } catch (err) {
@@ -244,6 +249,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   void payLoanSchedule({required LoanSchedule schedule}) {
     add(PayLoanScheduleEvent(schedule: schedule));
+  }
+
+  void selectDate({ required DateTime date}) {
+    emit(LoanSuccessState(message: 'Successfully selected date'));
   }
 
   num computeTCP({ bool throwError = false}) {
@@ -331,6 +340,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         downPayment: event.downPayment,
         yearsToPay: event.yearsToPay,
         lotCategoryKey: _selectedLot!.lotCategoryKey,
+        date: Constants.defaultDateFormat.parse(event.date),
       );
 
       emit(LoanLoadingState());
@@ -346,6 +356,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required num downPayment,
     required num yearsToPay,
     required String lotCategoryKey,
+    required DateTime date,
   }) {
     _clientLoanSchedules.clear();
     final lotCategory = settings!.lotCategories.firstWhereOrNull(
@@ -379,7 +390,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _monthlyAmortization = loanMonthlyAmortization + monthlyIncidentalFee;
     var monthlyInterestRate = annualInterestRate / 12;
     printd('starting outstanding balance: $outstandingBalance');
-    var nextMonthDate = DateTime.now().add(const Duration(days: 30));
+    var nextMonthDate = date.add(const Duration(days: 30));
     printd('---------------------------------------------------');
     for (var i = 1; i <= monthsToPay; i++) {
       final interestPayment = outstandingBalance * monthlyInterestRate;
@@ -473,6 +484,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         downPayment: event.downPayment,
         yearsToPay: event.yearsToPay,
         lotCategoryKey: _selectedLot!.lotCategoryKey,
+        date: Constants.defaultDateFormat.parse(event.date),
       );
 
       final lotCategory = settings!.lotCategories.firstWhereOrNull(

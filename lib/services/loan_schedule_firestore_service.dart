@@ -44,7 +44,7 @@ class LoanScheduleFirestoreService extends BaseFirestoreService<LoanSchedule> {
   }
 
   Future<List<LoanSchedule>> next({ bool reset = false}) async {
-    var query = root.orderBy('createdAt');
+    var query = root.orderBy('date');
     
     if (reset) {
       _lastDocumentSnapshot = null;

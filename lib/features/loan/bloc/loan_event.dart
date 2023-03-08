@@ -6,10 +6,12 @@ abstract class LoanEvent {}
 class CalculateLoanEvent extends LoanEvent {
   final num downPayment;
   final num yearsToPay;
+  final String date;
 
   CalculateLoanEvent({
     required this.downPayment,
     required this.yearsToPay,
+    required this.date,
   });
 }
 
@@ -29,11 +31,13 @@ class AddLoanEvent extends LoanEvent {
   final num downPayment;
   final num yearsToPay;
   final String assistingAgent;
+  final String date;
 
   AddLoanEvent({
     required this.downPayment,
     required this.yearsToPay,
     required this.assistingAgent,
+    required this.date,
   });
 }
 

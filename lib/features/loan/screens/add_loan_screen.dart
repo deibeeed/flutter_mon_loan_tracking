@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,12 +26,17 @@ class AddLoanScreen extends StatelessWidget {
   final discountController = TextEditingController();
   final discountDescriptionController = TextEditingController();
   final agentAssistedController = TextEditingController();
+  final dateController = TextEditingController(
+      text: Constants.defaultDateFormat.format(DateTime.now()));
 
   @override
   Widget build(BuildContext context) {
     context.read<UserBloc>().getAllUsers();
-    final loanBloc = BlocProvider.of<LoanBloc>(context)..getSettings();
-    final screenSize = MediaQuery.of(context).size;
+    final loanBloc = BlocProvider.of<LoanBloc>(context)
+      ..getSettings();
+    final screenSize = MediaQuery
+        .of(context)
+        .size;
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
     var computationDetailsWidth = screenSize.width * 0.2;
@@ -47,8 +51,14 @@ class AddLoanScreen extends StatelessWidget {
     var appBarHeight = screenSize.height * 0.16;
     var loginContainerRadius = Constants.defaultRadius;
     var loginContainerMarginTop = 64.0;
-    var titleTextStyle = Theme.of(context).textTheme.displaySmall;
-    var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
+    var titleTextStyle = Theme
+        .of(context)
+        .textTheme
+        .displaySmall;
+    var avatarTextStyle = Theme
+        .of(context)
+        .textTheme
+        .titleLarge;
     var avatarSize = 56.0;
     var contentPadding = const EdgeInsets.all(58);
     var appBarBottomPadding = 48.0;
@@ -61,8 +71,14 @@ class AddLoanScreen extends StatelessWidget {
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       loginContainerRadius = const Radius.circular(64);
       loginContainerMarginTop = 32;
-      titleTextStyle = Theme.of(context).textTheme.headlineMedium;
-      avatarTextStyle = Theme.of(context).textTheme.titleSmall;
+      titleTextStyle = Theme
+          .of(context)
+          .textTheme
+          .headlineMedium;
+      avatarTextStyle = Theme
+          .of(context)
+          .textTheme
+          .titleSmall;
       avatarSize = 48;
       contentPadding = const EdgeInsets.only(
         left: 32,
@@ -87,7 +103,7 @@ class AddLoanScreen extends StatelessWidget {
             lotAreaController.text = lot.area.toString();
 
             final lotCategory = settings.lotCategories.firstWhereOrNull(
-              (category) => category.key == lot.lotCategoryKey,
+                  (category) => category.key == lot.lotCategoryKey,
             );
 
             if (lotCategory != null) {
@@ -132,73 +148,78 @@ class AddLoanScreen extends StatelessWidget {
         appBar: !isMobile()
             ? null
             : PreferredSize(
-                preferredSize: Size.fromHeight(appBarHeight),
-                child: AppBar(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.primary.withOpacity(0.48),
-                  leading: !isMobile()
-                      ? Container()
-                      : IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back_rounded,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => GoRouter.of(context).pop(),
-                        ),
-                  bottom: PreferredSize(
-                    preferredSize: Size.zero,
-                    child: Container(
-                      width: computedWidth,
-                      margin: EdgeInsets.only(bottom: appBarBottomPadding),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Add loan',
-                            style: titleTextStyle?.apply(color: Colors.white),
-                          ),
-                          SizedBox(
-                            width: avatarSize,
-                            height: avatarSize,
-                            child: InkWell(
-                              onTap: () {
-                                final user =
-                                    context.read<UserBloc>().getLoggedInUser();
-                                if (user != null) {
-                                  GoRouter.of(context)
-                                      .push('/users/${user.id}');
-                                }
-                              },
-                              child: CircleAvatar(
-                                backgroundColor: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Text(
-                                    context
-                                            .read<UserBloc>()
-                                            .getLoggedInUser()
-                                            ?.initials ??
-                                        'No',
-                                    style: avatarTextStyle,
-                                  ),
-                                ),
-                              ),
+          preferredSize: Size.fromHeight(appBarHeight),
+          child: AppBar(
+            backgroundColor:
+            Theme
+                .of(context)
+                .colorScheme
+                .primary
+                .withOpacity(0.48),
+            leading: !isMobile()
+                ? Container()
+                : IconButton(
+              icon: const Icon(
+                Icons.arrow_back_rounded,
+                color: Colors.white,
+              ),
+              onPressed: () => GoRouter.of(context).pop(),
+            ),
+            bottom: PreferredSize(
+              preferredSize: Size.zero,
+              child: Container(
+                width: computedWidth,
+                margin: EdgeInsets.only(bottom: appBarBottomPadding),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Add loan',
+                      style: titleTextStyle?.apply(color: Colors.white),
+                    ),
+                    SizedBox(
+                      width: avatarSize,
+                      height: avatarSize,
+                      child: InkWell(
+                        onTap: () {
+                          final user =
+                          context.read<UserBloc>().getLoggedInUser();
+                          if (user != null) {
+                            GoRouter.of(context)
+                                .push('/users/${user.id}');
+                          }
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Theme
+                              .of(context)
+                              .colorScheme
+                              .primaryContainer,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                              context
+                                  .read<UserBloc>()
+                                  .getLoggedInUser()
+                                  ?.initials ??
+                                  'No',
+                              style: avatarTextStyle,
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: loginContainerRadius,
-                      bottomRight: loginContainerRadius,
-                    ),
-                  ),
+                  ],
                 ),
               ),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: loginContainerRadius,
+                bottomRight: loginContainerRadius,
+              ),
+            ),
+          ),
+        ),
         body: shortestSide <= Constants.smallScreenShortestSideBreakPoint
             ? _buildSmallScreenBody(context: context)
             : _buildLargeScreenBody(context: context),
@@ -209,7 +230,9 @@ class AddLoanScreen extends StatelessWidget {
   Widget _buildSmallScreenBody({required BuildContext context}) {
     final loanBloc = BlocProvider.of<LoanBloc>(context);
     final userBloc = BlocProvider.of<UserBloc>(context);
-    final screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery
+        .of(context)
+        .size;
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
     var computationDetailsWidth = screenSize.width * 0.2;
@@ -224,8 +247,14 @@ class AddLoanScreen extends StatelessWidget {
     var appBarHeight = screenSize.height * 0.16;
     var loginContainerRadius = Constants.defaultRadius;
     var loginContainerMarginTop = 64.0;
-    var titleTextStyle = Theme.of(context).textTheme.displaySmall;
-    var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
+    var titleTextStyle = Theme
+        .of(context)
+        .textTheme
+        .displaySmall;
+    var avatarTextStyle = Theme
+        .of(context)
+        .textTheme
+        .titleLarge;
     var avatarSize = 56.0;
     var contentPadding = const EdgeInsets.all(58);
     var appBarBottomPadding = 48.0;
@@ -239,8 +268,14 @@ class AddLoanScreen extends StatelessWidget {
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       loginContainerRadius = const Radius.circular(64);
       loginContainerMarginTop = 32;
-      titleTextStyle = Theme.of(context).textTheme.headlineMedium;
-      avatarTextStyle = Theme.of(context).textTheme.titleSmall;
+      titleTextStyle = Theme
+          .of(context)
+          .textTheme
+          .headlineMedium;
+      avatarTextStyle = Theme
+          .of(context)
+          .textTheme
+          .titleSmall;
       avatarSize = 48;
       contentPadding = const EdgeInsets.only(
         left: 32,
@@ -258,9 +293,40 @@ class AddLoanScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              BlocBuilder<LoanBloc, LoanState>(
+                buildWhen: (previous, current) => current is LoanSuccessState,
+                builder: (context, state) {
+                  printd('updated');
+                  return TextFormField(
+                    onTap: () {
+                      showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate:
+                        DateTime.now().subtract(Duration(days: 10000)),
+                        lastDate: DateTime.now(),
+                      ).then((date) {
+                        printd('date is $date');
+                        if (date != null) {
+                          dateController.text =
+                              Constants.defaultDateFormat.format(date);
+                          loanBloc.selectDate(date: date);
+                        }
+                      });
+                    },
+                    controller: dateController,
+                    decoration: const InputDecoration(
+                      label: Text('Date'),
+                      border: OutlineInputBorder(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(
+                height: 32,
+              ),
               TextFormField(
                 controller: agentAssistedController,
-                enabled: false,
                 decoration: const InputDecoration(
                   label: Text('Assisting agent'),
                   border: OutlineInputBorder(),
@@ -270,11 +336,13 @@ class AddLoanScreen extends StatelessWidget {
                 height: 32,
               ),
               Autocomplete(
-                optionsBuilder: (value) => userBloc.customers.where(
-                  (user) => user.lastName.toLowerCase().contains(
-                        value.text.toLowerCase(),
-                      ),
-                ),
+                optionsBuilder: (value) =>
+                    userBloc.customers.where(
+                          (user) =>
+                          user.lastName.toLowerCase().contains(
+                            value.text.toLowerCase(),
+                          ),
+                    ),
                 displayStringForOption: (user) => user.completeName,
                 onSelected: (user) => loanBloc.selectUser(user: user),
                 fieldViewBuilder: (context, textEditingController, focusNode,
@@ -320,10 +388,11 @@ class AddLoanScreen extends StatelessWidget {
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                           ],
-                          onChanged: (value) => loanBloc.setBlockAndLotNo(
-                            type: 'blockNo',
-                            no: value,
-                          ),
+                          onChanged: (value) =>
+                              loanBloc.setBlockAndLotNo(
+                                type: 'blockNo',
+                                no: value,
+                              ),
                         ),
                         const SizedBox(
                           height: 32,
@@ -338,10 +407,11 @@ class AddLoanScreen extends StatelessWidget {
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                           ],
-                          onChanged: (value) => loanBloc.setBlockAndLotNo(
-                            type: 'lotNo',
-                            no: value,
-                          ),
+                          onChanged: (value) =>
+                              loanBloc.setBlockAndLotNo(
+                                type: 'lotNo',
+                                no: value,
+                              ),
                         ),
                         const SizedBox(
                           height: 32,
@@ -452,8 +522,8 @@ class AddLoanScreen extends StatelessWidget {
                                   border: OutlineInputBorder(),
                                 ),
                                 keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                        decimal: true),
+                                const TextInputType.numberWithOptions(
+                                    decimal: true),
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(
                                     RegExp('[0-9.,]'),
@@ -480,13 +550,13 @@ class AddLoanScreen extends StatelessWidget {
                         ),
                         BlocBuilder<LoanBloc, LoanState>(
                             buildWhen: (previous, current) =>
-                                current is LoanSuccessState,
+                            current is LoanSuccessState,
                             builder: (context, state) {
                               return Row(
                                 children: [
                                   for (var i = 0;
-                                      i < loanBloc.discounts.length;
-                                      i++)
+                                  i < loanBloc.discounts.length;
+                                  i++)
                                     Padding(
                                       padding: const EdgeInsets.only(right: 16),
                                       child: Chip(
@@ -496,10 +566,14 @@ class AddLoanScreen extends StatelessWidget {
                                             bottom: 8,
                                             right: 16),
                                         label: Text(
-                                          'Less: ${loanBloc.discounts[i].description}: ${loanBloc.discounts[i].discount.toCurrency()}',
+                                          'Less: ${loanBloc.discounts[i]
+                                              .description}: ${loanBloc
+                                              .discounts[i].discount
+                                              .toCurrency()}',
                                         ),
-                                        onDeleted: () => loanBloc
-                                            .removeDiscount(position: i),
+                                        onDeleted: () =>
+                                            loanBloc
+                                                .removeDiscount(position: i),
                                         deleteIcon: const Icon(Icons.cancel),
                                       ),
                                     )
@@ -527,10 +601,14 @@ class AddLoanScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,
-                      backgroundColor: Theme.of(context).colorScheme.primary),
+                      backgroundColor: Theme
+                          .of(context)
+                          .colorScheme
+                          .primary),
                   child: Text(
                     'Add discount',
-                    style: Theme.of(context)
+                    style: Theme
+                        .of(context)
                         .textTheme
                         .titleMedium
                         ?.apply(color: Colors.white),
@@ -544,7 +622,10 @@ class AddLoanScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Lot description',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleLarge,
                   ),
                 ],
               ),
@@ -569,16 +650,22 @@ class AddLoanScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton(
-                    onPressed: () => loanBloc.calculateLoan(
-                      downPayment: downpaymentController.text,
-                      yearsToPay: loanDurationController.text,
-                    ),
+                    onPressed: () =>
+                        loanBloc.calculateLoan(
+                          downPayment: downpaymentController.text,
+                          yearsToPay: loanDurationController.text,
+                          date: dateController.text
+                        ),
                     style: ElevatedButton.styleFrom(
                         padding: buttonPadding,
-                        backgroundColor: Theme.of(context).colorScheme.primary),
+                        backgroundColor: Theme
+                            .of(context)
+                            .colorScheme
+                            .primary),
                     child: Text(
                       'Calculate loan',
-                      style: Theme.of(context)
+                      style: Theme
+                          .of(context)
                           .textTheme
                           .titleMedium
                           ?.apply(color: Colors.white),
@@ -602,7 +689,10 @@ class AddLoanScreen extends StatelessWidget {
           padding: const EdgeInsets.only(left: 16),
           child: Text(
             'Computation',
-            style: Theme.of(context).textTheme.titleLarge,
+            style: Theme
+                .of(context)
+                .textTheme
+                .titleLarge,
           ),
         ),
         const SizedBox(
@@ -640,7 +730,8 @@ class AddLoanScreen extends StatelessWidget {
                             category.key == lot.lotCategoryKey);
 
                             return Text(
-                                '${lotCategory?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm');
+                                '${lotCategory?.ratePerSquareMeter
+                                    .toCurrency() ?? 0.toCurrency()} per sqm');
                           },
                         ),
                       ],
@@ -657,12 +748,15 @@ class AddLoanScreen extends StatelessWidget {
                       children: [
                         const Text('Loan duration:'),
                         Text(
-                            '${loanDurationController.text} years to pay (${loanBloc.yearsToMonths(years: loanDurationController.text)} mos.)'),
+                            '${loanDurationController
+                                .text} years to pay (${loanBloc.yearsToMonths(
+                                years: loanDurationController.text)} mos.)'),
                       ],
                     ),
                     ...loanBloc.discounts
                         .map(
-                          (discount) => Row(
+                          (discount) =>
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('Less: ${discount.description}:'),
@@ -671,7 +765,7 @@ class AddLoanScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                        )
+                    )
                         .toList(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -714,7 +808,10 @@ class AddLoanScreen extends StatelessWidget {
           padding: const EdgeInsets.only(left: 16),
           child: Text(
             'Loan schedule',
-            style: Theme.of(context).textTheme.titleLarge,
+            style: Theme
+                .of(context)
+                .textTheme
+                .titleLarge,
           ),
         ),
         const SizedBox(
@@ -746,16 +843,23 @@ class AddLoanScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16),
           child: ElevatedButton(
-            onPressed: () => loanBloc.addLoan(
-                yearsToPay: loanDurationController.text,
-                downPayment: downpaymentController.text,
-                agentAssisted: agentAssistedController.text),
+            onPressed: () =>
+                loanBloc.addLoan(
+                  yearsToPay: loanDurationController.text,
+                  downPayment: downpaymentController.text,
+                  agentAssisted: agentAssistedController.text,
+                  date: dateController.text,
+                ),
             style: ElevatedButton.styleFrom(
                 padding: buttonPadding,
-                backgroundColor: Theme.of(context).colorScheme.primary),
+                backgroundColor: Theme
+                    .of(context)
+                    .colorScheme
+                    .primary),
             child: Text(
               'Add loan',
-              style: Theme.of(context)
+              style: Theme
+                  .of(context)
                   .textTheme
                   .titleMedium
                   ?.apply(color: Colors.white),
@@ -776,23 +880,35 @@ class AddLoanScreen extends StatelessWidget {
     return DataTable(
       dataRowHeight: 72,
       headingRowColor: MaterialStateColor.resolveWith(
-        (states) =>
-            Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.32),
+            (states) =>
+            Theme
+                .of(context)
+                .colorScheme
+                .secondaryContainer
+                .withOpacity(0.32),
       ),
       columns: [
         for (String name in Constants.loan_schedule_table_columns)
           DataColumn(
               label: Text(
-            name.toUpperCase(),
-            style: Theme.of(context).textTheme.titleMedium?.apply(
+                name.toUpperCase(),
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.apply(
                   fontWeightDelta: 3,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme
+                      .of(context)
+                      .colorScheme
+                      .secondary,
                 ),
-          ))
+              ))
       ],
       rows: loanBloc.clientLoanSchedules
           .map(
-            (schedule) => DataRow(
+            (schedule) =>
+            DataRow(
               cells: [
                 DataCell(
                   defaultCellText(
@@ -840,7 +956,7 @@ class AddLoanScreen extends StatelessWidget {
                 ),
               ],
             ),
-          )
+      )
           .toList(),
     );
   }
@@ -848,7 +964,9 @@ class AddLoanScreen extends StatelessWidget {
   Widget _buildLargeScreenBody({required BuildContext context}) {
     final loanBloc = BlocProvider.of<LoanBloc>(context);
     final userBloc = BlocProvider.of<UserBloc>(context);
-    final screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery
+        .of(context)
+        .size;
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
     var computationDetailsWidth = screenSize.width * 0.2;
@@ -863,8 +981,14 @@ class AddLoanScreen extends StatelessWidget {
     var appBarHeight = screenSize.height * 0.16;
     var loginContainerRadius = Constants.defaultRadius;
     var loginContainerMarginTop = 64.0;
-    var titleTextStyle = Theme.of(context).textTheme.displaySmall;
-    var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
+    var titleTextStyle = Theme
+        .of(context)
+        .textTheme
+        .displaySmall;
+    var avatarTextStyle = Theme
+        .of(context)
+        .textTheme
+        .titleLarge;
     var avatarSize = 56.0;
     var contentPadding = const EdgeInsets.all(58);
     var appBarBottomPadding = 48.0;
@@ -877,8 +1001,14 @@ class AddLoanScreen extends StatelessWidget {
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       loginContainerRadius = const Radius.circular(64);
       loginContainerMarginTop = 32;
-      titleTextStyle = Theme.of(context).textTheme.headlineMedium;
-      avatarTextStyle = Theme.of(context).textTheme.titleSmall;
+      titleTextStyle = Theme
+          .of(context)
+          .textTheme
+          .headlineMedium;
+      avatarTextStyle = Theme
+          .of(context)
+          .textTheme
+          .titleSmall;
       avatarSize = 48;
       contentPadding = const EdgeInsets.only(
         left: 32,
@@ -895,6 +1025,36 @@ class AddLoanScreen extends StatelessWidget {
         const SizedBox(
           height: 8,
         ),
+        BlocBuilder<LoanBloc, LoanState>(
+          buildWhen: (previous, current) => current is LoanSuccessState,
+          builder: (context, state) {
+            return TextFormField(
+              onTap: () {
+                showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate:
+                  DateTime.now().subtract(Duration(days: 10000)),
+                  lastDate: DateTime.now(),
+                ).then((date) {
+                  if (date != null) {
+                    dateController.text =
+                        Constants.defaultDateFormat.format(date);
+                    loanBloc.selectDate(date: date);
+                  }
+                });
+              },
+              controller: dateController,
+              decoration: const InputDecoration(
+                label: Text('Date'),
+                border: OutlineInputBorder(),
+              ),
+            );
+          },
+        ),
+        const SizedBox(
+          height: 32,
+        ),
         TextFormField(
           controller: agentAssistedController,
           decoration: const InputDecoration(
@@ -906,11 +1066,13 @@ class AddLoanScreen extends StatelessWidget {
           height: 32,
         ),
         Autocomplete(
-          optionsBuilder: (value) => userBloc.customers.where(
-            (user) => user.lastName.toLowerCase().contains(
-                  value.text.toLowerCase(),
-                ),
-          ),
+          optionsBuilder: (value) =>
+              userBloc.customers.where(
+                    (user) =>
+                    user.lastName.toLowerCase().contains(
+                      value.text.toLowerCase(),
+                    ),
+              ),
           displayStringForOption: (user) => user.completeName,
           onSelected: (user) => loanBloc.selectUser(user: user),
           fieldViewBuilder:
@@ -956,10 +1118,11 @@ class AddLoanScreen extends StatelessWidget {
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                       ],
-                      onChanged: (value) => loanBloc.setBlockAndLotNo(
-                        type: 'blockNo',
-                        no: value,
-                      ),
+                      onChanged: (value) =>
+                          loanBloc.setBlockAndLotNo(
+                            type: 'blockNo',
+                            no: value,
+                          ),
                     ),
                   ),
                   const SizedBox(
@@ -976,10 +1139,11 @@ class AddLoanScreen extends StatelessWidget {
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                       ],
-                      onChanged: (value) => loanBloc.setBlockAndLotNo(
-                        type: 'lotNo',
-                        no: value,
-                      ),
+                      onChanged: (value) =>
+                          loanBloc.setBlockAndLotNo(
+                            type: 'lotNo',
+                            no: value,
+                          ),
                     ),
                   ),
                   const SizedBox(
@@ -994,7 +1158,7 @@ class AddLoanScreen extends StatelessWidget {
                         border: OutlineInputBorder(),
                       ),
                       keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                       ],
@@ -1029,7 +1193,7 @@ class AddLoanScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                 ],
@@ -1047,7 +1211,7 @@ class AddLoanScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                 ],
@@ -1080,7 +1244,7 @@ class AddLoanScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                 ],
@@ -1134,7 +1298,7 @@ class AddLoanScreen extends StatelessWidget {
                   ),
                   BlocBuilder<LoanBloc, LoanState>(
                       buildWhen: (previous, current) =>
-                          current is LoanSuccessState,
+                      current is LoanSuccessState,
                       builder: (context, state) {
                         return Row(
                           children: [
@@ -1145,7 +1309,9 @@ class AddLoanScreen extends StatelessWidget {
                                   padding: const EdgeInsets.only(
                                       left: 8, top: 8, bottom: 8, right: 16),
                                   label: Text(
-                                    'Less: ${loanBloc.discounts[i].description}: ${loanBloc.discounts[i].discount.toCurrency()}',
+                                    'Less: ${loanBloc.discounts[i]
+                                        .description}: ${loanBloc.discounts[i]
+                                        .discount.toCurrency()}',
                                   ),
                                   onDeleted: () =>
                                       loanBloc.removeDiscount(position: i),
@@ -1174,10 +1340,14 @@ class AddLoanScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                     padding: buttonPadding,
-                    backgroundColor: Theme.of(context).colorScheme.primary),
+                    backgroundColor: Theme
+                        .of(context)
+                        .colorScheme
+                        .primary),
                 child: Text(
                   'Add discount',
-                  style: Theme.of(context)
+                  style: Theme
+                      .of(context)
                       .textTheme
                       .titleMedium
                       ?.apply(color: Colors.white),
@@ -1193,7 +1363,10 @@ class AddLoanScreen extends StatelessWidget {
           children: [
             Text(
               'Lot description',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleLarge,
             ),
           ],
         ),
@@ -1218,16 +1391,22 @@ class AddLoanScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             ElevatedButton(
-              onPressed: () => loanBloc.calculateLoan(
-                downPayment: downpaymentController.text,
-                yearsToPay: loanDurationController.text,
-              ),
+              onPressed: () =>
+                  loanBloc.calculateLoan(
+                    downPayment: downpaymentController.text,
+                    yearsToPay: loanDurationController.text,
+                    date: dateController.text
+                  ),
               style: ElevatedButton.styleFrom(
                   padding: buttonPadding,
-                  backgroundColor: Theme.of(context).colorScheme.primary),
+                  backgroundColor: Theme
+                      .of(context)
+                      .colorScheme
+                      .primary),
               child: Text(
                 'Calculate loan',
-                style: Theme.of(context)
+                style: Theme
+                    .of(context)
                     .textTheme
                     .titleMedium
                     ?.apply(color: Colors.white),
@@ -1248,7 +1427,10 @@ class AddLoanScreen extends StatelessWidget {
           children: [
             Text(
               'Computation',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleLarge,
             ),
           ],
         ),
@@ -1293,7 +1475,9 @@ class AddLoanScreen extends StatelessWidget {
                                   category.key == lot.lotCategoryKey);
 
                                   return Text(
-                                      '${lotCategory?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm');
+                                      '${lotCategory?.ratePerSquareMeter
+                                          .toCurrency() ??
+                                          0.toCurrency()} per sqm');
                                 },
                               ),
                             ],
@@ -1310,7 +1494,11 @@ class AddLoanScreen extends StatelessWidget {
                             children: [
                               const Text('Loan duration:'),
                               Text(
-                                  '${loanDurationController.text} years to pay (${loanBloc.yearsToMonths(years: loanDurationController.text)} mos.)'),
+                                  '${loanDurationController
+                                      .text} years to pay (${loanBloc
+                                      .yearsToMonths(
+                                      years: loanDurationController
+                                          .text)} mos.)'),
                             ],
                           ),
                         ],
@@ -1322,9 +1510,10 @@ class AddLoanScreen extends StatelessWidget {
                         children: [
                           ...loanBloc.discounts
                               .map(
-                                (discount) => Row(
+                                (discount) =>
+                                Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('Less: ${discount.description}:'),
                                     Text(
@@ -1333,7 +1522,7 @@ class AddLoanScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                              )
+                          )
                               .toList(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1356,12 +1545,14 @@ class AddLoanScreen extends StatelessWidget {
                             children: [
                               Text(
                                 'Monthly due:',
-                                style: Theme.of(context)
+                                style: Theme
+                                    .of(context)
                                     .textTheme
                                     .titleLarge
                                     ?.apply(
                                   fontWeightDelta: 2,
-                                  color: Theme.of(context)
+                                  color: Theme
+                                      .of(context)
                                       .colorScheme
                                       .tertiary
                                       .withOpacity(0.8),
@@ -1392,7 +1583,10 @@ class AddLoanScreen extends StatelessWidget {
           children: [
             Text(
               'Loan schedule',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleLarge,
             ),
           ],
         ),
@@ -1426,16 +1620,22 @@ class AddLoanScreen extends StatelessWidget {
           children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: () => loanBloc.addLoan(
-                    yearsToPay: loanDurationController.text,
-                    downPayment: downpaymentController.text,
-                    agentAssisted: agentAssistedController.text),
+                onPressed: () =>
+                    loanBloc.addLoan(
+                        yearsToPay: loanDurationController.text,
+                        downPayment: downpaymentController.text,
+                        agentAssisted: agentAssistedController.text,
+                        date: dateController.text),
                 style: ElevatedButton.styleFrom(
                     padding: buttonPadding,
-                    backgroundColor: Theme.of(context).colorScheme.primary),
+                    backgroundColor: Theme
+                        .of(context)
+                        .colorScheme
+                        .primary),
                 child: Text(
                   'Add loan',
-                  style: Theme.of(context)
+                  style: Theme
+                      .of(context)
                       .textTheme
                       .titleMedium
                       ?.apply(color: Colors.white),

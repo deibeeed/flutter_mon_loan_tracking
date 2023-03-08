@@ -397,6 +397,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                   onPressed: () => loanBloc.calculateLoan(
                     downPayment: downpaymentController.text,
                     yearsToPay: loanDurationController.text,
+                    date: Constants.defaultDateFormat.format(DateTime.now()),
                   ),
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,
