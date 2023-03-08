@@ -28,7 +28,7 @@ class LotLoadingState extends LotState {
 
 
 class SelectedLotCategoryLotState extends LotState {
-  final String selectedLotCategory;
+  final LotCategory selectedLotCategory;
 
   SelectedLotCategoryLotState({ required this.selectedLotCategory});
 }

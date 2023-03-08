@@ -4,6 +4,8 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mon_loan_tracking/models/lot.dart';
+import 'package:flutter_mon_loan_tracking/models/lot_category.dart';
+import 'package:flutter_mon_loan_tracking/models/settings.dart';
 import 'package:flutter_mon_loan_tracking/repositories/lot_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -30,10 +32,10 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
   final LotRepository lotRepository;
   final SettingsRepository settingsRepository;
-  List<String> _lotCategories = [];
+  List<LotCategory> _lotCategories = [];
 
-  List<String> get lotCategories => _lotCategories;
-  String? _selectedLotCategory;
+  List<LotCategory> get lotCategories => _lotCategories;
+  LotCategory? _selectedLotCategory;
 
   final Map<String, List<Lot>> _groupedLots = {};
 
@@ -45,9 +47,16 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
   Lot? get selectedLot => _selectedLot;
 
-  void selectLot({required Lot lot}) {
+  void selectLot({required Lot lot, required Settings settings}) {
     _selectedLot = lot;
-    _selectedLotCategory = lot.lotCategory;
+
+    final lotCategory = settings.lotCategories.firstWhereOrNull((
+        category) => category.key == lot.lotCategoryKey);
+
+    if (lotCategory != null) {
+      _selectedLotCategory = lotCategory;
+    }
+
     emit(LotSuccessState(message: 'Successfully selected lot'));
   }
 
@@ -117,15 +126,19 @@ class LotBloc extends Bloc<LotEvent, LotState> {
     add(InitializeLotEvent());
   }
 
-  void selectLotCategory({required String? lotCategory}) {
+  void selectLotCategory({required LotCategory? lotCategory}) {
     _selectedLotCategory = lotCategory;
     emit(SelectedLotCategoryLotState(selectedLotCategory: lotCategory!));
   }
 
   List<List<Lot>> chunkedLots({
-    required List<Lot> lots,
+    required List<Lot>? lots,
     int size = 4,
   }) {
+    if (lots == null) {
+      return [];
+    }
+
     lots.sortBy((element) => element.lotNo);
     final len = lots.length;
     final chunks = <List<Lot>>[];
@@ -193,7 +206,7 @@ class LotBloc extends Bloc<LotEvent, LotState> {
         final lotNo = splitted.last;
         return lotRepository.add(
           data: Lot.create(
-            lotCategory: _selectedLotCategory!,
+            lotCategoryKey: _selectedLotCategory!.key,
             blockNo: blockNo,
             lotNo: lotNo,
             description: event.description,
@@ -231,7 +244,7 @@ class LotBloc extends Bloc<LotEvent, LotState> {
       emit(LotLoadingState(isLoading: true));
 
       var tmpLot = Lot.create(
-        lotCategory: event.lotCategory,
+        lotCategoryKey: event.lotCategory.key,
         blockNo: event.blockNo,
         lotNo: event.lotNo,
         description: event.description,

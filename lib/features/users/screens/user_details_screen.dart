@@ -103,7 +103,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       );
       appBarBottomPadding = 24;
     }
-    final shouldShowAppBar = widget.isMobile() || widget.isProfile;
+    final shouldShowAppBar = widget.isMobile() /*|| widget.isProfile*/;
     printd('size: ${MediaQuery.of(context).size}');
 
     return BlocListener<UserBloc, UserState>(
@@ -386,7 +386,8 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 ),
               ),
               Visibility(
-                visible: userBloc.getLoggedInUser()?.type == UserType.admin,
+                visible: userBloc.getLoggedInUser()?.type == UserType.admin &&
+                    userBloc.getLoggedInUser()?.id != widget.userId,
                 child: Column(
                   children: [
                     const SizedBox(
@@ -745,7 +746,8 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
           ),
         ),
         Visibility(
-          visible: userBloc.getLoggedInUser()?.type == UserType.admin,
+          visible: userBloc.getLoggedInUser()?.type == UserType.admin &&
+              userBloc.getLoggedInUser()?.id != widget.userId,
           child: Column(
             children: [
               const SizedBox(
@@ -758,12 +760,12 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,
                       backgroundColor:
-                      Theme.of(context).colorScheme.errorContainer),
+                          Theme.of(context).colorScheme.errorContainer),
                   child: Text(
                     'Delete',
                     style: Theme.of(context).textTheme.titleMedium?.apply(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                   ),
                 ),
               )

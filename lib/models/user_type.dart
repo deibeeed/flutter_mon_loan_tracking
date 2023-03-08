@@ -1,7 +1,6 @@
 enum UserType {
   customer('Customer'),
   admin('Administrator'),
-  agent('Agent'),
   accountant('Accountant'),
   subAdmin('Assistant administrator');
 

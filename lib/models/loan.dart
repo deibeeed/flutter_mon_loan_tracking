@@ -23,7 +23,7 @@ class Loan extends Equatable {
   final num incidentalFeeRate;
   final num reservationFee;
   final num createdAt;
-  final num perSquareMeterRate;
+  final num ratePerSquareMeter;
   /// all deductions from tcp.
   /// deductions are amounts to deduct
   final List<Discount> deductions;
@@ -38,6 +38,7 @@ class Loan extends Equatable {
   final num downPayment;
   final num yearsToPay;
   final String? assistingAgent;
+  final String lotCategoryName;
 
   Loan({
     required this.id,
@@ -48,7 +49,7 @@ class Loan extends Equatable {
     required this.incidentalFeeRate,
     required this.reservationFee,
     required this.createdAt,
-    required this.perSquareMeterRate,
+    required this.ratePerSquareMeter,
     required this.outstandingBalance,
     required this.totalContractPrice,
     this.deductions = const [],
@@ -56,6 +57,7 @@ class Loan extends Equatable {
     required this.downPayment,
     required this.yearsToPay,
     this.assistingAgent,
+    required this.lotCategoryName,
   });
 
   factory Loan.create({
@@ -73,6 +75,7 @@ class Loan extends Equatable {
     required num yearsToPay,
     required List<Discount> deductions,
     String? assistingAgent,
+    required String lotCategoryName,
   }) =>
       Loan(
         id: Constants.NO_ID,
@@ -83,14 +86,15 @@ class Loan extends Equatable {
         incidentalFeeRate: incidentalFeeRate,
         reservationFee: reservationFee,
         createdAt: DateTime.now().millisecondsSinceEpoch,
-        perSquareMeterRate: perSquareMeterRate,
+        ratePerSquareMeter: perSquareMeterRate,
         incidentalFees: incidentalFees,
         outstandingBalance: outstandingBalance,
         totalContractPrice: totalContractPrice,
         downPayment: downPayment,
         yearsToPay: yearsToPay,
         deductions: deductions,
-        assistingAgent: assistingAgent
+        assistingAgent: assistingAgent,
+        lotCategoryName: lotCategoryName,
       );
 
   factory Loan.updateId({
@@ -106,14 +110,15 @@ class Loan extends Equatable {
         incidentalFeeRate: loan.incidentalFeeRate,
         reservationFee: loan.reservationFee,
         createdAt: loan.createdAt,
-        perSquareMeterRate: loan.perSquareMeterRate,
+        ratePerSquareMeter: loan.ratePerSquareMeter,
         incidentalFees: loan.incidentalFees,
         outstandingBalance: loan.outstandingBalance,
         totalContractPrice: loan.totalContractPrice,
         downPayment: loan.downPayment,
         yearsToPay: loan.yearsToPay,
         deductions: loan.deductions,
-        assistingAgent: loan.assistingAgent
+        assistingAgent: loan.assistingAgent,
+        lotCategoryName: loan.lotCategoryName,
       );
 
   factory Loan.fromJson(Map<String, dynamic> json) => _$LoanFromJson(json);

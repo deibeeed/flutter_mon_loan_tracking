@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -82,13 +83,20 @@ class AddLoanScreen extends StatelessWidget {
 
           if (loanBloc.selectedLot != null && loanBloc.settings != null) {
             final lot = loanBloc.selectedLot!;
-            final settings = loanBloc.settings;
+            final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
-            lotCategoryController.text = lot.lotCategory;
-            pricePerSqmController.text =
-                settings!.ratePerSquareMeter.toCurrency();
-            tcpController.text =
-                (lot.area * settings.ratePerSquareMeter).toCurrency();
+
+            final lotCategory = settings.lotCategories.firstWhereOrNull(
+              (category) => category.key == lot.lotCategoryKey,
+            );
+
+            if (lotCategory != null) {
+              lotCategoryController.text = lotCategory.name;
+              pricePerSqmController.text =
+                  lotCategory.ratePerSquareMeter.toCurrency();
+              tcpController.text =
+                  (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
+            }
           }
         } else if (state is LoanErrorState) {
           ScaffoldMessenger.of(context)
@@ -618,8 +626,23 @@ class AddLoanScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Price per sqm:'),
-                        Text(
-                            '${loanBloc.settings?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm'),
+                        Builder(
+                          builder: (context) {
+                            final lot = loanBloc.selectedLot;
+                            final settings = loanBloc.settings;
+
+                            if (lot == null || settings == null) {
+                              return Container();
+                            }
+
+                            final lotCategory = settings.lotCategories
+                                .firstWhereOrNull((category) =>
+                            category.key == lot.lotCategoryKey);
+
+                            return Text(
+                                '${lotCategory?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm');
+                          },
+                        ),
                       ],
                     ),
                     Row(
@@ -1256,8 +1279,23 @@ class AddLoanScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Price per sqm:'),
-                              Text(
-                                  '${loanBloc.settings?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm'),
+                              Builder(
+                                builder: (context) {
+                                  final lot = loanBloc.selectedLot;
+                                  final settings = loanBloc.settings;
+
+                                  if (lot == null || settings == null) {
+                                    return Container();
+                                  }
+
+                                  final lotCategory = settings.lotCategories
+                                      .firstWhereOrNull((category) =>
+                                  category.key == lot.lotCategoryKey);
+
+                                  return Text(
+                                      '${lotCategory?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm');
+                                },
+                              ),
                             ],
                           ),
                           Row(
@@ -1316,7 +1354,19 @@ class AddLoanScreen extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Monthly due:'),
+                              Text(
+                                'Monthly due:',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.apply(
+                                  fontWeightDelta: 2,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .tertiary
+                                      .withOpacity(0.8),
+                                ),
+                              ),
                               Text(
                                 loanBloc.monthlyAmortization.toCurrency(),
                               ),

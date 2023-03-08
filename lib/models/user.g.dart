@@ -38,7 +38,6 @@ const _$CivilStatusEnumMap = {
 const _$UserTypeEnumMap = {
   UserType.customer: 'customer',
   UserType.admin: 'admin',
-  UserType.agent: 'agent',
   UserType.accountant: 'accountant',
   UserType.subAdmin: 'subAdmin',
 };

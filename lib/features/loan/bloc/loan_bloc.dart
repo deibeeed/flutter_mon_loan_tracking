@@ -159,6 +159,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     if (clearList) {
       _allLoans.clear();
       _filteredLoans.clear();
+      _loansBottomReached = false;
     }
     add(GetAllLoansEvent(clientId: clientId, clearList: clearList));
   }
@@ -245,12 +246,26 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     add(PayLoanScheduleEvent(schedule: schedule));
   }
 
-  num computeTCP() {
+  num computeTCP({ bool throwError = false}) {
     if (selectedLot == null || settings == null) {
       return 0;
     }
 
-    return selectedLot!.area * settings!.ratePerSquareMeter;
+    final lotCategory = settings!.lotCategories.firstWhereOrNull(
+      (category) => category.key == selectedLot!.lotCategoryKey,
+    );
+
+    if (lotCategory == null) {
+      printd('Lot category not found');
+
+      if (throwError) {
+        throw Exception('Lot category not found');
+      }
+
+      return 0;
+    }
+
+    return selectedLot!.area * lotCategory.ratePerSquareMeter;
   }
 
   num computeIncidentalFee() {
@@ -258,7 +273,16 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       return 0;
     }
 
-    return (selectedLot!.area * settings!.ratePerSquareMeter) *
+    final lotCategory = settings!.lotCategories.firstWhereOrNull(
+          (category) => category.key == selectedLot!.lotCategoryKey,
+    );
+
+    if (lotCategory == null) {
+      printd('Lot category not found');
+      return 0;
+    }
+
+    return (selectedLot!.area * lotCategory.ratePerSquareMeter) *
         (settings!.incidentalFeeRate / 100);
   }
 
@@ -306,6 +330,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       _calculateLoan(
         downPayment: event.downPayment,
         yearsToPay: event.yearsToPay,
+        lotCategoryKey: _selectedLot!.lotCategoryKey,
       );
 
       emit(LoanLoadingState());
@@ -320,9 +345,17 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   void _calculateLoan({
     required num downPayment,
     required num yearsToPay,
+    required String lotCategoryKey,
   }) {
     _clientLoanSchedules.clear();
-    var totalContractPrice = selectedLot!.area * _settings!.ratePerSquareMeter;
+    final lotCategory = settings!.lotCategories.firstWhereOrNull(
+          (category) => category.key == lotCategoryKey,
+    );
+
+    if (lotCategory == null) {
+      throw Exception('Lot category not found');
+    }
+    var totalContractPrice = selectedLot!.area * lotCategory.ratePerSquareMeter;
     var outstandingBalance = totalContractPrice;
     var annualInterestRate = settings!.loanInterestRate / 100;
 
@@ -439,9 +472,18 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       _calculateLoan(
         downPayment: event.downPayment,
         yearsToPay: event.yearsToPay,
+        lotCategoryKey: _selectedLot!.lotCategoryKey,
       );
-      var totalContractPrice =
-          selectedLot!.area * _settings!.ratePerSquareMeter;
+
+      final lotCategory = settings!.lotCategories.firstWhereOrNull(
+            (category) => category.key == selectedLot!.lotCategoryKey,
+      );
+
+      if (lotCategory == null) {
+        throw Exception('Lot category not found');
+      }
+
+      var totalContractPrice = computeTCP(throwError: true);
       var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
       final incidentalFee = totalContractPrice * incidentalFeeRate;
       final loan = Loan.create(
@@ -451,7 +493,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         loanInterestRate: _settings!.loanInterestRate,
         incidentalFeeRate: _settings!.incidentalFeeRate,
         reservationFee: _settings!.reservationFee,
-        perSquareMeterRate: _settings!.ratePerSquareMeter,
+        perSquareMeterRate: lotCategory.ratePerSquareMeter,
         outstandingBalance: outstandingBalance,
         totalContractPrice: totalContractPrice,
         incidentalFees: incidentalFee,
@@ -459,6 +501,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         yearsToPay: event.yearsToPay,
         deductions: _discounts,
         assistingAgent: event.assistingAgent,
+        lotCategoryName: lotCategory.name,
       );
       final loanWithId = await loanRepository.add(data: loan);
       final futureLoanSchedules = _clientLoanSchedules.map(

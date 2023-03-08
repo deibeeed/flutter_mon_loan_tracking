@@ -77,7 +77,7 @@ Widget paymentStatusWidget({
           ),
           Visibility(
             visible: schedule.paidOn == null &&
-                ![UserType.customer, UserType.agent]
+                ![UserType.customer, UserType.accountant]
                     .contains(userBloc.getLoggedInUser()?.type),
             child: InkWell(
               onTap: () {

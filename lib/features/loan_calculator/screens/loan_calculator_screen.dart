@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,14 +36,12 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
     context.read<LoanBloc>().reset();
     printd('deactivated');
     super.deactivate();
-
   }
 
   @override
   Widget build(BuildContext context) {
     context.read<UserBloc>().getAllUsers();
-    final loanBloc = BlocProvider.of<LoanBloc>(context)
-      ..getSettings();
+    final loanBloc = BlocProvider.of<LoanBloc>(context)..getSettings();
     // loanBloc
     //   ..getSettings()
     //   ..getAllUsers();
@@ -64,13 +63,19 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
         if (state is LoanSuccessState) {
           if (loanBloc.selectedLot != null && loanBloc.settings != null) {
             final lot = loanBloc.selectedLot!;
-            final settings = loanBloc.settings;
+            final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
-            lotCategoryController.text = lot.lotCategory;
-            pricePerSqmController.text =
-                settings!.ratePerSquareMeter.toCurrency();
-            tcpController.text =
-                (lot.area * settings.ratePerSquareMeter).toCurrency();
+
+            final lotCategory = settings.lotCategories.firstWhereOrNull(
+                (category) => category.key == lot.lotCategoryKey);
+
+            if (lotCategory != null) {
+              lotCategoryController.text = lotCategory.name;
+              pricePerSqmController.text =
+                  lotCategory.ratePerSquareMeter.toCurrency();
+              tcpController.text =
+                  (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
+            }
           }
         } else if (state is LoanErrorState) {
           ScaffoldMessenger.of(context)
@@ -452,8 +457,24 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text('Price per sqm:'),
-                                  Text(
-                                      '${loanBloc.settings?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm'),
+                                  Builder(
+                                    builder: (context) {
+                                      if (loanBloc.selectedLot == null ||
+                                          loanBloc.settings == null) {
+                                        return Container();
+                                      }
+
+                                      final lot = loanBloc.selectedLot!;
+                                      final settings = loanBloc.settings!;
+                                      final lotCategory = settings.lotCategories
+                                          .firstWhereOrNull((category) =>
+                                              category.key ==
+                                              lot.lotCategoryKey);
+
+                                      return Text(
+                                          '${lotCategory?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm');
+                                    },
+                                  ),
                                 ],
                               ),
                               Row(

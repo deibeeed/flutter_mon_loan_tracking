@@ -9,6 +9,7 @@ import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/debounce.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key}) : super();
@@ -268,24 +269,50 @@ class SettingsScreen extends StatelessWidget {
                 Row(
                   children: [
                     TextFormField(
+                      enabled:
+                          settingsBloc.selectedLotCategoryKeyToUpdate == null,
                       controller: lotCategoryNameController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         label: Text('Lot categories'),
                         border: OutlineInputBorder(),
                       ),
                     ),
                     TextFormField(
                       controller: lotCategoryPricePerSqmController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         label: Text('Rate per square meter'),
                         border: OutlineInputBorder(),
                       ),
                     ),
                     IconButton(
-                      onPressed: () => settingsBloc.addLotCategory(
-                          name: lotCategoryNameController.text,
-                          ratePerSqm: lotCategoryPricePerSqmController.text),
-                      icon: Icon(Icons.add),
+                      onPressed: () {
+                        if (settingsBloc.selectedLotCategoryKeyToUpdate ==
+                            null) {
+                          settingsBloc.addLotCategory(
+                            name: lotCategoryNameController.text,
+                            ratePerSqm: lotCategoryPricePerSqmController.text,
+                          );
+                        } else {
+                          settingsBloc.updateLotCategory(
+                            name: lotCategoryNameController.text,
+                            ratePerSqm: lotCategoryPricePerSqmController.text,
+                          );
+                        }
+
+                        lotCategoryNameController.text = '';
+                        lotCategoryPricePerSqmController.text = '';
+                      },
+                      icon: settingsBloc.selectedLotCategoryKeyToUpdate == null
+                          ? const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            )
+                          : SvgPicture.asset(
+                              'assets/icons/refresh.svg',
+                              width: 24,
+                              height: 24,
+                              color: Colors.white,
+                            ),
                     ),
                   ],
                 ),
@@ -303,12 +330,19 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         for (var category
                             in settingsBloc.settings.lotCategories)
-                          Chip(
+                          RawChip(
+                            tapEnabled: true,
                             padding: const EdgeInsets.only(
                                 left: 8, top: 8, bottom: 8, right: 16),
                             label: Text(
                               '${category.name} @ ${category.ratePerSquareMeter.toCurrency()}',
                             ),
+                            onPressed: () {
+                              printd('helllo');
+                              settingsBloc.selectLotCategory(
+                                category: category,
+                              );
+                            },
                             onDeleted: () => settingsBloc.removeLotCategory(
                                 category: category),
                             deleteIcon: const Icon(Icons.cancel),
@@ -405,6 +439,10 @@ class SettingsScreen extends StatelessWidget {
                 printd(err);
               }
             }
+          } else if (state is LotCategorySelectedState) {
+            lotCategoryNameController.text = state.category.name;
+            lotCategoryPricePerSqmController.text =
+                state.category.ratePerSquareMeter.toString();
           }
         },
         child: Row(
@@ -586,31 +624,94 @@ class SettingsScreen extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          TextFormField(
-                            controller: lotCategoryNameController,
-                            decoration: InputDecoration(
-                              label: Text('Lot categories'),
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                          TextFormField(
-                            controller: lotCategoryPricePerSqmController,
-                            decoration: InputDecoration(
-                              label: Text('Rate per square meter'),
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => settingsBloc.addLotCategory(
-                                name: lotCategoryNameController.text,
-                                ratePerSqm:
-                                    lotCategoryPricePerSqmController.text),
-                            icon: Icon(Icons.add),
-                          ),
-                        ],
-                      ),
+                      BlocBuilder<SettingsBloc, SettingsState>(
+                          buildWhen: (previous, current) =>
+                              current is SettingsSuccessState,
+                          builder: (context, state) {
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: TextFormField(
+                                    enabled: settingsBloc
+                                            .selectedLotCategoryKeyToUpdate ==
+                                        null,
+                                    controller: lotCategoryNameController,
+                                    decoration: const InputDecoration(
+                                      label: Text('Lot categories'),
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 16,
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: TextFormField(
+                                    controller:
+                                        lotCategoryPricePerSqmController,
+                                    decoration: const InputDecoration(
+                                      label: Text('Rate per square meter'),
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 16,
+                                ),
+                                Expanded(
+                                    flex: 1,
+                                    child: IconButton(
+                                      style: IconButton.styleFrom(
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                      onPressed: () {
+                                        if (settingsBloc
+                                                .selectedLotCategoryKeyToUpdate ==
+                                            null) {
+                                          settingsBloc.addLotCategory(
+                                            name:
+                                                lotCategoryNameController.text,
+                                            ratePerSqm:
+                                                lotCategoryPricePerSqmController
+                                                    .text,
+                                          );
+                                        } else {
+                                          settingsBloc.updateLotCategory(
+                                            name:
+                                                lotCategoryNameController.text,
+                                            ratePerSqm:
+                                                lotCategoryPricePerSqmController
+                                                    .text,
+                                          );
+                                        }
+
+                                        lotCategoryPricePerSqmController.text =
+                                            '';
+                                        lotCategoryNameController.text = '';
+                                      },
+                                      icon: settingsBloc
+                                                  .selectedLotCategoryKeyToUpdate ==
+                                              null
+                                          ? const Icon(
+                                              Icons.add,
+                                              color: Colors.white,
+                                            )
+                                          : SvgPicture.asset(
+                                              'assets/icons/refresh.svg',
+                                              width: 24,
+                                              height: 24,
+                                              color: Colors.white,
+                                            ),
+                                    )),
+                              ],
+                            );
+                          }),
                       const SizedBox(
                         height: 16,
                       ),
@@ -625,12 +726,19 @@ class SettingsScreen extends StatelessWidget {
                             children: [
                               for (var category
                                   in settingsBloc.settings.lotCategories)
-                                Chip(
+                                RawChip(
+                                  tapEnabled: true,
                                   padding: const EdgeInsets.only(
                                       left: 8, top: 8, bottom: 8, right: 16),
                                   label: Text(
                                     '${category.name} @ ${category.ratePerSquareMeter.toCurrency()}',
                                   ),
+                                  onPressed: () {
+                                    printd('helllo');
+                                    settingsBloc.selectLotCategory(
+                                      category: category,
+                                    );
+                                  },
                                   onDeleted: () => settingsBloc
                                       .removeLotCategory(category: category),
                                   deleteIcon: const Icon(Icons.cancel),

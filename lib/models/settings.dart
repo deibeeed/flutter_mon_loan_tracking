@@ -32,7 +32,7 @@ class Settings extends Equatable {
   factory Settings.defaultSettings() => Settings(
         loanInterestRate: 7,
         incidentalFeeRate: 10,
-        lotCategories: const [
+        lotCategories: [
           LotCategory(name: 'Corner Lot', ratePerSquareMeter: 9000),
           LotCategory(name: 'Interior Lot', ratePerSquareMeter: 10000),
           LotCategory(name: 'Commercial Lot', ratePerSquareMeter: 11000),

@@ -79,7 +79,7 @@ class PdfGenerator {
                     pw.Column(children: [
                       pw.Text(lot.completeBlockLotNo),
                       pw.Text('${lot.area} sqm'),
-                      pw.Text(lot.lotCategory),
+                      pw.Text(loan.lotCategoryName),
                       pw.Text(lot.description),
                     ]),
                   ],
@@ -88,7 +88,7 @@ class PdfGenerator {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text('Rate per sqm'),
-                    pw.Text(loan.perSquareMeterRate.toCurrency()),
+                    pw.Text(loan.ratePerSquareMeter.toCurrency()),
                   ],
                 ),
                 pw.Row(

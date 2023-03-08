@@ -41,14 +41,6 @@ class UserCacheService extends BaseCacheService<User> {
     return add(data: data);
   }
 
-  Future<List<User>> agents() {
-    final agents = _mappedUsers.values
-        .where((user) => user.type == UserType.agent)
-        .toList();
-
-    return Future.value(agents);
-  }
-
   Future<List<User>> customers() {
     final customers = _mappedUsers.values
         .where((user) => user.type == UserType.customer)

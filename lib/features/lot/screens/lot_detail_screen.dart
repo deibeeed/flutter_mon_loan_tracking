@@ -1,9 +1,12 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/settings/bloc/settings_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/lot_category.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
@@ -36,6 +39,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
   Widget build(BuildContext context) {
     final lotBloc = BlocProvider.of<LotBloc>(context);
     final loanBloc = BlocProvider.of<LoanBloc>(context);
+    final settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
@@ -160,6 +164,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
   Widget _buildSmallScreenBody({required BuildContext context}) {
     final lotBloc = BlocProvider.of<LotBloc>(context);
     final userBloc = BlocProvider.of<UserBloc>(context);
+    final settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
@@ -299,8 +304,18 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                       return currentState is LotSuccessState;
                     },
                     builder: (context, state) {
+                      final lotCategory =
+                          settingsBloc.settings.lotCategories.firstWhereOrNull(
+                        (category) =>
+                            category.key == lotBloc.selectedLot!.lotCategoryKey,
+                      );
+
+                      if (lotCategory == null) {
+                        return Container();
+                      }
+
                       return Text(
-                        '${lotBloc.selectedLot?.lotCategory}',
+                        '${lotCategory.name}',
                       );
                     },
                   ),
@@ -440,19 +455,27 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                     var dropdownValue = lotBloc.lotCategories.first;
 
                     if (lotBloc.selectedLot != null) {
-                      dropdownValue = lotBloc.selectedLot!.lotCategory.name;
+                      final lotCategory =
+                          settingsBloc.settings.lotCategories.firstWhereOrNull(
+                        (category) =>
+                            category.key == lotBloc.selectedLot!.lotCategoryKey,
+                      );
+
+                      if (lotCategory != null) {
+                        dropdownValue = lotCategory;
+                      }
                     }
 
                     if (state is SelectedLotCategoryLotState) {
                       dropdownValue = state.selectedLotCategory;
                     }
 
-                    return DropdownButton<String>(
+                    return DropdownButton<LotCategory>(
                       value: dropdownValue,
                       items: lotBloc.lotCategories.map((category) {
-                        return DropdownMenuItem<String>(
+                        return DropdownMenuItem<LotCategory>(
                           value: category,
-                          child: Text(category),
+                          child: Text(category.name),
                         );
                       }).toList(),
                       onChanged: (value) => lotBloc.selectLotCategory(
@@ -480,23 +503,30 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                     .contains(userBloc.getLoggedInUser()?.type),
                 child: SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => lotBloc.updateLot(
-                      area: _areaController.text,
-                      blockNo: _blockNoController.text,
-                      lotNo: _lotNoController.text,
-                      description: _descriptionController.text,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                        padding: buttonPadding,
-                        backgroundColor: Theme.of(context).colorScheme.primary),
-                    child: Text(
-                      'Update lot',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.apply(color: Colors.white),
-                    ),
+                  child: Visibility(
+                    visible: ![
+                      UserType.customer,
+                      UserType.accountant
+                    ].contains(
+                        userBloc.getLoggedInUser()?.type),
+                      child: ElevatedButton(
+                        onPressed: () => lotBloc.updateLot(
+                          area: _areaController.text,
+                          blockNo: _blockNoController.text,
+                          lotNo: _lotNoController.text,
+                          description: _descriptionController.text,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                            padding: buttonPadding,
+                            backgroundColor: Theme.of(context).colorScheme.primary),
+                        child: Text(
+                          'Update lot',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.apply(color: Colors.white),
+                        ),
+                      ),
                   ),
                 ),
               ),
@@ -532,6 +562,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
   Widget _buildLargeScreenBody({required BuildContext context}) {
     final lotBloc = BlocProvider.of<LotBloc>(context);
     final userBloc = BlocProvider.of<UserBloc>(context);
+    final settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
@@ -671,8 +702,20 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                           return currentState is LotSuccessState;
                         },
                         builder: (context, state) {
+                          final lotCategory = settingsBloc
+                              .settings.lotCategories
+                              .firstWhereOrNull(
+                            (category) =>
+                                category.key ==
+                                lotBloc.selectedLot!.lotCategoryKey,
+                          );
+
+                          if (lotCategory == null) {
+                            return Container();
+                          }
+
                           return Text(
-                            '${lotBloc.selectedLot?.lotCategory}',
+                            '${lotCategory.name}',
                           );
                         },
                       ),
@@ -823,19 +866,29 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                             var dropdownValue = lotBloc.lotCategories.first;
 
                             if (lotBloc.selectedLot != null) {
-                              dropdownValue = lotBloc.selectedLot!.lotCategory.name;
+                              final lotCategory = settingsBloc
+                                  .settings.lotCategories
+                                  .firstWhereOrNull(
+                                (category) =>
+                                    category.key ==
+                                    lotBloc.selectedLot!.lotCategoryKey,
+                              );
+
+                              if (lotCategory != null) {
+                                dropdownValue = lotCategory;
+                              }
                             }
 
                             if (state is SelectedLotCategoryLotState) {
                               dropdownValue = state.selectedLotCategory;
                             }
 
-                            return DropdownButton<String>(
+                            return DropdownButton<LotCategory>(
                               value: dropdownValue,
                               items: lotBloc.lotCategories.map((category) {
-                                return DropdownMenuItem<String>(
+                                return DropdownMenuItem<LotCategory>(
                                   value: category,
-                                  child: Text(category),
+                                  child: Text(category.name),
                                 );
                               }).toList(),
                               onChanged: (value) => lotBloc.selectLotCategory(
@@ -865,24 +918,32 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                               children: [
                                 SizedBox(
                                   width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () => lotBloc.updateLot(
-                                      area: _areaController.text,
-                                      blockNo: _blockNoController.text,
-                                      lotNo: _lotNoController.text,
-                                      description: _descriptionController.text,
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                        padding: buttonPadding,
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .primary),
-                                    child: Text(
-                                      'Update lot',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.apply(color: Colors.white),
+                                  child: Visibility(
+                                    visible: ![
+                                      UserType.customer,
+                                      UserType.accountant
+                                    ].contains(
+                                        userBloc.getLoggedInUser()?.type),
+                                    child: ElevatedButton(
+                                      onPressed: () => lotBloc.updateLot(
+                                        area: _areaController.text,
+                                        blockNo: _blockNoController.text,
+                                        lotNo: _lotNoController.text,
+                                        description:
+                                            _descriptionController.text,
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                          padding: buttonPadding,
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .primary),
+                                      child: Text(
+                                        'Update lot',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.apply(color: Colors.white),
+                                      ),
                                     ),
                                   ),
                                 ),

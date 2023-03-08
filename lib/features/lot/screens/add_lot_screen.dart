@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/lot_category.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -205,18 +206,18 @@ class _AddLotScreenState extends State<AddLotScreen> {
                   width: double.infinity,
                   child: BlocBuilder<LotBloc, LotState>(
                     builder: (context, state) {
-                      String dropdownValue = lotBloc.lotCategories.first;
+                      var dropdownValue = lotBloc.lotCategories.first;
 
                       if (state is SelectedLotCategoryLotState) {
                         dropdownValue = state.selectedLotCategory;
                       }
 
-                      return DropdownButton<String>(
+                      return DropdownButton<LotCategory>(
                         value: dropdownValue,
                         items: lotBloc.lotCategories.map((category) {
-                          return DropdownMenuItem<String>(
+                          return DropdownMenuItem<LotCategory>(
                             value: category,
-                            child: Text(category),
+                            child: Text(category.name),
                           );
                         }).toList(),
                         onChanged: (value) => lotBloc.selectLotCategory(

@@ -65,15 +65,6 @@ class UserRepository extends BaseRepository<UserModel.User> {
     return cacheService.loggedInUser;
   }
 
-  Future<List<User>> agents() {
-    try {
-      return cacheService.agents();
-    } catch (err) {
-      return all()
-          .then((value) => cacheService.agents());
-    }
-  }
-
   Future<List<User>> customers() {
     try {
       return cacheService.customers();

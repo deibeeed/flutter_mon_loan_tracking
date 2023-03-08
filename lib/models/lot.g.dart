@@ -7,8 +7,7 @@ part of 'lot.dart';
 // **************************************************************************
 
 Lot _$LotFromJson(Map<String, dynamic> json) => Lot(
-      lotCategory:
-          LotCategory.fromJson(json['lotCategory'] as Map<String, dynamic>),
+      lotCategoryKey: json['lotCategoryKey'] as String,
       blockNo: json['blockNo'] as String,
       lotNo: json['lotNo'] as String,
       area: json['area'] as num,
@@ -20,7 +19,7 @@ Lot _$LotFromJson(Map<String, dynamic> json) => Lot(
     );
 
 Map<String, dynamic> _$LotToJson(Lot instance) => <String, dynamic>{
-      'lotCategory': instance.lotCategory,
+      'lotCategoryKey': instance.lotCategoryKey,
       'blockNo': instance.blockNo,
       'lotNo': instance.lotNo,
       'description': instance.description,

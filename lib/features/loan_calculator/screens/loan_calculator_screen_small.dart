@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,8 +46,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
 
   @override
   Widget build(BuildContext context) {
-    final loanBloc = BlocProvider.of<LoanBloc>(context)
-      ..getSettings();
+    final loanBloc = BlocProvider.of<LoanBloc>(context)..getSettings();
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
     var buttonPadding = const EdgeInsets.all(24);
@@ -60,13 +60,19 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
         if (state is LoanSuccessState) {
           if (loanBloc.selectedLot != null && loanBloc.settings != null) {
             final lot = loanBloc.selectedLot!;
-            final settings = loanBloc.settings;
+            final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
-            lotCategoryController.text = lot.lotCategory;
-            pricePerSqmController.text =
-                settings!.ratePerSquareMeter.toCurrency();
-            tcpController.text =
-                (lot.area * settings.ratePerSquareMeter).toCurrency();
+
+            final lotCategory = settings.lotCategories.firstWhereOrNull(
+                (category) => category.key == lot.lotCategoryKey);
+
+            if (lotCategory != null) {
+              lotCategoryController.text = lotCategory.name;
+              pricePerSqmController.text =
+                  lotCategory.ratePerSquareMeter.toCurrency();
+              tcpController.text =
+                  (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
+            }
           }
         } else if (state is LoanErrorState) {
           ScaffoldMessenger.of(context)
@@ -148,7 +154,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
@@ -174,7 +180,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
@@ -190,7 +196,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
@@ -219,7 +225,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
@@ -239,8 +245,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                               label: Text('Discount'),
                               border: OutlineInputBorder(),
                             ),
-                            keyboardType:
-                            const TextInputType.numberWithOptions(
+                            keyboardType: const TextInputType.numberWithOptions(
                                 decimal: true),
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
@@ -365,8 +370,23 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Price per sqm:'),
-                    Text(
-                        '${loanBloc.settings?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm'),
+                    Builder(
+                      builder: (context) {
+                        if (loanBloc.selectedLot == null ||
+                            loanBloc.settings == null) {
+                          return Container();
+                        }
+
+                        final lot = loanBloc.selectedLot!;
+                        final settings = loanBloc.settings!;
+                        final lotCategory = settings.lotCategories
+                            .firstWhereOrNull((category) =>
+                                category.key == lot.lotCategoryKey);
+
+                        return Text(
+                            '${lotCategory?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm');
+                      },
+                    ),
                   ],
                 ),
                 Row(

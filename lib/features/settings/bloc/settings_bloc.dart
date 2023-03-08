@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mon_loan_tracking/exceptions/settings_not_found_exception.dart';
@@ -31,6 +32,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   late Settings _settings;
 
   Settings get settings => _settings;
+
+  String? selectedLotCategoryKeyToUpdate = null;
 
   void getSettings() {
     add(GetSettingsEvent(id: Random().nextInt(1000).toString()));
@@ -82,6 +85,35 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     add(UpdateSettingsUiEvent(updatedSettings: _settings));
   }
 
+  void selectLotCategory({required LotCategory category}) {
+    selectedLotCategoryKeyToUpdate = category.key;
+    emit(LotCategorySelectedState(category: category));
+    emit(SettingsSuccessState(settings: _settings));
+  }
+
+  void updateLotCategory({
+    required String name,
+    required String ratePerSqm,
+  }) {
+    try {
+      if (selectedLotCategoryKeyToUpdate == null) {
+        throw Exception('Select lot category first!');
+      }
+
+      final categoryIndex = _settings.lotCategories.indexWhere(
+          (category) => category.key == selectedLotCategoryKeyToUpdate);
+      _settings.lotCategories[categoryIndex] =
+          LotCategory(name: name, ratePerSquareMeter: num.parse(ratePerSqm));
+      add(UpdateSettingsUiEvent(updatedSettings: _settings));
+    } catch (err) {
+      emit(
+        SettingsErrorState(
+          message: 'Something went wrong while adding lot category: $err',
+        ),
+      );
+    }
+  }
+
   Future<void> _handleSettingsRetrieved(
       GetSettingsEvent event, Emitter<SettingsState> emit) async {
     try {
@@ -129,6 +161,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
   void _handleUIupdate(
       UpdateSettingsUiEvent event, Emitter<SettingsState> emit) {
+    selectedLotCategoryKeyToUpdate = null;
     emit(SettingsSuccessState(settings: _settings));
   }
 }

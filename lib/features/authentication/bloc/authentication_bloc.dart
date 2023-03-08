@@ -68,7 +68,7 @@ class AuthenticationBloc
         return;
       }
 
-      final user = await usersRepository.get(id: userId!);
+      final user = await usersRepository.get(id: userId);
       usersRepository.setLoggedInUser(user: user);
       emit(const LoginLoadingState());
       emit(

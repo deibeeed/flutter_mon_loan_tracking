@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/general_lot_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
+import 'package:flutter_mon_loan_tracking/features/settings/bloc/settings_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
@@ -12,7 +13,6 @@ import 'package:go_router/go_router.dart';
 class LotDashboardScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _LotDashboardScreenState();
-
 }
 
 class _LotDashboardScreenState extends State<LotDashboardScreen> {
@@ -28,6 +28,7 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final lotBloc = BlocProvider.of<LotBloc>(context);
+    final settingsBloc = BlocProvider.of<SettingsBloc>(context);
     final screenSize = MediaQuery.of(context).size;
     final defaultBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(32),
@@ -58,17 +59,12 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
     var blockContainerPadding = const EdgeInsets.all(32);
     var blockContainerWidth = screenSize.width * 0.65;
     var blockContainerBorderRadius = BorderRadius.circular(120);
-    var blockTextStyle = Theme.of(context)
-        .textTheme
-        .titleLarge;
+    var blockTextStyle = Theme.of(context).textTheme.titleLarge;
     TextStyle? chipTextStyle = const TextStyle();
     var chipPadding = const EdgeInsets.all(12);
     var lotContainerSize = 200.0;
-    var lotTextStyle = Theme.of(context)
-        .textTheme
-        .titleLarge;
-    var lotContainerBorderRadius = BorderRadius
-        .circular(64);
+    var lotTextStyle = Theme.of(context).textTheme.titleLarge;
+    var lotContainerBorderRadius = BorderRadius.circular(64);
     var lotContainerContainerBorderRadius = BorderRadius.circular(80);
     var lotContainerContainerMarginPadding = const EdgeInsets.all(32);
     var chunkSize = 4;
@@ -92,17 +88,12 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
       chipTextStyle = Theme.of(context).textTheme.labelLarge;
       chipPadding = const EdgeInsets.all(10);
       lotContainerSize = 100;
-      lotTextStyle = Theme.of(context)
-          .textTheme
-          .titleSmall;
-      lotContainerBorderRadius =BorderRadius
-          .circular(32);
+      lotTextStyle = Theme.of(context).textTheme.titleSmall;
+      lotContainerBorderRadius = BorderRadius.circular(32);
       lotContainerContainerBorderRadius = BorderRadius.circular(40);
       lotContainerContainerMarginPadding = const EdgeInsets.all(16);
       blockContainerBorderRadius = BorderRadius.circular(56);
-      blockTextStyle = Theme.of(context)
-          .textTheme
-          .titleMedium;
+      blockTextStyle = Theme.of(context).textTheme.titleMedium;
       chunkSize = 2;
     } else if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       searchTextFieldPadding = const EdgeInsets.only(
@@ -123,16 +114,11 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
       chipTextStyle = Theme.of(context).textTheme.labelLarge;
       chipPadding = const EdgeInsets.all(10);
       lotContainerSize = 100;
-      lotTextStyle = Theme.of(context)
-          .textTheme
-          .titleSmall;
-      lotContainerBorderRadius =BorderRadius
-          .circular(32);
+      lotTextStyle = Theme.of(context).textTheme.titleSmall;
+      lotContainerBorderRadius = BorderRadius.circular(32);
       lotContainerContainerBorderRadius = BorderRadius.circular(60);
       blockContainerBorderRadius = BorderRadius.circular(80);
-      blockTextStyle = Theme.of(context)
-          .textTheme
-          .titleMedium;
+      blockTextStyle = Theme.of(context).textTheme.titleMedium;
     }
 
     return Scaffold(
@@ -203,8 +189,7 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
               child: Column(
                 children: [
                   Padding(
-                    padding:
-                        searchContainerPadding,
+                    padding: searchContainerPadding,
                     child: Row(
                       children: [
                         // OutlinedButton(
@@ -314,6 +299,10 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                       buildWhen: (previous, current) =>
                           current is LotSuccessState,
                       builder: (context, state) {
+                        if (lotBloc.filteredGroupedLots.isEmpty) {
+                          return Container();
+                        }
+
                         if (_selectedBlock.isEmpty) {
                           _selectedBlock =
                               lotBloc.filteredGroupedLots.keys.first;
@@ -323,7 +312,7 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                           width: double.infinity,
                           child: Wrap(
                             children:
-                            lotBloc.filteredGroupedLots.keys.map((blockNo) {
+                                lotBloc.filteredGroupedLots.keys.map((blockNo) {
                               var opacity = 0.4;
                               if (blockNo == _selectedBlock) {
                                 opacity = 0.8;
@@ -346,7 +335,8 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                                     padding: chipPadding,
                                     label: Text(
                                       'Block $blockNo',
-                                      style: chipTextStyle?.apply(color: Colors.white),
+                                      style: chipTextStyle?.apply(
+                                          color: Colors.white),
                                     ),
                                   ),
                                 ),
@@ -366,98 +356,125 @@ class _LotDashboardScreenState extends State<LotDashboardScreen> {
                             width: blockContainerWidth,
                             // height: screenSize.height * 0.4,
                             child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .tertiary
-                                    .withOpacity(0.8),
-                                borderRadius: blockContainerBorderRadius,
-                              ),
-                              padding: lotContainerContainerMarginPadding,
-                              child: BlocBuilder<LotBloc, LotState>(
-                                buildWhen: (previous, current) =>
-                                current is LotSuccessState,
-                                builder: (context, state) {
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          'Block $_selectedBlock',
-                                          style: blockTextStyle
-                                              ?.apply(
-                                            fontWeightDelta: 2,
-                                            color: Colors.white,
-                                            letterSpacingDelta: 2,
-                                          ),
-                                        ),
-                                      ),
-                                      ...lotBloc
-                                          .chunkedLots(
-                                          lots: lotBloc.filteredGroupedLots[
-                                          _selectedBlock]!, size: chunkSize)
-                                          .map(
-                                            (lots) => Container(
-                                          padding: lotContainerContainerMarginPadding,
-                                          margin: lotContainerContainerMarginPadding,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                            lotContainerContainerBorderRadius,
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                            children: lots
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary
+                                          .withOpacity(0.8),
+                                      borderRadius: blockContainerBorderRadius,
+                                    ),
+                                    padding: lotContainerContainerMarginPadding,
+                                    child: BlocBuilder<LotBloc, LotState>(
+                                      buildWhen: (previous, current) =>
+                                          current is LotSuccessState,
+                                      builder: (context, state) {
+                                        if (_selectedBlock.isEmpty) {
+                                          return Container();
+                                        }
+
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            Center(
+                                              child: Text(
+                                                'Block $_selectedBlock',
+                                                style: blockTextStyle?.apply(
+                                                  fontWeightDelta: 2,
+                                                  color: Colors.white,
+                                                  letterSpacingDelta: 2,
+                                                ),
+                                              ),
+                                            ),
+                                            ...lotBloc
+                                                .chunkedLots(
+                                                    lots: lotBloc
+                                                            .filteredGroupedLots[
+                                                        _selectedBlock],
+                                                    size: chunkSize)
                                                 .map(
-                                                  (lot) => InkWell(
-                                                radius: 64,
-                                                onTap: () {
-                                                  Constants.appBarTitle = lot.completeBlockLotNo;
-                                                  context.read<MenuSelectionCubit>().select(
-                                                    page: 1,
-                                                  );
-                                                  lotBloc
-                                                      .selectLot(lot: lot);
-                                                  if (widget.isMobile()) {
-                                                    GoRouter.of(context).push('/lots/${lot.id}');
-                                                  } else {
-                                                    GoRouter.of(context).go('/lots/${lot.id}');
-                                                  }
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                    _getLotBackgroundColor(
-                                                      context: context,
-                                                      isReserved:
-                                                      lot.reservedTo !=
-                                                          null,
+                                                  (lots) => Container(
+                                                    padding:
+                                                        lotContainerContainerMarginPadding,
+                                                    margin:
+                                                        lotContainerContainerMarginPadding,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius:
+                                                          lotContainerContainerBorderRadius,
                                                     ),
-                                                    borderRadius:
-                                                    lotContainerBorderRadius,
-                                                  ),
-                                                  width: lotContainerSize,
-                                                  height: lotContainerSize,
-                                                  child: Center(
-                                                    child: Text(
-                                                      'Lot ${lot.lotNo}',
-                                                      style:
-                                                      lotTextStyle,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: lots
+                                                          .map(
+                                                            (lot) => InkWell(
+                                                              radius: 64,
+                                                              onTap: () {
+                                                                Constants
+                                                                        .appBarTitle =
+                                                                    lot.completeBlockLotNo;
+                                                                context
+                                                                    .read<
+                                                                        MenuSelectionCubit>()
+                                                                    .select(
+                                                                      page: 1,
+                                                                    );
+                                                                lotBloc.selectLot(
+                                                                    lot: lot,
+                                                                    settings:
+                                                                        settingsBloc
+                                                                            .settings);
+                                                                if (widget
+                                                                    .isMobile()) {
+                                                                  GoRouter.of(
+                                                                          context)
+                                                                      .push(
+                                                                          '/lots/${lot.id}');
+                                                                } else {
+                                                                  GoRouter.of(
+                                                                          context)
+                                                                      .go('/lots/${lot.id}');
+                                                                }
+                                                              },
+                                                              child: Container(
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color:
+                                                                      _getLotBackgroundColor(
+                                                                    context:
+                                                                        context,
+                                                                    isReserved:
+                                                                        lot.reservedTo !=
+                                                                            null,
+                                                                  ),
+                                                                  borderRadius:
+                                                                      lotContainerBorderRadius,
+                                                                ),
+                                                                width:
+                                                                    lotContainerSize,
+                                                                height:
+                                                                    lotContainerSize,
+                                                                child: Center(
+                                                                  child: Text(
+                                                                    'Lot ${lot.lotNo}',
+                                                                    style:
+                                                                        lotTextStyle,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          )
+                                                          .toList(),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                            )
-                                                .toList(),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ),
                           ),
                         ),
                       ),

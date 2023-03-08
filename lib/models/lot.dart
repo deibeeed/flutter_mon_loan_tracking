@@ -7,7 +7,7 @@ part 'lot.g.dart';
 
 @JsonSerializable()
 class Lot extends Equatable {
-  final LotCategory lotCategory;
+  final String lotCategoryKey;
   final String blockNo;
   final String lotNo;
   final String description;
@@ -20,7 +20,7 @@ class Lot extends Equatable {
   String? reservedTo;
 
   Lot({
-    required this.lotCategory,
+    required this.lotCategoryKey,
     required this.blockNo,
     required this.lotNo,
     required this.area,
@@ -34,7 +34,7 @@ class Lot extends Equatable {
   factory Lot.fromJson(Map<String, dynamic> json) => _$LotFromJson(json);
 
   factory Lot.updateId({required String id, required Lot lot}) => Lot(
-        lotCategory: lot.lotCategory,
+        lotCategoryKey: lot.lotCategoryKey,
         blockNo: lot.blockNo,
         lotNo: lot.lotNo,
         description: lot.description,
@@ -46,16 +46,15 @@ class Lot extends Equatable {
       );
 
   factory Lot.create({
-    required LotCategory lotCategory,
+    required String lotCategoryKey,
     required String blockNo,
     required String lotNo,
     required String description,
     required num area,
     String? reservedTo,
-    String? agentAssisted,
   }) =>
       Lot(
-        lotCategory: lotCategory,
+        lotCategoryKey: lotCategoryKey,
         blockNo: blockNo,
         lotNo: lotNo,
         area: area,
@@ -68,11 +67,9 @@ class Lot extends Equatable {
 
   String get completeBlockLotNo => 'Blk $blockNo Lot $lotNo';
 
-  num get computedTotalContractPrice => area * lotCategory.ratePerSquareMeter;
-
   @override
   List<Object?> get props => [
-        lotCategory,
+        lotCategoryKey,
         blockNo,
         lotNo,
         description,

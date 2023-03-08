@@ -101,7 +101,7 @@ class Constants {
 
   static List<MenuItemModel> getMenuByUserType({UserType? type}) {
     if (type == null) {
-      return [];
+      return menuItems;
     }
 
     switch (type) {
@@ -109,11 +109,6 @@ class Constants {
         return menuItems
             .whereNot((item) => ['users', 'calculator', 'settings']
                 .contains(item.computedShortName.toLowerCase()))
-            .toList();
-      case UserType.agent:
-        return menuItems
-            .whereNot((item) =>
-                ['settings'].contains(item.computedShortName.toLowerCase()))
             .toList();
       case UserType.accountant:
       case UserType.subAdmin:

@@ -4,7 +4,7 @@ part of 'lot_bloc.dart';
 abstract class LotEvent {}
 
 class AddLotEvent extends LotEvent {
-  final String lotCategory;
+  final LotCategory lotCategory;
   final num area;
   final String blockLotNos;
   final String description;
@@ -18,7 +18,7 @@ class AddLotEvent extends LotEvent {
 }
 
 class UpdateLotEvent extends LotEvent {
-  final String lotCategory;
+  final LotCategory lotCategory;
   final num area;
   final String blockNo;
   final String lotNo;
