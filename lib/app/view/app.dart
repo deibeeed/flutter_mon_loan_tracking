@@ -254,15 +254,20 @@ class _AppState extends State<App> {
                 ),
               ),
             ],
-            child: MaterialApp.router(
-              routerConfig: _rootRouter,
-              theme:
+            child: Builder(
+              builder: (context) {
+                context.read<AuthenticationBloc>().initialize();
+                return MaterialApp.router(
+                  routerConfig: _rootRouter,
+                  theme:
                   ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-              darkTheme:
+                  darkTheme:
                   ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              // home: const MainScreen(),
+                  localizationsDelegates: AppLocalizations.localizationsDelegates,
+                  supportedLocales: AppLocalizations.supportedLocales,
+                  // home: const MainScreen(),
+                );
+              },
             ),
           );
         },
