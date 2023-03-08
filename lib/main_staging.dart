@@ -6,8 +6,10 @@ import 'package:flutter_mon_loan_tracking/bootstrap.dart';
 import 'package:flutter_mon_loan_tracking/firebase_options_stg.dart';
 import 'package:flutter_mon_loan_tracking/services/environments.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 Future<void> main() async {
+  usePathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

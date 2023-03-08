@@ -82,17 +82,17 @@ android {
         production {
             dimension "default"
             applicationIdSuffix ""
-            manifestPlaceholders = [appName: "Flutter Mon Loan Tracking"]
+            manifestPlaceholders = [appName: "LMS"]
         }
         staging {
             dimension "default"
             applicationIdSuffix ".stg"
-            manifestPlaceholders = [appName: "[STG] Flutter Mon Loan Tracking"]
+            manifestPlaceholders = [appName: "[STG] LMS"]
         }
         development {
             dimension "default"
             applicationIdSuffix ".dev"
-            manifestPlaceholders = [appName: "[DEV] Flutter Mon Loan Tracking"]
+            manifestPlaceholders = [appName: "[DEV] LMS"]
         }
     }
 
