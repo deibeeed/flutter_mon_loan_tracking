@@ -29,6 +29,7 @@ dependencies:
   json_annotation: ^4.8.0
   pdf: ^3.9.0
   printing: ^5.10.1
+  shared_preferences: ^2.0.18
 
 dev_dependencies:
   bloc_test: ^9.1.0
