@@ -327,170 +327,172 @@ class AddUserScreen extends StatelessWidget {
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       buttonPadding = const EdgeInsets.all(16);
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('User type'),
-        const SizedBox(
-          height: 8,
-        ),
-        BlocBuilder<UserBloc, UserState>(
-          builder: (context, state) {
-            var type = UserType.customer;
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('User type'),
+          const SizedBox(
+            height: 8,
+          ),
+          BlocBuilder<UserBloc, UserState>(
+            builder: (context, state) {
+              var type = UserType.customer;
 
-            if (state is SelectedUserTypeState) {
-              type = state.type;
-            }
+              if (state is SelectedUserTypeState) {
+                type = state.type;
+              }
 
-            return SizedBox(
-              width: double.infinity,
-              child: DropdownButton<UserType>(
-                value: type,
-                items: UserType.values.map((type) {
-                  return DropdownMenuItem<UserType>(
-                    value: type,
-                    child: Text(type.value),
-                  );
-                }).toList(),
-                onChanged: (value) => userBloc.selectUserType(type: value),
-              ),
-            );
-          },
-        ),
-        const SizedBox(
-          height: 32,
-        ),
-        TextFormField(
-          controller: lastNameController,
-          decoration: const InputDecoration(
-              label: Text('Last name'), border: OutlineInputBorder()),
-        ),
-        const SizedBox(
-          height: 32,
-        ),
-        TextFormField(
-          controller: firstNameController,
-          decoration: const InputDecoration(
-              label: Text('First name'), border: OutlineInputBorder()),
-        ),
-        const SizedBox(
-          height: 32,
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: birthDateController,
-                decoration: const InputDecoration(
-                  label: Text('Birthdate'),
-                  border: OutlineInputBorder(),
+              return SizedBox(
+                width: double.infinity,
+                child: DropdownButton<UserType>(
+                  value: type,
+                  items: UserType.values.map((type) {
+                    return DropdownMenuItem<UserType>(
+                      value: type,
+                      child: Text(type.value),
+                    );
+                  }).toList(),
+                  onChanged: (value) => userBloc.selectUserType(type: value),
+                ),
+              );
+            },
+          ),
+          const SizedBox(
+            height: 32,
+          ),
+          TextFormField(
+            controller: lastNameController,
+            decoration: const InputDecoration(
+                label: Text('Last name'), border: OutlineInputBorder()),
+          ),
+          const SizedBox(
+            height: 32,
+          ),
+          TextFormField(
+            controller: firstNameController,
+            decoration: const InputDecoration(
+                label: Text('First name'), border: OutlineInputBorder()),
+          ),
+          const SizedBox(
+            height: 32,
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: birthDateController,
+                  decoration: const InputDecoration(
+                    label: Text('Birthdate'),
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(
-              width: 32,
-            ),
-            Expanded(
-              child: TextFormField(
-                controller: civilStatusController,
-                decoration: const InputDecoration(
-                  label: Text('Civil status'),
-                  border: OutlineInputBorder(),
+              const SizedBox(
+                width: 32,
+              ),
+              Expanded(
+                child: TextFormField(
+                  controller: civilStatusController,
+                  decoration: const InputDecoration(
+                    label: Text('Civil status'),
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(
-              width: 32,
-            ),
-            Expanded(
-              child: TextFormField(
-                controller: mobileNumberController,
-                decoration: const InputDecoration(
-                  label: Text('Mobile number'),
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                ],
+              const SizedBox(
+                width: 32,
               ),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 32,
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: emailController,
-                decoration: const InputDecoration(
-                  label: Text('Email'),
-                  border: OutlineInputBorder(),
+              Expanded(
+                child: TextFormField(
+                  controller: mobileNumberController,
+                  decoration: const InputDecoration(
+                    label: Text('Mobile number'),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
                 ),
               ),
-            ),
-            // const SizedBox(
-            //   width: 32,
-            // ),
-            // Expanded(
-            //   child: TextFormField(
-            //     controller: passwordController,
-            //     obscureText: true,
-            //     decoration: const InputDecoration(
-            //       label: Text('Password'),
-            //       border: OutlineInputBorder(),
-            //     ),
-            //   ),
-            // ),
-            // const SizedBox(
-            //   width: 32,
-            // ),
-            // Expanded(
-            //   child: TextFormField(
-            //     controller: confirmPasswordController,
-            //     obscureText: true,
-            //     decoration: const InputDecoration(
-            //       label: Text('Confirm password'),
-            //       border: OutlineInputBorder(),
-            //     ),
-            //   ),
-            // ),
-          ],
-        ),
-        const SizedBox(
-          height: 32,
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () => userBloc.addUser(
-                    lastName: lastNameController.text,
-                    firstName: firstNameController.text,
-                    birthDate: birthDateController.text,
-                    civilStatus: civilStatusController.text,
-                    mobileNumber: mobileNumberController.text,
-                    email: emailController.text,
-                    password: passwordController.text,
-                    confirmPassword: confirmPasswordController.text),
-                style: ElevatedButton.styleFrom(
-                    padding: buttonPadding,
-                    backgroundColor: Theme.of(context).colorScheme.primary),
-                child: Text(
-                  'Add User',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.apply(color: Colors.white),
+            ],
+          ),
+          const SizedBox(
+            height: 32,
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    label: Text('Email'),
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
-            )
-          ],
-        ),
-      ],
+              // const SizedBox(
+              //   width: 32,
+              // ),
+              // Expanded(
+              //   child: TextFormField(
+              //     controller: passwordController,
+              //     obscureText: true,
+              //     decoration: const InputDecoration(
+              //       label: Text('Password'),
+              //       border: OutlineInputBorder(),
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(
+              //   width: 32,
+              // ),
+              // Expanded(
+              //   child: TextFormField(
+              //     controller: confirmPasswordController,
+              //     obscureText: true,
+              //     decoration: const InputDecoration(
+              //       label: Text('Confirm password'),
+              //       border: OutlineInputBorder(),
+              //     ),
+              //   ),
+              // ),
+            ],
+          ),
+          const SizedBox(
+            height: 32,
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => userBloc.addUser(
+                      lastName: lastNameController.text,
+                      firstName: firstNameController.text,
+                      birthDate: birthDateController.text,
+                      civilStatus: civilStatusController.text,
+                      mobileNumber: mobileNumberController.text,
+                      email: emailController.text,
+                      password: passwordController.text,
+                      confirmPassword: confirmPasswordController.text),
+                  style: ElevatedButton.styleFrom(
+                      padding: buttonPadding,
+                      backgroundColor: Theme.of(context).colorScheme.primary),
+                  child: Text(
+                    'Add User',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.apply(color: Colors.white),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
