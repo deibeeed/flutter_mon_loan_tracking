@@ -5,6 +5,7 @@ import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentic
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/civil_status_types.dart';
 import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
@@ -292,22 +293,72 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
               const SizedBox(
                 height: 32,
               ),
-              TextFormField(
-                controller: birthDateController,
-                decoration: const InputDecoration(
-                  label: Text('Birthdate'),
-                  border: OutlineInputBorder(),
+              Text(
+                'Civil status',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: BlocBuilder<UserBloc, UserState>(
+                  builder: (context, state) {
+                    var dropdownValue = CivilStatus.values.first;
+
+                    if (userBloc.selectedCivilStatus != null) {
+                      dropdownValue = userBloc.selectedCivilStatus!;
+                    }
+
+                    if (state is SelectedCivilStatusState) {
+                      dropdownValue = state.civilStatus;
+                    }
+
+                    return DropdownButton<CivilStatus>(
+                      value: dropdownValue,
+                      items: CivilStatus.values.map((category) {
+                        return DropdownMenuItem<CivilStatus>(
+                          value: category,
+                          child: Text(category.name),
+                        );
+                      }).toList(),
+                      onChanged: (value) => userBloc.selectCivilStatus(
+                        civilStatus: value,
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(
                 height: 32,
               ),
-              TextFormField(
-                controller: civilStatusController,
-                decoration: const InputDecoration(
-                  label: Text('Civil status'),
-                  border: OutlineInputBorder(),
-                ),
+              BlocBuilder<UserBloc, UserState>(
+                buildWhen: (previous, current) => current is UserSuccessState,
+                builder: (context, state) {
+                  return TextFormField(
+                    onTap: () {
+                      showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate:
+                        DateTime.now().subtract(Duration(days: 365 * 100)),
+                        lastDate: DateTime.now(),
+                      ).then((date) {
+                        printd('date is $date');
+                        if (date != null) {
+                          birthDateController.text =
+                              Constants.defaultDateFormat.format(date);
+                          userBloc.selectDate(date: date);
+                        }
+                      });
+                    },
+                    controller: birthDateController,
+                    decoration: const InputDecoration(
+                      label: Text('Birthdate'),
+                      border: OutlineInputBorder(),
+                    ),
+                  );
+                },
               ),
               const SizedBox(
                 height: 32,
@@ -347,7 +398,6 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                           lastName: lastNameController.text,
                           firstName: firstNameController.text,
                           birthDate: birthDateController.text,
-                          civilStatus: civilStatusController.text,
                           mobileNumber: mobileNumberController.text,
                           email: emailController.text,
                         ),
@@ -643,25 +693,71 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         ),
         Row(
           children: [
-            Expanded(
-              child: TextFormField(
-                controller: birthDateController,
-                decoration: const InputDecoration(
-                  label: Text('Birthdate'),
-                  border: OutlineInputBorder(),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Civil status',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-              ),
+                const SizedBox(
+                  height: 8,
+                ),
+                BlocBuilder<UserBloc, UserState>(
+                  builder: (context, state) {
+                    var dropdownValue = CivilStatus.values.first;
+
+                    if (state is SelectedCivilStatusState) {
+                      dropdownValue = state.civilStatus;
+                    }
+
+                    return DropdownButton<CivilStatus>(
+                      value: dropdownValue,
+                      items: CivilStatus.values.map((category) {
+                        return DropdownMenuItem<CivilStatus>(
+                          value: category,
+                          child: Text(category.value),
+                        );
+                      }).toList(),
+                      onChanged: (value) => userBloc.selectCivilStatus(
+                        civilStatus: value,
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             const SizedBox(
               width: 32,
             ),
             Expanded(
-              child: TextFormField(
-                controller: civilStatusController,
-                decoration: const InputDecoration(
-                  label: Text('Civil status'),
-                  border: OutlineInputBorder(),
-                ),
+              child: BlocBuilder<UserBloc, UserState>(
+                buildWhen: (previous, current) => current is UserSuccessState,
+                builder: (context, state) {
+                  return TextFormField(
+                    onTap: () {
+                      showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate:
+                        DateTime.now().subtract(Duration(days: 365 * 100)),
+                        lastDate: DateTime.now(),
+                      ).then((date) {
+                        printd('date is $date');
+                        if (date != null) {
+                          birthDateController.text =
+                              Constants.defaultDateFormat.format(date);
+                          userBloc.selectDate(date: date);
+                        }
+                      });
+                    },
+                    controller: birthDateController,
+                    decoration: const InputDecoration(
+                      label: Text('Birthdate'),
+                      border: OutlineInputBorder(),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(
@@ -698,17 +794,16 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         const SizedBox(
           height: 32,
         ),
-        Visibility(
-          visible: _shouldShowUpdateButton(),
-          child: Row(
-            children: [
-              Expanded(
+        Row(
+          children: [
+            Visibility(
+              visible: _shouldShowUpdateButton(),
+              child: Expanded(
                 child: ElevatedButton(
                   onPressed: () => userBloc.updateUser(
                     lastName: lastNameController.text,
                     firstName: firstNameController.text,
                     birthDate: birthDateController.text,
-                    civilStatus: civilStatusController.text,
                     mobileNumber: mobileNumberController.text,
                     email: emailController.text,
                   ),
@@ -724,26 +819,29 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: 32,
-              ),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: authenticationBloc.logout,
-                  style: ElevatedButton.styleFrom(
-                      padding: buttonPadding,
-                      backgroundColor: Theme.of(context).colorScheme.error),
-                  child: Text(
-                    'Logout',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.apply(color: Colors.white),
+            ),
+            SizedBox(
+              width: 32,
+            ),
+            Visibility(
+              visible: widget.isProfile,
+                child: Expanded(
+                  child: ElevatedButton(
+                    onPressed: authenticationBloc.logout,
+                    style: ElevatedButton.styleFrom(
+                        padding: buttonPadding,
+                        backgroundColor: Theme.of(context).colorScheme.error),
+                    child: Text(
+                      'Logout',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.apply(color: Colors.white),
+                    ),
                   ),
-                ),
-              ),
-            ],
-          ),
+                )
+            ),
+          ],
         ),
         Visibility(
           visible: userBloc.getLoggedInUser()?.type == UserType.admin &&
@@ -840,85 +938,88 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             return current is LoanSuccessState;
           },
           builder: (context, state) {
-            return DataTable(
-              dataRowHeight: 72,
-              headingRowColor: MaterialStateColor.resolveWith(
-                (states) => Theme.of(context)
-                    .colorScheme
-                    .secondaryContainer
-                    .withOpacity(0.32),
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                dataRowHeight: 72,
+                headingRowColor: MaterialStateColor.resolveWith(
+                      (states) => Theme.of(context)
+                      .colorScheme
+                      .secondaryContainer
+                      .withOpacity(0.32),
+                ),
+                columns: [
+                  for (String name in Constants.user_loan_schedule_table_columns)
+                    DataColumn(
+                        label: Text(
+                          name.toUpperCase(),
+                          style: Theme.of(context).textTheme.titleMedium?.apply(
+                            fontWeightDelta: 3,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                        ))
+                ],
+                rows: loanBloc.clientLoanSchedules
+                    .map(
+                      (schedule) => DataRow(
+                    cells: [
+                      DataCell(
+                        defaultCellText(
+                          text: Constants.defaultDateFormat.format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                              schedule.date.toInt(),
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Center(
+                          child: defaultCellText(
+                            text: schedule.outstandingBalance.toCurrency(),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Center(
+                          child: defaultCellText(
+                            text: schedule.monthlyAmortization.toCurrency(),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Center(
+                          child: defaultCellText(
+                            text: schedule.principalPayment.toCurrency(),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Center(
+                          child: defaultCellText(
+                            text: schedule.interestPayment.toCurrency(),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Center(
+                          child: defaultCellText(
+                            text: schedule.incidentalFee.toCurrency(),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        paymentStatusWidget(
+                          context: context,
+                          schedule: schedule,
+                          loanBloc: loanBloc,
+                          userBloc: userBloc,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                    .toList(),
               ),
-              columns: [
-                for (String name in Constants.user_loan_schedule_table_columns)
-                  DataColumn(
-                      label: Text(
-                    name.toUpperCase(),
-                    style: Theme.of(context).textTheme.titleMedium?.apply(
-                          fontWeightDelta: 3,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                  ))
-              ],
-              rows: loanBloc.clientLoanSchedules
-                  .map(
-                    (schedule) => DataRow(
-                      cells: [
-                        DataCell(
-                          defaultCellText(
-                            text: Constants.defaultDateFormat.format(
-                              DateTime.fromMillisecondsSinceEpoch(
-                                schedule.date.toInt(),
-                              ),
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Center(
-                            child: defaultCellText(
-                              text: schedule.outstandingBalance.toCurrency(),
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Center(
-                            child: defaultCellText(
-                              text: schedule.monthlyAmortization.toCurrency(),
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Center(
-                            child: defaultCellText(
-                              text: schedule.principalPayment.toCurrency(),
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Center(
-                            child: defaultCellText(
-                              text: schedule.interestPayment.toCurrency(),
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Center(
-                            child: defaultCellText(
-                              text: schedule.incidentalFee.toCurrency(),
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          paymentStatusWidget(
-                            context: context,
-                            schedule: schedule,
-                            loanBloc: loanBloc,
-                            userBloc: userBloc,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                  .toList(),
             );
           },
         ),
@@ -929,8 +1030,17 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     );
   }
 
+  /// show update button if user is
+  /// detail is the current user or
+  /// if user is subadmin
   bool _shouldShowUpdateButton() {
     final userBloc = BlocProvider.of<UserBloc>(context);
+
+    if(userBloc.getLoggedInUser() != null &&
+        [UserType.admin, UserType.subAdmin]
+            .contains(userBloc.getLoggedInUser()!.type)) {
+      return true;
+    }
 
     if (widget.userId != null && userBloc.getLoggedInUser() != null) {
       return widget.userId == userBloc.getLoggedInUser()!.id;

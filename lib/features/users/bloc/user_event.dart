@@ -8,7 +8,7 @@ class AddUserEvent extends UserEvent {
   final String lastName;
   final String email;
   final String birthDate;
-  final String civilStatus;
+  final CivilStatus civilStatus;
   final String mobileNumber;
   final UserType type;
   final String password;
@@ -32,7 +32,7 @@ class UpdateUserEvent extends UserEvent {
   final String lastName;
   final String email;
   final String birthDate;
-  final String civilStatus;
+  final CivilStatus civilStatus;
   final String mobileNumber;
 
   UpdateUserEvent({

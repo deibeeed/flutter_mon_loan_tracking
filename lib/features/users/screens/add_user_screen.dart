@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/civil_status_types.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
@@ -218,22 +219,68 @@ class AddUserScreen extends StatelessWidget {
             const SizedBox(
               height: 32,
             ),
-            TextFormField(
-              controller: birthDateController,
-              decoration: const InputDecoration(
-                label: Text('Birthdate'),
-                border: OutlineInputBorder(),
+            Text(
+              'Civil status',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: BlocBuilder<UserBloc, UserState>(
+                builder: (context, state) {
+                  var dropdownValue = CivilStatus.values.first;
+
+                  if (state is SelectedCivilStatusState) {
+                    dropdownValue = state.civilStatus;
+                  }
+
+                  return DropdownButton<CivilStatus>(
+                    value: dropdownValue,
+                    items: CivilStatus.values.map((category) {
+                      return DropdownMenuItem<CivilStatus>(
+                        value: category,
+                        child: Text(category.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) => userBloc.selectCivilStatus(
+                      civilStatus: value,
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(
               height: 32,
             ),
-            TextFormField(
-              controller: civilStatusController,
-              decoration: const InputDecoration(
-                label: Text('Civil status'),
-                border: OutlineInputBorder(),
-              ),
+            BlocBuilder<UserBloc, UserState>(
+              buildWhen: (previous, current) => current is UserSuccessState,
+              builder: (context, state) {
+                return TextFormField(
+                  onTap: () {
+                    showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate:
+                      DateTime.now().subtract(Duration(days: 365 * 100)),
+                      lastDate: DateTime.now(),
+                    ).then((date) {
+                      printd('date is $date');
+                      if (date != null) {
+                        birthDateController.text =
+                            Constants.defaultDateFormat.format(date);
+                        userBloc.selectDate(date: date);
+                      }
+                    });
+                  },
+                  controller: birthDateController,
+                  decoration: const InputDecoration(
+                    label: Text('Birthdate'),
+                    border: OutlineInputBorder(),
+                  ),
+                );
+              },
             ),
             const SizedBox(
               height: 32,
@@ -293,7 +340,6 @@ class AddUserScreen extends StatelessWidget {
                         lastName: lastNameController.text,
                         firstName: firstNameController.text,
                         birthDate: birthDateController.text,
-                        civilStatus: civilStatusController.text,
                         mobileNumber: mobileNumberController.text,
                         email: emailController.text,
                         password: passwordController.text,
@@ -379,25 +425,71 @@ class AddUserScreen extends StatelessWidget {
           ),
           Row(
             children: [
-              Expanded(
-                child: TextFormField(
-                  controller: birthDateController,
-                  decoration: const InputDecoration(
-                    label: Text('Birthdate'),
-                    border: OutlineInputBorder(),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Civil status',
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  BlocBuilder<UserBloc, UserState>(
+                    builder: (context, state) {
+                      var dropdownValue = CivilStatus.values.first;
+
+                      if (state is SelectedCivilStatusState) {
+                        dropdownValue = state.civilStatus;
+                      }
+
+                      return DropdownButton<CivilStatus>(
+                        value: dropdownValue,
+                        items: CivilStatus.values.map((category) {
+                          return DropdownMenuItem<CivilStatus>(
+                            value: category,
+                            child: Text(category.value),
+                          );
+                        }).toList(),
+                        onChanged: (value) => userBloc.selectCivilStatus(
+                          civilStatus: value,
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
               const SizedBox(
                 width: 32,
               ),
               Expanded(
-                child: TextFormField(
-                  controller: civilStatusController,
-                  decoration: const InputDecoration(
-                    label: Text('Civil status'),
-                    border: OutlineInputBorder(),
-                  ),
+                child: BlocBuilder<UserBloc, UserState>(
+                  buildWhen: (previous, current) => current is UserSuccessState,
+                  builder: (context, state) {
+                    return TextFormField(
+                      onTap: () {
+                        showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate:
+                          DateTime.now().subtract(Duration(days: 365 * 100)),
+                          lastDate: DateTime.now(),
+                        ).then((date) {
+                          printd('date is $date');
+                          if (date != null) {
+                            birthDateController.text =
+                                Constants.defaultDateFormat.format(date);
+                            userBloc.selectDate(date: date);
+                          }
+                        });
+                      },
+                      controller: birthDateController,
+                      decoration: const InputDecoration(
+                        label: Text('Birthdate'),
+                        border: OutlineInputBorder(),
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(
@@ -472,7 +564,6 @@ class AddUserScreen extends StatelessWidget {
                       lastName: lastNameController.text,
                       firstName: firstNameController.text,
                       birthDate: birthDateController.text,
-                      civilStatus: civilStatusController.text,
                       mobileNumber: mobileNumberController.text,
                       email: emailController.text,
                       password: passwordController.text,

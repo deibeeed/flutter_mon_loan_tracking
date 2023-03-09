@@ -45,6 +45,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   UserType? _selectedType;
 
+  CivilStatus? _selectedCivilStatus;
+
+  CivilStatus? get selectedCivilStatus => _selectedCivilStatus;
+
   Map<String, User> get mappedUsers => userRepository.mappedUsers;
 
   List<User> _customers = [];
@@ -63,6 +67,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   void reset() {
     _selectedUser = null;
+    _selectedCivilStatus = null;
+    _selectedType = null;
+  }
+
+  void selectDate({ required DateTime date}) {
+    emit(UserSuccessState(message: 'Successfully selected date'));
   }
 
   void selectUserType({required UserType? type}) {
@@ -73,11 +83,18 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
+  void selectCivilStatus({required CivilStatus? civilStatus}) {
+    _selectedCivilStatus = civilStatus;
+
+    if (civilStatus != null) {
+      emit(SelectedCivilStatusState(civilStatus: civilStatus));
+    }
+  }
+
   void addUser({
     required String lastName,
     required String firstName,
     required String birthDate,
-    required String civilStatus,
     required String mobileNumber,
     required String email,
     String? password,
@@ -88,6 +105,11 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       return;
     }
 
+    if (_selectedCivilStatus == null) {
+      emit(UserErrorState(message: 'Please select civil status'));
+      return;
+    }
+
     // for now, force email to become password
     add(
       AddUserEvent(
@@ -95,7 +117,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         lastName: lastName,
         email: email,
         birthDate: birthDate,
-        civilStatus: civilStatus,
+        civilStatus: _selectedCivilStatus!,
         mobileNumber: mobileNumber,
         type: _selectedType!,
         password: email,
@@ -108,16 +130,20 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     required String lastName,
     required String firstName,
     required String birthDate,
-    required String civilStatus,
     required String mobileNumber,
     required String email,
   }) {
+    if (_selectedCivilStatus == null) {
+      emit(UserErrorState(message: 'Please select civil status'));
+      return;
+    }
+
     add(UpdateUserEvent(
       firstName: firstName,
       lastName: lastName,
       email: email,
       birthDate: birthDate,
-      civilStatus: civilStatus,
+      civilStatus: _selectedCivilStatus!,
       mobileNumber: mobileNumber,
     ));
   }
@@ -136,16 +162,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   ) async {
     try {
       emit(UserLoadingState(isLoading: true));
-      var civilStatus = CivilStatus.single;
-
-      switch (event.civilStatus) {
-        case 'divorced':
-          civilStatus = CivilStatus.divorced;
-          break;
-        case 'married':
-          civilStatus = CivilStatus.married;
-          break;
-      }
+      var civilStatus = event.civilStatus;
 
       final userId = await authenticationService.register(
         email: event.email,
@@ -194,16 +211,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       }
 
       emit(UserLoadingState(isLoading: true));
-      var civilStatus = CivilStatus.single;
-
-      switch (event.civilStatus) {
-        case 'divorced':
-          civilStatus = CivilStatus.divorced;
-          break;
-        case 'married':
-          civilStatus = CivilStatus.married;
-          break;
-      }
+      var civilStatus = event.civilStatus;
 
       var tmpUser = User(
         firstName: event.firstName,
@@ -286,6 +294,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     try {
       emit(UserLoadingState(isLoading: true));
       _selectedUser = await userRepository.get(id: event.userId);
+      _selectedCivilStatus = _selectedUser!.civilStatus;
       emit(UserLoadingState());
       emit(UserSuccessState(message: 'Successfully retrieved user'));
     } catch (err) {

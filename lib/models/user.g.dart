@@ -33,6 +33,10 @@ const _$CivilStatusEnumMap = {
   CivilStatus.single: 'single',
   CivilStatus.married: 'married',
   CivilStatus.divorced: 'divorced',
+  CivilStatus.widow: 'widow',
+  CivilStatus.widower: 'widower',
+  CivilStatus.annulled: 'annulled',
+  CivilStatus.separated: 'separated',
 };
 
 const _$UserTypeEnumMap = {

@@ -39,4 +39,10 @@ class SelectedUserTypeState extends UserState {
   SelectedUserTypeState({ required this.type});
 }
 
+class SelectedCivilStatusState extends UserState {
+  final CivilStatus civilStatus;
+
+  SelectedCivilStatusState({ required this.civilStatus});
+}
+
 class CloseScreenState extends UserState { }

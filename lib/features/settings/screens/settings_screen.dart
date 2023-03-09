@@ -554,6 +554,9 @@ class SettingsScreen extends StatelessWidget {
               width: screenSize.width * 0.35,
               child: Column(
                 children: [
+                  const SizedBox(
+                    height: 8,
+                  ),
                   TextFormField(
                     controller: loanInterestRateController,
                     decoration: const InputDecoration(

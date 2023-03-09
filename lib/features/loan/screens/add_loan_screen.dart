@@ -303,7 +303,7 @@ class AddLoanScreen extends StatelessWidget {
                         context: context,
                         initialDate: DateTime.now(),
                         firstDate:
-                        DateTime.now().subtract(Duration(days: 10000)),
+                        DateTime.now().subtract(Duration(days: 365 * 100)),
                         lastDate: DateTime.now(),
                       ).then((date) {
                         printd('date is $date');
@@ -1034,7 +1034,7 @@ class AddLoanScreen extends StatelessWidget {
                   context: context,
                   initialDate: DateTime.now(),
                   firstDate:
-                  DateTime.now().subtract(Duration(days: 10000)),
+                  DateTime.now().subtract(Duration(days: 365 * 100)),
                   lastDate: DateTime.now(),
                 ).then((date) {
                   if (date != null) {
