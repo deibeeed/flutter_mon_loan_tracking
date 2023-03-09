@@ -220,6 +220,11 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
               _areaController.text = lot.area.toString();
               _descriptionController.text = lot.description;
             }
+
+            if (state.message != null) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(state.message!)));
+            }
           } else if (state is LotErrorState) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));
@@ -260,7 +265,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Block No.'),
+                  const Text('Lot No.'),
                   BlocBuilder<LoanBloc, LoanState>(
                     buildWhen: (previousState, currentState) {
                       return currentState is LotSuccessState;
@@ -489,6 +494,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                 height: 32,
               ),
               TextFormField(
+                maxLines: 3,
                 controller: _descriptionController,
                 decoration: const InputDecoration(
                   label: Text('Lot description'),
@@ -504,29 +510,27 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: Visibility(
-                    visible: ![
-                      UserType.customer,
-                      UserType.accountant
-                    ].contains(
-                        userBloc.getLoggedInUser()?.type),
-                      child: ElevatedButton(
-                        onPressed: () => lotBloc.updateLot(
-                          area: _areaController.text,
-                          blockNo: _blockNoController.text,
-                          lotNo: _lotNoController.text,
-                          description: _descriptionController.text,
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            padding: buttonPadding,
-                            backgroundColor: Theme.of(context).colorScheme.primary),
-                        child: Text(
-                          'Update lot',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.apply(color: Colors.white),
-                        ),
+                    visible: ![UserType.customer, UserType.accountant]
+                        .contains(userBloc.getLoggedInUser()?.type),
+                    child: ElevatedButton(
+                      onPressed: () => lotBloc.updateLot(
+                        area: _areaController.text,
+                        blockNo: _blockNoController.text,
+                        lotNo: _lotNoController.text,
+                        description: _descriptionController.text,
                       ),
+                      style: ElevatedButton.styleFrom(
+                          padding: buttonPadding,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary),
+                      child: Text(
+                        'Update lot',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.apply(color: Colors.white),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -618,6 +622,11 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
               _areaController.text = lot.area.toString();
               _descriptionController.text = lot.description;
             }
+
+            if (state.message != null) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(state.message!)));
+            }
           }
         },
         child: Row(
@@ -658,7 +667,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Block No.'),
+                      const Text('Lot No.'),
                       BlocBuilder<LoanBloc, LoanState>(
                         buildWhen: (previousState, currentState) {
                           return currentState is LotSuccessState;
@@ -902,6 +911,7 @@ class _LotDetailsScreenState extends State<LotDetailsScreen> {
                         height: 32,
                       ),
                       TextFormField(
+                        maxLines: 3,
                         controller: _descriptionController,
                         decoration: const InputDecoration(
                           label: Text('Lot description'),
