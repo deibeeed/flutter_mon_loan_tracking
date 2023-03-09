@@ -16,7 +16,7 @@ class UserFirestoreService extends BaseFirestoreService<User> {
 
   @override
   Future<List<User>> all() async {
-    final doc = await root.get();
+    final doc = await root.orderBy('lastName').get();
     final users = doc.docs
         .map((e) => User.fromJson(e.data() as Map<String, dynamic>))
         .toList();
