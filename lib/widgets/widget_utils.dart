@@ -43,56 +43,54 @@ Widget paymentStatusWidget({
     payStatus = 'Pay on ${schedule.date.toDefaultDate()}';
   }
 
-  return Expanded(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Chip(
-                label: Text(
-                  status.value,
-                  style:
-                      TextStyle(color: textColor, fontWeight: FontWeight.w600),
-                ),
-                backgroundColor: backgroundColor,
-                avatar: Icon(
-                  Icons.fiber_manual_record_rounded,
-                  color: textColor,
-                  size: 14,
-                ),
-              ),
-              const SizedBox(
-                height: 4,
-              ),
-              Text(
-                payStatus,
-              )
-            ],
-          ),
-          const SizedBox(
-            width: 8,
-          ),
-          Visibility(
-            visible: schedule.paidOn == null &&
-                ![UserType.customer, UserType.accountant]
-                    .contains(userBloc.getLoggedInUser()?.type),
-            child: InkWell(
-              onTap: () {
-                loanBloc.payLoanSchedule(schedule: schedule);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: SvgPicture.asset(
-                  'assets/icons/online-payment.svg',
-                  width: 24,
-                  height: 24,
-                ),
-              ),
+          Chip(
+            label: Text(
+              status.value,
+              style:
+              TextStyle(color: textColor, fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: backgroundColor,
+            avatar: Icon(
+              Icons.fiber_manual_record_rounded,
+              color: textColor,
+              size: 14,
             ),
           ),
+          const SizedBox(
+            height: 4,
+          ),
+          Text(
+            payStatus,
+          )
         ],
-      ));
+      ),
+      const SizedBox(
+        width: 8,
+      ),
+      Visibility(
+        visible: schedule.paidOn == null &&
+            ![UserType.customer, UserType.accountant]
+                .contains(userBloc.getLoggedInUser()?.type),
+        child: InkWell(
+          onTap: () {
+            loanBloc.payLoanSchedule(schedule: schedule);
+          },
+          child: SvgPicture.asset(
+            'assets/icons/online-payment.svg',
+            width: 24,
+            height: 24,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+      ),
+    ],
+  );
 }
