@@ -20,6 +20,7 @@ import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:meta/meta.dart';
 
 part 'loan_event.dart';
@@ -192,12 +193,11 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
   }
 
-  void addLoan({
-    required String yearsToPay,
-    required String downPayment,
-    required String agentAssisted,
-    required String date
-  }) {
+  void addLoan(
+      {required String yearsToPay,
+      required String downPayment,
+      required String agentAssisted,
+      required String date}) {
     try {
       add(
         AddLoanEvent(
@@ -251,11 +251,11 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     add(PayLoanScheduleEvent(schedule: schedule));
   }
 
-  void selectDate({ required DateTime date}) {
+  void selectDate({required DateTime date}) {
     emit(LoanSuccessState(message: 'Successfully selected date'));
   }
 
-  num computeTCP({ bool throwError = false}) {
+  num computeTCP({bool throwError = false}) {
     if (selectedLot == null || settings == null) {
       return 0;
     }
@@ -283,7 +283,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
 
     final lotCategory = settings!.lotCategories.firstWhereOrNull(
-          (category) => category.key == selectedLot!.lotCategoryKey,
+      (category) => category.key == selectedLot!.lotCategoryKey,
     );
 
     if (lotCategory == null) {
@@ -360,7 +360,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   }) {
     _clientLoanSchedules.clear();
     final lotCategory = settings!.lotCategories.firstWhereOrNull(
-          (category) => category.key == lotCategoryKey,
+      (category) => category.key == lotCategoryKey,
     );
 
     if (lotCategory == null) {
@@ -390,7 +390,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _monthlyAmortization = loanMonthlyAmortization + monthlyIncidentalFee;
     var monthlyInterestRate = annualInterestRate / 12;
     printd('starting outstanding balance: $outstandingBalance');
-    var nextMonthDate = date.add(const Duration(days: 30));
+    // var nextMonthDate = date.add(const Duration(days: 30));
+    var nextMonthDate =
+        Jiffy.unixFromMillisecondsSinceEpoch(date.millisecondsSinceEpoch)
+            .add(months: 1);
     printd('---------------------------------------------------');
     for (var i = 1; i <= monthsToPay; i++) {
       final interestPayment = outstandingBalance * monthlyInterestRate;
@@ -404,7 +407,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       printd('outstandingBalance: $outstandingBalance');
       printd('---------------------------------------------------');
       final schedule = LoanSchedule.create(
-        date: nextMonthDate.millisecondsSinceEpoch,
+        date: nextMonthDate.valueOf(),
         outstandingBalance: outstandingBalance,
         monthlyAmortization: loanMonthlyAmortization + monthlyIncidentalFee,
         principalPayment: principalPayment,
@@ -413,7 +416,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         loanId: 'loanId:$i',
       );
       _clientLoanSchedules.add(schedule);
-      nextMonthDate = nextMonthDate.add(const Duration(days: 30));
+      nextMonthDate = nextMonthDate.add(months: 1);
     }
   }
 
@@ -488,7 +491,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       );
 
       final lotCategory = settings!.lotCategories.firstWhereOrNull(
-            (category) => category.key == selectedLot!.lotCategoryKey,
+        (category) => category.key == selectedLot!.lotCategoryKey,
       );
 
       if (lotCategory == null) {

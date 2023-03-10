@@ -638,9 +638,7 @@ class AddLoanScreen extends StatelessWidget {
                     description = loanBloc.selectedLot?.description;
                   }
 
-                  return Text(
-                    '${' ' * 16}$description',
-                  );
+                  return Text(description ?? '');
                 },
               ),
               const SizedBox(
@@ -906,10 +904,15 @@ class AddLoanScreen extends StatelessWidget {
               ))
       ],
       rows: loanBloc.clientLoanSchedules
-          .map(
-            (schedule) =>
+          .mapIndexed(
+            (i, schedule) =>
             DataRow(
               cells: [
+                DataCell(
+                  defaultCellText(
+                    text: '${i + 1}',
+                  ),
+                ),
                 DataCell(
                   defaultCellText(
                     text: Constants.defaultDateFormat.format(
@@ -1379,9 +1382,7 @@ class AddLoanScreen extends StatelessWidget {
               description = loanBloc.selectedLot?.description;
             }
 
-            return Text(
-              '${' ' * 16}$description',
-            );
+            return Text(description ?? '');
           },
         ),
         const SizedBox(

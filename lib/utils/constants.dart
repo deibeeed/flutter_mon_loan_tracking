@@ -81,6 +81,7 @@ class Constants {
   ];
 
   static const loan_schedule_table_columns = [
+    'Month',
     'Date',
     'Outstanding balance',
     'Monthly amortization',
