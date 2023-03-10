@@ -52,3 +52,11 @@ class LogoutSuccessState extends AuthenticationState {
     Random().nextInt(9999)
   ];
 }
+
+class UiEmitState extends AuthenticationState {
+  @override
+  List<Object?> get props => [
+    Random().nextInt(9999),
+  ];
+
+}

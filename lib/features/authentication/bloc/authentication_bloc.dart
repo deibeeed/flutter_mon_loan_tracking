@@ -10,6 +10,7 @@ import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'authentication_event.dart';
 
@@ -27,6 +28,7 @@ class AuthenticationBloc
     on(_handleLogin);
     on(_handleLogoutEvent);
     on(_handleInitializeEvent);
+    initialize();
   }
 
   final AuthenticationService authenticationService;
@@ -38,8 +40,18 @@ class AuthenticationBloc
 
   String? get backgroundDownloadUrl => _backgroundDownloadUrl;
 
+  String? _lastLogin;
+
+  String? get lastLogin => _lastLogin;
+
+  List<String> get emails => _lastLogin != null ? [_lastLogin!.split('::')[0]] : [];
+
   void initialize() {
     add(InitializeEvent());
+  }
+
+  void selectEmail() {
+    emit(UiEmitState());
   }
 
   void login({required String email, required String password}) {
@@ -77,6 +89,8 @@ class AuthenticationBloc
 
       final user = await usersRepository.get(id: userId);
       usersRepository.setLoggedInUser(user: user);
+      final shared = await SharedPreferences.getInstance();
+      await shared.setString('lastLogin', '${event.email}::${event.password}');
       emit(const LoginLoadingState());
       emit(
         LoginSuccessState(
@@ -106,19 +120,15 @@ class AuthenticationBloc
 
   Future<void> _handleInitializeEvent(InitializeEvent event, Emitter<AuthenticationState> emit,) async {
     try {
-      final imageRef = storage.ref('login_bg.jpg');
-      _backgroundDownloadUrl = await imageRef.getDownloadURL();
-      emit(LoginSuccessState(message: ''));
-    } catch (err) {
-      printd(err);
-    }
-
-    try {
       if (authenticationService.isLoggedIn()) {
         final user = await usersRepository.get(id: authenticationService.loggedInUser!.uid);
         usersRepository.setLoggedInUser(user: user);
         emit(LoginSuccessState(message: 'Welcome back ${user.firstName}', user: user));
       }
+
+      final shared = await SharedPreferences.getInstance();
+      final lastLogin = shared.getString('lastLogin');
+      _lastLogin = shared.getString('lastLogin');
     } catch (err) {
       printd(err);
     }

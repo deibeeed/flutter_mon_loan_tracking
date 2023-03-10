@@ -465,29 +465,29 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             ],
           ),
         ),
-        const Divider(
-          thickness: 1.5,
-        ),
-        Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    'Purchased lots',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Text('Some purchased lots here ???'),
-            ],
-          ),
-        ),
+        // const Divider(
+        //   thickness: 1.5,
+        // ),
+        // Padding(
+        //   padding: EdgeInsets.all(16),
+        //   child: Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       Row(
+        //         children: [
+        //           Text(
+        //             'Purchased lots',
+        //             style: Theme.of(context).textTheme.titleLarge,
+        //           ),
+        //         ],
+        //       ),
+        //       const SizedBox(
+        //         height: 16,
+        //       ),
+        //       Text('Some purchased lots here ???'),
+        //     ],
+        //   ),
+        // ),
         const Divider(
           thickness: 1.5,
         ),
@@ -873,27 +873,27 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         const SizedBox(
           height: 32,
         ),
-        const Divider(
-          thickness: 1.5,
-        ),
-        const SizedBox(
-          height: 16,
-        ),
-        Row(
-          children: [
-            Text(
-              'Purchased lots',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 16,
-        ),
-        Text('Some purchased lots here ???'),
-        const SizedBox(
-          height: 32,
-        ),
+        // const Divider(
+        //   thickness: 1.5,
+        // ),
+        // const SizedBox(
+        //   height: 16,
+        // ),
+        // Row(
+        //   children: [
+        //     Text(
+        //       'Purchased lots',
+        //       style: Theme.of(context).textTheme.titleLarge,
+        //     ),
+        //   ],
+        // ),
+        // const SizedBox(
+        //   height: 16,
+        // ),
+        // Text('Some purchased lots here ???'),
+        // const SizedBox(
+        //   height: 32,
+        // ),
         const Divider(
           thickness: 1.5,
         ),

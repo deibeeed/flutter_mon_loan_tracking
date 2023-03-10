@@ -12,6 +12,7 @@ dependencies:
   cloud_firestore: ^4.3.1
   collection: ^1.16.0
   dotted_border: ^2.0.0+3
+  drop_shadow: ^0.1.0
   equatable: ^2.0.5
   firebase_auth: ^4.2.5
   firebase_core: 2.4.1
@@ -46,6 +47,7 @@ flutter:
   generate: true
   assets:
     - assets/icons/
+    - assets/images/
 
 flutter_icons:
   android: "launcher_icon"

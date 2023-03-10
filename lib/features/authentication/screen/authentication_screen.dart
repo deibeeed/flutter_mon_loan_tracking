@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:drop_shadow/drop_shadow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
@@ -146,6 +147,32 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  // Autocomplete(
+                                  //   optionsBuilder: (value) =>
+                                  //       authenticationBloc.emails.where(
+                                  //     (email) => email
+                                  //         .toLowerCase()
+                                  //         .contains(value.text),
+                                  //   ),
+                                  //   displayStringForOption: (value) => value,
+                                  //   onSelected: (value) =>
+                                  //       authenticationBloc.selectEmail(),
+                                  //   fieldViewBuilder: (context,
+                                  //       textEditingController,
+                                  //       focusNode,
+                                  //       onFieldSubmitted) {
+                                  //     return TextFormField(
+                                  //       controller: emailController,
+                                  //       focusNode: focusNode,
+                                  //       onFieldSubmitted: (value) =>
+                                  //           onFieldSubmitted(),
+                                  //       decoration: const InputDecoration(
+                                  //         label: Text('Email'),
+                                  //         border: OutlineInputBorder(),
+                                  //       ),
+                                  //     );
+                                  //   },
+                                  // ),
                                   TextFormField(
                                     controller: emailController,
                                     decoration: const InputDecoration(
@@ -264,9 +291,27 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                     top: loginContainerMarginTop,
                                     right: loginContainerMarginTop,
                                     bottom: 32),
-                                child: Image.network(
-                                  authenticationBloc.backgroundDownloadUrl!,
-                                  fit: BoxFit.cover,
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(64)),
+                                      child: Image.asset(
+                                        'assets/images/login_bg.jpg',
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                      ),
+                                    ),
+                                    DropShadow(
+                                      offset: Offset(4, 4),
+                                      color: Colors.white,
+                                      spread: 0,
+                                      child: Image.asset(
+                                        'assets/images/logo.png',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ),
                       );
