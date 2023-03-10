@@ -44,7 +44,9 @@ class AuthenticationBloc
 
   String? get lastLogin => _lastLogin;
 
-  List<String> get emails => _lastLogin != null ? [_lastLogin!.split('::')[0]] : [];
+  List<String> _emails = [];
+
+  List<String> get emails => _emails;
 
   void initialize() {
     add(InitializeEvent());
@@ -55,6 +57,7 @@ class AuthenticationBloc
   }
 
   void login({required String email, required String password}) {
+    printd('email: $email, password: $password');
     add(LoginEvent(email: email, password: password));
   }
 
@@ -127,8 +130,10 @@ class AuthenticationBloc
       }
 
       final shared = await SharedPreferences.getInstance();
-      final lastLogin = shared.getString('lastLogin');
       _lastLogin = shared.getString('lastLogin');
+      _emails
+      ..clear()
+      ..add(_lastLogin!.split('::')[0]);
     } catch (err) {
       printd(err);
     }
