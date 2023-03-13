@@ -16,9 +16,10 @@ class SettingsScreen extends StatelessWidget {
 
   final loanInterestRateController = TextEditingController();
   final incidentalFeesRateController = TextEditingController();
-  final reservationFeeController = TextEditingController();
+  final serviceFeeController = TextEditingController();
   final lotCategoryNameController = TextEditingController();
   final lotCategoryPricePerSqmController = TextEditingController();
+  final downPaymentRateController = TextEditingController();
   bool allowTextControllerUpdate = true;
 
   @override
@@ -60,8 +61,10 @@ class SettingsScreen extends StatelessWidget {
                   settingsBloc.settings.loanInterestRate.toString();
               incidentalFeesRateController.text =
                   settingsBloc.settings.incidentalFeeRate.toString();
-              reservationFeeController.text =
-                  settingsBloc.settings.reservationFee.toString();
+              serviceFeeController.text =
+                  settingsBloc.settings.serviceFee.toString();
+              downPaymentRateController.text =
+                  settingsBloc.settings.downPaymentRate.toString();
               allowTextControllerUpdate = false;
 
               if (state.message != null) {
@@ -151,14 +154,33 @@ class SettingsScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Reservation fee'),
+                const Text('Downpayment rate'),
                 BlocBuilder<SettingsBloc, SettingsState>(
                   buildWhen: (previousState, currentState) {
                     return currentState is SettingsSuccessState;
                   },
                   builder: (context, state) {
                     return Text(
-                      settingsBloc.settings.reservationFee.toCurrency(),
+                      '${settingsBloc.settings.downPaymentRate}%',
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 16,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Service fee'),
+                BlocBuilder<SettingsBloc, SettingsState>(
+                  buildWhen: (previousState, currentState) {
+                    return currentState is SettingsSuccessState;
+                  },
+                  builder: (context, state) {
+                    return Text(
+                      settingsBloc.settings.serviceFee.toCurrency(),
                     );
                   },
                 ),
@@ -245,9 +267,10 @@ class SettingsScreen extends StatelessWidget {
               height: 32,
             ),
             TextFormField(
-              controller: reservationFeeController,
+              controller: downPaymentRateController,
               decoration: const InputDecoration(
-                label: Text('Reservation fee'),
+                label: Text('Downpayment rate'),
+                suffixText: '%',
                 border: OutlineInputBorder(),
               ),
               keyboardType:
@@ -256,7 +279,26 @@ class SettingsScreen extends StatelessWidget {
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
               onChanged: (value) => settingsBloc.updateSettings(
-                field: SettingField.reservationFee,
+                field: SettingField.incidentalFeeRate,
+                value: value,
+              ),
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            TextFormField(
+              controller: serviceFeeController,
+              decoration: const InputDecoration(
+                label: Text('Service fee'),
+                border: OutlineInputBorder(),
+              ),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+              ],
+              onChanged: (value) => settingsBloc.updateSettings(
+                field: SettingField.serviceFee,
                 value: value,
               ),
             ),
@@ -401,8 +443,10 @@ class SettingsScreen extends StatelessWidget {
                   settingsBloc.settings.loanInterestRate.toString();
               incidentalFeesRateController.text =
                   settingsBloc.settings.incidentalFeeRate.toString();
-              reservationFeeController.text =
-                  settingsBloc.settings.reservationFee.toString();
+              serviceFeeController.text =
+                  settingsBloc.settings.serviceFee.toString();
+              downPaymentRateController.text =
+                  settingsBloc.settings.downPaymentRate.toString();
               allowTextControllerUpdate = false;
 
               if (state.message != null) {
@@ -502,14 +546,33 @@ class SettingsScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Reservation fee'),
+                      const Text('Downpayment rate'),
                       BlocBuilder<SettingsBloc, SettingsState>(
                         buildWhen: (previousState, currentState) {
                           return currentState is SettingsSuccessState;
                         },
                         builder: (context, state) {
                           return Text(
-                            settingsBloc.settings.reservationFee.toCurrency(),
+                            '${settingsBloc.settings.downPaymentRate}%',
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Service fee'),
+                      BlocBuilder<SettingsBloc, SettingsState>(
+                        buildWhen: (previousState, currentState) {
+                          return currentState is SettingsSuccessState;
+                        },
+                        builder: (context, state) {
+                          return Text(
+                            settingsBloc.settings.serviceFee.toCurrency(),
                           );
                         },
                       ),
@@ -606,9 +669,10 @@ class SettingsScreen extends StatelessWidget {
                     height: 32,
                   ),
                   TextFormField(
-                    controller: reservationFeeController,
+                    controller: downPaymentRateController,
                     decoration: const InputDecoration(
-                      label: Text('Reservation fee'),
+                      label: Text('Downpayment rate'),
+                      suffixText: '%',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
@@ -617,7 +681,26 @@ class SettingsScreen extends StatelessWidget {
                       FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                     ],
                     onChanged: (value) => settingsBloc.updateSettings(
-                      field: SettingField.reservationFee,
+                      field: SettingField.downPayment,
+                      value: value,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  TextFormField(
+                    controller: serviceFeeController,
+                    decoration: const InputDecoration(
+                      label: Text('Service fee'),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                    ],
+                    onChanged: (value) => settingsBloc.updateSettings(
+                      field: SettingField.serviceFee,
                       value: value,
                     ),
                   ),

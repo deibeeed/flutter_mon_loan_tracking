@@ -21,7 +21,7 @@ class Loan extends Equatable {
   final String lotId;
   final num loanInterestRate;
   final num incidentalFeeRate;
-  final num reservationFee;
+  final num serviceFee;
   final num createdAt;
   final num ratePerSquareMeter;
   /// all deductions from tcp.
@@ -39,6 +39,7 @@ class Loan extends Equatable {
   final num yearsToPay;
   final String? assistingAgent;
   final String lotCategoryName;
+  final num downPaymentRate;
 
   Loan({
     required this.id,
@@ -47,7 +48,7 @@ class Loan extends Equatable {
     required this.lotId,
     required this.loanInterestRate,
     required this.incidentalFeeRate,
-    required this.reservationFee,
+    required this.serviceFee,
     required this.createdAt,
     required this.ratePerSquareMeter,
     required this.outstandingBalance,
@@ -58,6 +59,7 @@ class Loan extends Equatable {
     required this.yearsToPay,
     this.assistingAgent,
     required this.lotCategoryName,
+    required this.downPaymentRate,
   });
 
   factory Loan.create({
@@ -66,7 +68,7 @@ class Loan extends Equatable {
     required String lotId,
     required num loanInterestRate,
     required num incidentalFeeRate,
-    required num reservationFee,
+    required num serviceFee,
     required num perSquareMeterRate,
     required num outstandingBalance,
     required num totalContractPrice,
@@ -76,6 +78,7 @@ class Loan extends Equatable {
     required List<Discount> deductions,
     String? assistingAgent,
     required String lotCategoryName,
+    required num downPaymentRate,
   }) =>
       Loan(
         id: Constants.NO_ID,
@@ -84,7 +87,7 @@ class Loan extends Equatable {
         lotId: lotId,
         loanInterestRate: loanInterestRate,
         incidentalFeeRate: incidentalFeeRate,
-        reservationFee: reservationFee,
+        serviceFee: serviceFee,
         createdAt: DateTime.now().millisecondsSinceEpoch,
         ratePerSquareMeter: perSquareMeterRate,
         incidentalFees: incidentalFees,
@@ -95,6 +98,7 @@ class Loan extends Equatable {
         deductions: deductions,
         assistingAgent: assistingAgent,
         lotCategoryName: lotCategoryName,
+        downPaymentRate: downPaymentRate,
       );
 
   factory Loan.updateId({
@@ -108,7 +112,7 @@ class Loan extends Equatable {
         lotId: loan.lotId,
         loanInterestRate: loan.loanInterestRate,
         incidentalFeeRate: loan.incidentalFeeRate,
-        reservationFee: loan.reservationFee,
+        serviceFee: loan.serviceFee,
         createdAt: loan.createdAt,
         ratePerSquareMeter: loan.ratePerSquareMeter,
         incidentalFees: loan.incidentalFees,
@@ -119,6 +123,7 @@ class Loan extends Equatable {
         deductions: loan.deductions,
         assistingAgent: loan.assistingAgent,
         lotCategoryName: loan.lotCategoryName,
+        downPaymentRate: loan.downPaymentRate,
       );
 
   factory Loan.fromJson(Map<String, dynamic> json) => _$LoanFromJson(json);
@@ -126,5 +131,24 @@ class Loan extends Equatable {
   Map<String, dynamic> toJson() => _$LoanToJson(this);
 
   @override
-  List<Object?> get props => throw UnimplementedError();
+  List<Object?> get props => [
+    incidentalFees,
+    downPayment,
+    yearsToPay,
+    assistingAgent,
+    lotCategoryName,
+    downPaymentRate,
+    id,
+    clientId,
+    preparedBy,
+    lotId,
+    loanInterestRate,
+    incidentalFeeRate,
+    serviceFee,
+    createdAt,
+    ratePerSquareMeter,
+    deductions,
+    outstandingBalance,
+    totalContractPrice,
+  ];
 }

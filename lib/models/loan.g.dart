@@ -13,7 +13,7 @@ Loan _$LoanFromJson(Map<String, dynamic> json) => Loan(
       lotId: json['lotId'] as String,
       loanInterestRate: json['loanInterestRate'] as num,
       incidentalFeeRate: json['incidentalFeeRate'] as num,
-      reservationFee: json['reservationFee'] as num,
+      serviceFee: json['serviceFee'] as num? ?? 0,
       createdAt: json['createdAt'] as num,
       ratePerSquareMeter: json['ratePerSquareMeter'] as num,
       outstandingBalance: json['outstandingBalance'] as num,
@@ -27,6 +27,7 @@ Loan _$LoanFromJson(Map<String, dynamic> json) => Loan(
       yearsToPay: json['yearsToPay'] as num,
       assistingAgent: json['assistingAgent'] as String?,
       lotCategoryName: json['lotCategoryName'] as String,
+      downPaymentRate: json['downPaymentRate'] as num? ?? 20,
     );
 
 Map<String, dynamic> _$LoanToJson(Loan instance) => <String, dynamic>{
@@ -36,7 +37,7 @@ Map<String, dynamic> _$LoanToJson(Loan instance) => <String, dynamic>{
       'lotId': instance.lotId,
       'loanInterestRate': instance.loanInterestRate,
       'incidentalFeeRate': instance.incidentalFeeRate,
-      'reservationFee': instance.reservationFee,
+      'serviceFee': instance.serviceFee,
       'createdAt': instance.createdAt,
       'ratePerSquareMeter': instance.ratePerSquareMeter,
       'deductions': instance.deductions.map((e) => e.toJson()).toList(),
@@ -47,4 +48,5 @@ Map<String, dynamic> _$LoanToJson(Loan instance) => <String, dynamic>{
       'yearsToPay': instance.yearsToPay,
       'assistingAgent': instance.assistingAgent,
       'lotCategoryName': instance.lotCategoryName,
+      'downPaymentRate': instance.downPaymentRate,
     };

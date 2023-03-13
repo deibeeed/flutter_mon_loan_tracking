@@ -53,9 +53,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       case SettingField.incidentalFeeRate:
         _settings.incidentalFeeRate = num.parse(value);
         break;
-      case SettingField.reservationFee:
-        _settings.reservationFee = num.parse(value);
+      case SettingField.serviceFee:
+        _settings.serviceFee = num.parse(value);
         break;
+      case SettingField.downPayment:
+        _settings.downPaymentRate = num.parse(value);
         break;
     }
 

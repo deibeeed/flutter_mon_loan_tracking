@@ -295,6 +295,24 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         (settings!.incidentalFeeRate / 100);
   }
 
+  num computeDownPaymentRate() {
+    if (selectedLot == null || settings == null) {
+      return 0;
+    }
+    final tcp = computeTCP();
+    final downPaymentRatePercentage = settings!.downPaymentRate / 100;
+
+    return tcp * downPaymentRatePercentage;
+  }
+
+  num getServiceFee() {
+    if (settings == null) {
+      return 0;
+    }
+
+    return settings!.serviceFee;
+  }
+
   num yearsToMonths({required String years}) {
     try {
       return num.parse(years) * 12;
@@ -380,7 +398,11 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
     var monthsToPay = yearsToPay * 12;
     final incidentalFee = totalContractPrice * incidentalFeeRate;
+    final serviceFee = settings!.serviceFee;
+    // TODO: uncomment when all loans are inputted
+    // final monthlyIncidentalFee = (incidentalFee + serviceFee) / monthsToPay;
     final monthlyIncidentalFee = incidentalFee / monthsToPay;
+    printd('incidentalFee + serviceFee = ${incidentalFee + serviceFee}');
 
     final loanMonthlyAmortization = _calculateMonthlyPayment(
       outstandingBalance: outstandingBalance,
@@ -507,7 +529,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         lotId: _selectedLot!.id,
         loanInterestRate: _settings!.loanInterestRate,
         incidentalFeeRate: _settings!.incidentalFeeRate,
-        reservationFee: _settings!.reservationFee,
+        serviceFee: _settings!.serviceFee,
         perSquareMeterRate: lotCategory.ratePerSquareMeter,
         outstandingBalance: outstandingBalance,
         totalContractPrice: totalContractPrice,
@@ -517,6 +539,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         deductions: _discounts,
         assistingAgent: event.assistingAgent,
         lotCategoryName: lotCategory.name,
+        downPaymentRate: settings!.downPaymentRate
       );
       final loanWithId = await loanRepository.add(data: loan);
       final futureLoanSchedules = _clientLoanSchedules.map(

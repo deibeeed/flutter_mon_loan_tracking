@@ -1,5 +1,6 @@
 enum SettingField {
   loanInterestRate,
   incidentalFeeRate,
-  reservationFee,
+  serviceFee,
+  downPayment,
 }

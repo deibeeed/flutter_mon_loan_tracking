@@ -10,10 +10,11 @@ class Settings extends Equatable {
   Settings({
     required this.loanInterestRate,
     required this.incidentalFeeRate,
-    required this.reservationFee,
+    required this.serviceFee,
     required this.lotCategories,
     this.id = Constants.NO_ID,
     this.createdAt = Constants.NO_DATE,
+    required this.downPaymentRate,
   });
 
   factory Settings.fromJson(Map<String, dynamic> json) =>
@@ -21,13 +22,13 @@ class Settings extends Equatable {
 
   factory Settings.updateId({required String id, required Settings settings}) =>
       Settings(
-        loanInterestRate: settings.loanInterestRate,
-        incidentalFeeRate: settings.incidentalFeeRate,
-        reservationFee: settings.reservationFee,
-        lotCategories: settings.lotCategories,
-        id: id,
-        createdAt: settings.createdAt,
-      );
+          loanInterestRate: settings.loanInterestRate,
+          incidentalFeeRate: settings.incidentalFeeRate,
+          serviceFee: settings.serviceFee,
+          lotCategories: settings.lotCategories,
+          id: id,
+          createdAt: settings.createdAt,
+          downPaymentRate: settings.downPaymentRate);
 
   factory Settings.defaultSettings() => Settings(
         loanInterestRate: 7,
@@ -37,16 +38,18 @@ class Settings extends Equatable {
           LotCategory(name: 'Interior Lot', ratePerSquareMeter: 10000),
           LotCategory(name: 'Commercial Lot', ratePerSquareMeter: 11000),
         ],
-        reservationFee: 30000,
+        serviceFee: 30000,
         createdAt: DateTime.now().millisecondsSinceEpoch,
+        downPaymentRate: 20,
       );
 
   num loanInterestRate;
   num incidentalFeeRate;
-  num reservationFee;
+  num serviceFee;
   List<LotCategory> lotCategories;
   final String id;
   num createdAt;
+  num downPaymentRate;
 
   Map<String, dynamic> toJson() => _$SettingsToJson(this);
 
@@ -54,9 +57,10 @@ class Settings extends Equatable {
   List<Object?> get props => [
         loanInterestRate,
         incidentalFeeRate,
-        reservationFee,
+        serviceFee,
         lotCategories,
         id,
         createdAt,
+        downPaymentRate,
       ];
 }

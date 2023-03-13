@@ -101,6 +101,7 @@ class AddLoanScreen extends StatelessWidget {
             final lot = loanBloc.selectedLot!;
             final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
+            downpaymentController.text = loanBloc.computeDownPaymentRate().toString();
 
             final lotCategory = settings.lotCategories.firstWhereOrNull(
                   (category) => category.key == lot.lotCategoryKey,
@@ -875,92 +876,95 @@ class AddLoanScreen extends StatelessWidget {
     required BuildContext context,
     required LoanBloc loanBloc,
   }) {
-    return DataTable(
-      dataRowHeight: 72,
-      headingRowColor: MaterialStateColor.resolveWith(
-            (states) =>
-            Theme
-                .of(context)
-                .colorScheme
-                .secondaryContainer
-                .withOpacity(0.32),
-      ),
-      columns: [
-        for (String name in Constants.loan_schedule_table_columns)
-          DataColumn(
-              label: Text(
-                name.toUpperCase(),
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.apply(
-                  fontWeightDelta: 3,
-                  color: Theme
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        dataRowHeight: 72,
+        headingRowColor: MaterialStateColor.resolveWith(
+              (states) =>
+              Theme
+                  .of(context)
+                  .colorScheme
+                  .secondaryContainer
+                  .withOpacity(0.32),
+        ),
+        columns: [
+          for (String name in Constants.loan_schedule_table_columns)
+            DataColumn(
+                label: Text(
+                  name.toUpperCase(),
+                  style: Theme
                       .of(context)
-                      .colorScheme
-                      .secondary,
-                ),
-              ))
-      ],
-      rows: loanBloc.clientLoanSchedules
-          .mapIndexed(
-            (i, schedule) =>
-            DataRow(
-              cells: [
-                DataCell(
-                  defaultCellText(
-                    text: '${i + 1}',
+                      .textTheme
+                      .titleMedium
+                      ?.apply(
+                    fontWeightDelta: 3,
+                    color: Theme
+                        .of(context)
+                        .colorScheme
+                        .secondary,
                   ),
-                ),
-                DataCell(
-                  defaultCellText(
-                    text: Constants.defaultDateFormat.format(
-                      DateTime.fromMillisecondsSinceEpoch(
-                        schedule.date.toInt(),
+                ))
+        ],
+        rows: loanBloc.clientLoanSchedules
+            .mapIndexed(
+              (i, schedule) =>
+              DataRow(
+                cells: [
+                  DataCell(
+                    defaultCellText(
+                      text: '${i + 1}',
+                    ),
+                  ),
+                  DataCell(
+                    defaultCellText(
+                      text: Constants.defaultDateFormat.format(
+                        DateTime.fromMillisecondsSinceEpoch(
+                          schedule.date.toInt(),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                DataCell(
-                  Center(
-                    child: defaultCellText(
-                      text: schedule.outstandingBalance.toCurrency(),
+                  DataCell(
+                    Center(
+                      child: defaultCellText(
+                        text: schedule.outstandingBalance.toCurrency(),
+                      ),
                     ),
                   ),
-                ),
-                DataCell(
-                  Center(
-                    child: defaultCellText(
-                      text: schedule.monthlyAmortization.toCurrency(),
+                  DataCell(
+                    Center(
+                      child: defaultCellText(
+                        text: schedule.monthlyAmortization.toCurrency(),
+                      ),
                     ),
                   ),
-                ),
-                DataCell(
-                  Center(
-                    child: defaultCellText(
-                      text: schedule.principalPayment.toCurrency(),
+                  DataCell(
+                    Center(
+                      child: defaultCellText(
+                        text: schedule.principalPayment.toCurrency(),
+                      ),
                     ),
                   ),
-                ),
-                DataCell(
-                  Center(
-                    child: defaultCellText(
-                      text: schedule.interestPayment.toCurrency(),
+                  DataCell(
+                    Center(
+                      child: defaultCellText(
+                        text: schedule.interestPayment.toCurrency(),
+                      ),
                     ),
                   ),
-                ),
-                DataCell(
-                  Center(
-                    child: defaultCellText(
-                      text: schedule.incidentalFee.toCurrency(),
+                  DataCell(
+                    Center(
+                      child: defaultCellText(
+                        text: schedule.incidentalFee.toCurrency(),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-      )
-          .toList(),
+                ],
+              ),
+        )
+            .toList(),
+      ),
     );
   }
 
@@ -1531,6 +1535,14 @@ class AddLoanScreen extends StatelessWidget {
                               const Text('Add: Incidental fee:'),
                               Text(
                                   loanBloc.computeIncidentalFee().toCurrency()),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Add: Service fee:'),
+                              Text(
+                                  loanBloc.getServiceFee().toCurrency()),
                             ],
                           ),
                           Row(
