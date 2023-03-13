@@ -39,6 +39,18 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     add(GetSettingsEvent(id: Random().nextInt(1000).toString()));
   }
 
+  Future<void> initializeFuture() async {
+    final settingsList = await settingsRepository.all();
+
+    if (settingsList.isEmpty) {
+      // defaultSettings
+      final tmpSettings = Settings.defaultSettings();
+      _settings = await settingsRepository.add(data: tmpSettings);
+    } else {
+      _settings = await settingsRepository.getLatest();
+    }
+  }
+
   void saveUpdatedSettings() {
     add(UpdateSettingsEvent(updatedSettings: _settings));
   }
@@ -121,15 +133,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     try {
       emit(const LoadingSettingsState(isLoading: true));
 
-      final settingsList = await settingsRepository.all();
-
-      if (settingsList.isEmpty) {
-        // defaultSettings
-        final tmpSettings = Settings.defaultSettings();
-        _settings = await settingsRepository.add(data: tmpSettings);
-      } else {
-        _settings = settingsList[0];
-      }
+      await initializeFuture();
 
       emit(const LoadingSettingsState());
       emit(SettingsSuccessState(settings: _settings));

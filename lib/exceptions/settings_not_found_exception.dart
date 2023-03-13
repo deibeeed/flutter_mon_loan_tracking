@@ -1,3 +1,9 @@
 class SettingsNotFoundException implements Exception {
-  SettingsNotFoundException();
+  SettingsNotFoundException({ this. message });
+  final String? message;
+
+  @override
+  String toString() {
+    return 'SettingsNotFoundException: $message';
+  }
 }

@@ -104,6 +104,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
 
             if (state.user != null) {
               GoRouter.of(context).go('/loan-dashboard');
+              printd('goto loan dashboard');
             }
           } else if (state is LoginErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -117,193 +118,203 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
             ? Container()
             : Row(
           children: [
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.only(
-                  top: loginContainerMarginTop,
-                  bottom: !isMobileScreen ? 0 : loginContainerMarginTop,
-                  left: !isMobileScreen ? 0 : 16,
-                  right: !isMobileScreen ? 0 : 16,
-                ),
-                height: double.infinity,
-                width:
-                !isMobileScreen ? loginContainerWidth : double.infinity,
-                decoration: BoxDecoration(
-                  color: Theme
-                      .of(context)
-                      .colorScheme
-                      .tertiary
-                      .withOpacity(0.8),
-                  borderRadius: BorderRadius.only(
-                    topRight: loginContainerRadius,
-                    bottomRight: loginContainerRadius,
-                    topLeft: !isMobileScreen
-                        ? Radius.zero
-                        : loginContainerRadius,
-                    bottomLeft: !isMobileScreen
-                        ? Radius.zero
-                        : loginContainerRadius,
+            Builder(
+              builder: (context) {
+                final loginWidget = Container(
+                  margin: EdgeInsets.only(
+                    top: loginContainerMarginTop,
+                    bottom: !isMobileScreen ? 0 : loginContainerMarginTop,
+                    left: !isMobileScreen ? 0 : 16,
+                    right: !isMobileScreen ? 0 : 16,
                   ),
-                ),
-                child: Center(
-                  child: LayoutBuilder(
-                    builder: (context, constraint) {
-                      var width = 520.0;
-                      var height = 600.0;
-                      Widget content = Padding(
-                        padding: EdgeInsets.all(cardPadding),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Autocomplete(
-                                optionsBuilder: (value) =>
-                                    authenticationBloc.emails.where(
-                                          (email) =>
-                                          email
-                                              .toLowerCase()
-                                              .contains(value.text),
-                                    ),
-                                displayStringForOption: (value) => value,
-                                onSelected: (value) {
-                                  emailController.text = value;
-                                  passwordController.text = value;
-                                  authenticationBloc.selectEmail();
-                                },
-                                fieldViewBuilder: (context,
-                                    textEditingController,
-                                    focusNode,
-                                    onFieldSubmitted) {
-                                  return TextFormField(
-                                    controller: textEditingController,
-                                    focusNode: focusNode,
-                                    onFieldSubmitted: (value) =>
-                                        onFieldSubmitted(),
-                                    decoration: const InputDecoration(
-                                      label: Text('Email'),
-                                      border: OutlineInputBorder(),
-                                    ),
-                                    onChanged: (value) {
-                                      emailController.text = value;
-                                      passwordController.text = value;
-                                    },
-                                  );
-                                },
-                              ),
-                              // TextFormField(
-                              //   controller: emailController,
-                              //   decoration: const InputDecoration(
-                              //     label: Text('Email'),
-                              //     border: OutlineInputBorder(),
-                              //   ),
-                              // ),
-                              const SizedBox(
-                                height: 32,
-                              ),
-                              BlocBuilder<AuthenticationBloc,
-                                  AuthenticationState>(
-                                  buildWhen: (previous,
-                                      current) => current is UiEmitState,
-                                  builder: (context, state) {
+                  height: double.infinity,
+                  width:
+                  !isMobileScreen ? loginContainerWidth : double.infinity,
+                  decoration: BoxDecoration(
+                    color: Theme
+                        .of(context)
+                        .colorScheme
+                        .tertiary
+                        .withOpacity(0.8),
+                    borderRadius: BorderRadius.only(
+                      topRight: loginContainerRadius,
+                      bottomRight: loginContainerRadius,
+                      topLeft: !isMobileScreen
+                          ? Radius.zero
+                          : loginContainerRadius,
+                      bottomLeft: !isMobileScreen
+                          ? Radius.zero
+                          : loginContainerRadius,
+                    ),
+                  ),
+                  child: Center(
+                    child: LayoutBuilder(
+                      builder: (context, constraint) {
+                        var width = 520.0;
+                        var height = 600.0;
+                        Widget content = Padding(
+                          padding: EdgeInsets.all(cardPadding),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Autocomplete(
+                                  optionsBuilder: (value) =>
+                                      authenticationBloc.emails.where(
+                                            (email) =>
+                                            email
+                                                .toLowerCase()
+                                                .contains(value.text),
+                                      ),
+                                  displayStringForOption: (value) => value,
+                                  onSelected: (value) {
+                                    emailController.text = value;
+                                    passwordController.text = value;
+                                    authenticationBloc.selectEmail();
+                                  },
+                                  fieldViewBuilder: (context,
+                                      textEditingController,
+                                      focusNode,
+                                      onFieldSubmitted) {
                                     return TextFormField(
-                                      controller: passwordController,
-                                      obscureText: true,
+                                      controller: textEditingController,
+                                      focusNode: focusNode,
+                                      onFieldSubmitted: (value) =>
+                                          onFieldSubmitted(),
                                       decoration: const InputDecoration(
-                                        label: Text('Password'),
+                                        label: Text('Email'),
                                         border: OutlineInputBorder(),
                                       ),
-                                      textInputAction: TextInputAction.go,
-                                      onFieldSubmitted: (value) {
+                                      onChanged: (value) {
+                                        emailController.text = value;
+                                        passwordController.text = value;
+                                      },
+                                    );
+                                  },
+                                ),
+                                // TextFormField(
+                                //   controller: emailController,
+                                //   decoration: const InputDecoration(
+                                //     label: Text('Email'),
+                                //     border: OutlineInputBorder(),
+                                //   ),
+                                // ),
+                                const SizedBox(
+                                  height: 32,
+                                ),
+                                BlocBuilder<AuthenticationBloc,
+                                    AuthenticationState>(
+                                    buildWhen: (previous,
+                                        current) => current is UiEmitState,
+                                    builder: (context, state) {
+                                      return TextFormField(
+                                        controller: passwordController,
+                                        obscureText: true,
+                                        decoration: const InputDecoration(
+                                          label: Text('Password'),
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        textInputAction: TextInputAction.go,
+                                        onFieldSubmitted: (value) {
+                                          authenticationBloc.login(
+                                            email: emailController.text,
+                                            password: passwordController.text,
+                                          );
+                                        },
+                                      );
+                                    }),
+                                const SizedBox(
+                                  height: 72,
+                                ),
+                                SizedBox(
+                                  height: buttonHeight,
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () =>
                                         authenticationBloc.login(
                                           email: emailController.text,
                                           password: passwordController.text,
-                                        );
-                                      },
-                                    );
-                                  }),
-                              const SizedBox(
-                                height: 72,
-                              ),
-                              SizedBox(
-                                height: buttonHeight,
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () =>
-                                      authenticationBloc.login(
-                                        email: emailController.text,
-                                        password: passwordController.text,
-                                      ),
-                                  style: ElevatedButton.styleFrom(
-                                      padding:
-                                      EdgeInsets.all(buttonPadding),
-                                      backgroundColor: Theme
-                                          .of(context)
-                                          .colorScheme
-                                          .primary),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Login',
-                                        style: Theme
+                                        ),
+                                    style: ElevatedButton.styleFrom(
+                                        padding:
+                                        EdgeInsets.all(buttonPadding),
+                                        backgroundColor: Theme
                                             .of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.apply(color: Colors.white),
-                                      ),
-                                      BlocBuilder<AuthenticationBloc,
-                                          AuthenticationState>(
-                                          builder: (context, state) {
-                                            if (state is LoginLoadingState &&
-                                                state.isLoading) {
-                                              return Row(
-                                                children: const [
-                                                  SizedBox(
-                                                    width: 16,
-                                                  ),
-                                                  CircularProgressIndicator(
-                                                    color: Colors.white,
-                                                  )
-                                                ],
-                                              );
-                                            }
+                                            .colorScheme
+                                            .primary),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Login',
+                                          style: Theme
+                                              .of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.apply(color: Colors.white),
+                                        ),
+                                        BlocBuilder<AuthenticationBloc,
+                                            AuthenticationState>(
+                                            builder: (context, state) {
+                                              if (state is LoginLoadingState &&
+                                                  state.isLoading) {
+                                                return Row(
+                                                  children: const [
+                                                    SizedBox(
+                                                      width: 16,
+                                                    ),
+                                                    CircularProgressIndicator(
+                                                      color: Colors.white,
+                                                    )
+                                                  ],
+                                                );
+                                              }
 
-                                            return Container();
-                                          }),
-                                    ],
+                                              return Container();
+                                            }),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              )
-                            ],
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-
-                      if (screenSize.shortestSide <
-                          Constants.largeScreenShortestSideBreakPoint) {
-                        width = constraint.maxWidth * 0.8;
-                        height = constraint.maxHeight * 0.8;
-                        content = SingleChildScrollView(
-                          child: content,
                         );
-                      }
 
-                      return SizedBox(
-                        height: height,
-                        width: width,
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(cardRadius)),
-                          child: content,
-                        ),
-                      );
-                    },
+                        if (screenSize.shortestSide <
+                            Constants.largeScreenShortestSideBreakPoint) {
+                          width = constraint.maxWidth * 0.8;
+                          height = constraint.maxHeight * 0.8;
+                          content = SingleChildScrollView(
+                            child: content,
+                          );
+                        }
+
+                        return SizedBox(
+                          height: height,
+                          width: width,
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                BorderRadius.circular(cardRadius)),
+                            child: content,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ),
+                );
+
+                if (!isMobileScreen) {
+                  return loginWidget;
+                }
+
+                return Expanded(
+                  child: loginWidget,
+                );
+              },
             ),
             if (!isMobileScreen) ...[
               const SizedBox(

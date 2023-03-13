@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mon_loan_tracking/app/app.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/screen/authentication_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_selection_cubit.dart';
@@ -34,12 +33,14 @@ import 'package:flutter_mon_loan_tracking/services/loan_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/loan_schedule_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/lot_cache_service.dart';
 import 'package:flutter_mon_loan_tracking/services/lot_firestore_service.dart';
-import 'package:flutter_mon_loan_tracking/services/settings_firestre_service.dart';
+import 'package:flutter_mon_loan_tracking/services/settings_cache_service.dart';
+import 'package:flutter_mon_loan_tracking/services/settings_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/user_cache_service.dart';
 import 'package:flutter_mon_loan_tracking/services/user_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/utils/color_schemes.g.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/no_transition_route.dart';
+import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
 
 class App extends StatefulWidget {
@@ -184,6 +185,7 @@ class _AppState extends State<App> {
         RepositoryProvider<SettingsRepository>.value(
           value: SettingsRepository(
             firestoreService: SettingsFireStoreService(),
+            cacheService: SettingsCacheService(),
           ),
         ),
         RepositoryProvider<LotRepository>.value(
@@ -256,16 +258,35 @@ class _AppState extends State<App> {
             ],
             child: Builder(
               builder: (context) {
-                context.read<AuthenticationBloc>().initialize();
-                return MaterialApp.router(
-                  routerConfig: _rootRouter,
-                  theme:
-                  ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-                  darkTheme:
-                  ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-                  localizationsDelegates: AppLocalizations.localizationsDelegates,
-                  supportedLocales: AppLocalizations.supportedLocales,
-                  // home: const MainScreen(),
+                return FutureBuilder(
+                  builder: (context, snapshot) {
+                    printd('app.dart: called on refresh');
+
+                    if (snapshot.connectionState != ConnectionState.done) {
+                      return Container();
+                    }
+
+                    context.read<AuthenticationBloc>().initialize();
+                    context.read<SettingsBloc>().getSettings();
+                    context.read<UserBloc>().getAllUsers();
+                    context.read<LotBloc>().initialize();
+                    context.read<LoanBloc>().initialize();
+
+                    return MaterialApp.router(
+                      routerConfig: _rootRouter,
+                      theme:
+                      ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
+                      darkTheme:
+                      ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
+                      localizationsDelegates: AppLocalizations.localizationsDelegates,
+                      supportedLocales: AppLocalizations.supportedLocales,
+                      // home: const MainScreen(),
+                    );
+                  },
+                  future: Future.wait([
+                    context.read<AuthenticationBloc>().initializeFuture(),
+                    context.read<SettingsBloc>().initializeFuture()
+                  ]),
                 );
               },
             ),

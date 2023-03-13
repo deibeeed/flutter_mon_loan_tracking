@@ -218,6 +218,9 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(
+              height: 16,
+            ),
             TextFormField(
               controller: loanInterestRateController,
               decoration: const InputDecoration(
@@ -310,23 +313,26 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    TextFormField(
+                    Expanded(child: TextFormField(
                       enabled:
-                          settingsBloc.selectedLotCategoryKeyToUpdate == null,
+                      settingsBloc.selectedLotCategoryKeyToUpdate == null,
                       controller: lotCategoryNameController,
                       decoration: const InputDecoration(
                         label: Text('Lot categories'),
                         border: OutlineInputBorder(),
                       ),
-                    ),
-                    TextFormField(
+                    )),
+                    const SizedBox(width: 16,),
+                    Expanded(child: TextFormField(
                       controller: lotCategoryPricePerSqmController,
                       decoration: const InputDecoration(
                         label: Text('Rate per square meter'),
                         border: OutlineInputBorder(),
                       ),
-                    ),
+                    )),
+                    const SizedBox(width: 16,),
                     IconButton(
+                      style: IconButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
                       onPressed: () {
                         if (settingsBloc.selectedLotCategoryKeyToUpdate ==
                             null) {
@@ -346,15 +352,15 @@ class SettingsScreen extends StatelessWidget {
                       },
                       icon: settingsBloc.selectedLotCategoryKeyToUpdate == null
                           ? const Icon(
-                              Icons.add,
-                              color: Colors.white,
-                            )
+                        Icons.add,
+                        color: Colors.white,
+                      )
                           : SvgPicture.asset(
-                              'assets/icons/refresh.svg',
-                              width: 24,
-                              height: 24,
-                              color: Colors.white,
-                            ),
+                        'assets/icons/refresh.svg',
+                        width: 24,
+                        height: 24,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -731,7 +737,7 @@ class SettingsScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 16,
                                 ),
                                 Expanded(
@@ -745,7 +751,7 @@ class SettingsScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 16,
                                 ),
                                 Expanded(

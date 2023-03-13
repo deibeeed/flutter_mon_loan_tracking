@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
@@ -73,6 +74,29 @@ class AuthenticationBloc
     return usersRepository.getLoggedInUser();
   }
 
+  Future<void> initializeFuture() async {
+    if (authenticationService.isLoggedIn()) {
+      final shared = await SharedPreferences.getInstance();
+      printd('sharedPreferences.getKeys(): ${shared.getKeys()}');
+      User user;
+      try {
+        final userString = shared.getString('lastLoggedInUser');
+        user =
+            User.fromJson(jsonDecode(userString!) as Map<String, dynamic>);
+        usersRepository.setLoggedInUser(user: user);
+      } catch (err) {
+        user = await usersRepository.get(
+            id: authenticationService.loggedInUser!.uid);
+        usersRepository.setLoggedInUser(user: user);
+        await shared.setString('lastLoggedInUser', jsonEncode(user));
+      }
+
+      printd('Welcome to the future ${user.firstName}');
+    } else {
+      printd('not logged in');
+    }
+  }
+
   Future<void> _handleLogin(
     LoginEvent event,
     Emitter<AuthenticationState> emit,
@@ -94,6 +118,7 @@ class AuthenticationBloc
       usersRepository.setLoggedInUser(user: user);
       final shared = await SharedPreferences.getInstance();
       await shared.setString('lastLogin', '${event.email}::${event.password}');
+      await shared.setString('lastLoggedInUser', jsonEncode(user));
       emit(const LoginLoadingState());
       emit(
         LoginSuccessState(
@@ -103,15 +128,18 @@ class AuthenticationBloc
       );
     } on UserNotFoundException catch (err) {
       printd(err);
-    } catch(err) {
+    } catch (err) {
       emit(const LoginLoadingState());
     }
   }
 
-  Future<void> _handleLogoutEvent(LogoutEvent event, Emitter<AuthenticationState> emit) async {
+  Future<void> _handleLogoutEvent(
+      LogoutEvent event, Emitter<AuthenticationState> emit) async {
     try {
       emit(LoginLoadingState(isLoading: true));
       await authenticationService.logout();
+      final shared = await SharedPreferences.getInstance();
+      await shared.remove('lastLoggedInUser');
       emit(LoginLoadingState());
       emit(LogoutSuccessState());
     } catch (err) {
@@ -121,19 +149,39 @@ class AuthenticationBloc
     }
   }
 
-  Future<void> _handleInitializeEvent(InitializeEvent event, Emitter<AuthenticationState> emit,) async {
+  Future<void> _handleInitializeEvent(
+    InitializeEvent event,
+    Emitter<AuthenticationState> emit,
+  ) async {
     try {
       if (authenticationService.isLoggedIn()) {
-        final user = await usersRepository.get(id: authenticationService.loggedInUser!.uid);
-        usersRepository.setLoggedInUser(user: user);
-        emit(LoginSuccessState(message: 'Welcome back ${user.firstName}', user: user));
+        // final shared = await SharedPreferences.getInstance();
+        // printd('sharedPreferences.getKeys(): ${shared.getKeys()}');
+        var user = getLoggedInUser()!;
+        // try {
+        //   final userString = shared.getString('lastLoggedInUser');
+        //   user =
+        //       User.fromJson(jsonDecode(userString!) as Map<String, dynamic>);
+        //   usersRepository.setLoggedInUser(user: user);
+        // } catch (err) {
+        //   user = await usersRepository.get(
+        //       id: authenticationService.loggedInUser!.uid);
+        //   usersRepository.setLoggedInUser(user: user);
+        //   await shared.setString('lastLoggedInUser', jsonEncode(user));
+        // }
+
+        printd('Welcome back ${user.firstName}');
+        emit(LoginSuccessState(
+            message: 'Welcome back ${user.firstName}', user: user));
+      } else {
+        printd('not logged i');
       }
 
       final shared = await SharedPreferences.getInstance();
       _lastLogin = shared.getString('lastLogin');
       _emails
-      ..clear()
-      ..add(_lastLogin!.split('::')[0]);
+        ..clear()
+        ..add(_lastLogin!.split('::')[0]);
     } catch (err) {
       printd(err);
     }

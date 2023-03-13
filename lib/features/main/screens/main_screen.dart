@@ -36,6 +36,7 @@ class MainScreen extends StatelessWidget {
             page: 0,
           );
           GoRouter.of(context).go('/login');
+          printd('goto login');
         } else if (state is LoginLoadingState) {
           if (state.isLoading) {
             showDialog(

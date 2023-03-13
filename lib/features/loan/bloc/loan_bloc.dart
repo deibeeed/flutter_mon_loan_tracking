@@ -153,6 +153,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     add(FilterByStatusDashboardLoanEvent(status: paymentStatus));
   }
 
+  void initialize() {
+    getSettings();
+    getAllLots();
+    getAllLoans(clearList: true);
+  }
+
   void getSettings() {
     add(GetSettingsEvent());
   }
