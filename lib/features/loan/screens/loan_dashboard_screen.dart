@@ -4,14 +4,10 @@ import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_sele
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
-import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
-import 'package:flutter_mon_loan_tracking/models/payment_status.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
-import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:flutter_mon_loan_tracking/widgets/widget_utils.dart';
-import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class LoanDashboardScreen extends StatefulWidget {
@@ -25,7 +21,6 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
   final _pagingController = PagingController<int, LoanDisplay>(firstPageKey: 0);
   bool _didAddPageRequestListener = false;
 
-  final _scrollController = ScrollController();
   final _searchController = TextEditingController();
 
   @override
@@ -42,31 +37,16 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
     context.read<LoanBloc>()
       ..getAllLots()
       ..getAllLoans(clearList: true, clientId: clientId);
+
+    _pagingController.addPageRequestListener((pageKey) {
+      context.read<LoanBloc>().getAllLoans();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final loanBloc = BlocProvider.of<LoanBloc>(context);
     final userBloc = BlocProvider.of<UserBloc>(context);
-
-    if (!_didAddPageRequestListener) {
-      // _pagingController.addPageRequestListener((pageKey) {
-      //   loanBloc.getAllLoans();
-      // });
-      _scrollController.addListener(() {
-        if (_scrollController.position.atEdge) {
-          final isTop = _scrollController.position.pixels == 0;
-          if (isTop) {
-            printd('At the top');
-          } else {
-            if (!loanBloc.loansBottomReached) {
-              loanBloc.getAllLoans();
-            }
-          }
-        }
-      });
-      _didAddPageRequestListener = true;
-    }
 
     final screenSize = MediaQuery.of(context).size;
     final defaultBorder = OutlineInputBorder(
@@ -112,7 +92,16 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
     }
 
     return Scaffold(
-      body: Column(
+        body: BlocListener<LoanBloc, LoanState>(
+      listener: (context, state) {
+        if (state is LoanDisplaySummaryState) {
+          _pagingController.value = PagingState(
+              nextPageKey: state.nextPage,
+              itemList: state.items,
+              error: state.error);
+        }
+      },
+      child: Column(
         children: [
           BlocBuilder<GeneralFilterSelectionCubit, GeneralFilterSelectionState>(
             builder: (context, state) {
@@ -287,29 +276,50 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                     ),
                   ),
                   Expanded(
-                    child: SizedBox.expand(
-                      child: BlocBuilder<LoanBloc, LoanState>(
-                        buildWhen: (previous, current) =>
-                            current is LoanSuccessState,
-                        builder: (context, state) {
-                          if (!isLargeScreenBreakpoint) {
-                            return _buildTableDashboard(
-                              context: context,
-                              loanBloc: loanBloc,
-                              userBloc: userBloc,
-                            );
-                          }
-
-                          return SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: _buildTableDashboard(
-                              context: context,
+                    // child: SizedBox.expand(
+                    //   child: BlocBuilder<LoanBloc, LoanState>(
+                    //     buildWhen: (previous, current) =>
+                    //         current is LoanSuccessState,
+                    //     builder: (context, state) {
+                    //       if (!isLargeScreenBreakpoint) {
+                    //         return _buildTableDashboard(
+                    //           context: context,
+                    //           loanBloc: loanBloc,
+                    //           userBloc: userBloc,
+                    //         );
+                    //       }
+                    //
+                    //       return SingleChildScrollView(
+                    //         scrollDirection: Axis.horizontal,
+                    //         child: _buildTableDashboard(
+                    //           context: context,
+                    //           userBloc: userBloc,
+                    //           loanBloc: loanBloc,
+                    //         ),
+                    //       );
+                    //     },
+                    //   ),
+                    // ),
+                    child: Builder(
+                      builder: (context) {
+                        if (!isLargeScreenBreakpoint) {
+                          return _buildDashboardTable(
+                            userBloc: userBloc,
+                            loanBloc: loanBloc,
+                          );
+                        }
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            height: 400,
+                            width: 932,
+                            child: _buildDashboardTable(
                               userBloc: userBloc,
                               loanBloc: loanBloc,
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   )
                 ],
@@ -318,105 +328,130 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
           ),
         ],
       ),
+    ));
+  }
+
+  Widget _buildDashboardTable({
+    required UserBloc userBloc,
+    required LoanBloc loanBloc,
+  }) {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Container(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            color: Theme.of(context).colorScheme.secondaryContainer,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _gridHeaderItem(
+                  name: Constants.loan_dashboard_table_columns[0],
+                ),
+                _gridHeaderItem(
+                    name: Constants.loan_dashboard_table_columns[1],
+                    width: 160),
+                _gridHeaderItem(
+                  name: Constants.loan_dashboard_table_columns[2],
+                ),
+                _gridHeaderItem(
+                    name: Constants.loan_dashboard_table_columns[3],
+                    width: 180),
+                _gridHeaderItem(
+                  name: Constants.loan_dashboard_table_columns[4],
+                ),
+                _gridHeaderItem(
+                  name: Constants.loan_dashboard_table_columns[5],
+                ),
+              ],
+            ),
+          ),
+        ),
+        PagedSliverGrid(
+          pagingController: _pagingController,
+          builderDelegate: PagedChildBuilderDelegate<LoanDisplay>(
+              itemBuilder: (context, loanDisplay, index) {
+            return Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Container(
+                    width: 140,
+                    child: defaultCellText(
+                      text: loanDisplay.schedule.date.toDefaultDate(),
+                    ),
+                  ),
+                  Container(
+                    width: 160,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        defaultCellText(
+                          text: userBloc.mappedUsers[loanDisplay.loan.clientId]!
+                              .completeName,
+                        ),
+                        Text(userBloc
+                            .mappedUsers[loanDisplay.loan.clientId]!.email)
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 140,
+                    child: defaultCellText(
+                      text: loanBloc
+                          .mappedLots[loanDisplay.loan.lotId]!.completeBlockLotNo,
+                    ),
+                  ),
+                  Container(
+                    width: 180,
+                    child: paymentStatusWidget(
+                      context: context,
+                      schedule: loanDisplay.schedule,
+                      loanBloc: loanBloc,
+                      userBloc: userBloc,
+                    ),
+                  ),
+                  Container(
+                    width: 140,
+                    child: defaultCellText(
+                      text: loanDisplay.schedule.monthlyAmortization.toCurrency(),
+                    ),
+                  ),
+                  Container(
+                    width: 140,
+                    child: defaultCellText(
+                      text: loanDisplay.loan.assistingAgent ?? 'None',
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 1, mainAxisExtent: 72, crossAxisSpacing: 16),
+        )
+      ],
     );
   }
 
-  Widget _buildTableDashboard(
-      {required BuildContext context,
-      required LoanBloc loanBloc,
-      required UserBloc userBloc}) {
-    return NotificationListener(
-      onNotification: (ScrollMetricsNotification scrollNotification) {
-        if (!loanBloc.loansBottomReached) {
-          if (scrollNotification.metrics.pixels == 0 &&
-              scrollNotification.metrics.pixels ==
-                  scrollNotification.metrics.maxScrollExtent) {
-            loanBloc.getAllLoans();
-          }
-        }
-        /*else if (scrollNotification.metrics.atEdge) {
-                                  loanBloc.getAllLoans();
-                                }*/
-        return true;
-      },
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        child: DataTable(
-          dataRowHeight: 72,
-          headingRowColor: MaterialStateColor.resolveWith(
-            (states) => Theme.of(context).colorScheme.secondaryContainer,
-          ),
-          columns: Constants.loan_dashboard_table_columns
-              .map(
-                (name) => DataColumn(
-                  label: Text(
-                    name.toUpperCase(),
-                    style: Theme.of(context).textTheme.titleMedium?.apply(
-                          fontWeightDelta: 3,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                  ),
-                ),
-              )
-              .toList(),
-          rows: loanBloc.filteredLoans
-              .map(
-                (loanDisplay) => DataRow(
-                  // selected: true,
-                  // onSelectChanged: (value) {
-                  //   printd(value);
-                  // },
-                  cells: [
-                    DataCell(
-                      defaultCellText(
-                        text: loanDisplay.schedule.date.toDefaultDate(),
-                      ),
-                    ),
-                    DataCell(
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          defaultCellText(
-                            text: userBloc
-                                .mappedUsers[loanDisplay.loan.clientId]!
-                                .completeName,
-                          ),
-                          Text(userBloc
-                              .mappedUsers[loanDisplay.loan.clientId]!.email)
-                        ],
-                      ),
-                    ),
-                    DataCell(
-                      defaultCellText(
-                        text: loanBloc.mappedLots[loanDisplay.loan.lotId]!
-                            .completeBlockLotNo,
-                      ),
-                    ),
-                    DataCell(
-                      paymentStatusWidget(
-                        context: context,
-                        schedule: loanDisplay.schedule,
-                        loanBloc: loanBloc,
-                        userBloc: userBloc,
-                      ),
-                    ),
-                    DataCell(
-                      defaultCellText(
-                        text: loanDisplay.schedule.monthlyAmortization
-                            .toCurrency(),
-                      ),
-                    ),
-                    DataCell(
-                      defaultCellText(
-                        text: loanDisplay.loan.assistingAgent ?? 'None',
-                      ),
-                    )
-                  ],
-                ),
-              )
-              .toList(),
-        ),
+  Widget _gridHeaderItem({
+    required String name,
+    double width = 140,
+    double height = 72,
+  }) {
+    return Container(
+      width: width,
+      height: height,
+      alignment: Alignment.centerLeft,
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      child: Text(
+        name.toUpperCase(),
+        style: Theme.of(context).textTheme.titleMedium?.apply(
+              fontWeightDelta: 3,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
       ),
     );
   }
