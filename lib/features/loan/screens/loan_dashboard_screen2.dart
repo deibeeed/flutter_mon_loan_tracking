@@ -304,130 +304,26 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen2> {
                     //     },
                     //   ),
                     // ),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SizedBox(
-                        height: 400,
-                        width: 900,
-                        child: CustomScrollView(
-                          slivers: [
-                            SliverToBoxAdapter(
-                              child: ColoredBox(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer,
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceAround,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _gridHeaderItem(
-                                      name: Constants
-                                          .loan_dashboard_table_columns[0],
-                                    ),
-                                    _gridHeaderItem(
-                                        name: Constants
-                                            .loan_dashboard_table_columns[1],
-                                        width: 160),
-                                    _gridHeaderItem(
-                                      name: Constants
-                                          .loan_dashboard_table_columns[2],
-                                    ),
-                                    _gridHeaderItem(
-                                        name: Constants
-                                            .loan_dashboard_table_columns[3],
-                                        width: 180),
-                                    _gridHeaderItem(
-                                      name: Constants
-                                          .loan_dashboard_table_columns[4],
-                                    ),
-                                    _gridHeaderItem(
-                                      name: Constants
-                                          .loan_dashboard_table_columns[5],
-                                    ),
-                                  ],
-                                ),
-                              ),
+                    child: Builder(
+                      builder: (context) {
+                        if (!isLargeScreenBreakpoint) {
+                          return _buildDashboardTable(
+                            userBloc: userBloc,
+                            loanBloc: loanBloc,
+                          );
+                        }
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            height: 400,
+                            width: 932,
+                            child: _buildDashboardTable(
+                              userBloc: userBloc,
+                              loanBloc: loanBloc,
                             ),
-                            PagedSliverGrid(
-                              pagingController: _pagingController,
-                              builderDelegate:
-                              PagedChildBuilderDelegate<LoanDisplay>(
-                                  itemBuilder: (context, loanDisplay, index) {
-                                    return Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                      children: [
-                                        Container(
-                                          width: 140,
-                                          child: defaultCellText(
-                                            text: loanDisplay.schedule.date
-                                                .toDefaultDate(),
-                                          ),
-                                        ),
-                                        Container(
-                                          width: 160,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              defaultCellText(
-                                                text: userBloc
-                                                    .mappedUsers[
-                                                loanDisplay.loan.clientId]!
-                                                    .completeName,
-                                              ),
-                                              Text(userBloc
-                                                  .mappedUsers[
-                                              loanDisplay.loan.clientId]!
-                                                  .email)
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          width: 140,
-                                          child: defaultCellText(
-                                            text: loanBloc
-                                                .mappedLots[loanDisplay.loan.lotId]!
-                                                .completeBlockLotNo,
-                                          ),
-                                        ),
-                                        Container(
-                                          width: 180,
-                                          child: paymentStatusWidget(
-                                            context: context,
-                                            schedule: loanDisplay.schedule,
-                                            loanBloc: loanBloc,
-                                            userBloc: userBloc,
-                                          ),
-                                        ),
-                                        Container(
-                                          width: 140,
-                                          child: defaultCellText(
-                                            text: loanDisplay
-                                                .schedule.monthlyAmortization
-                                                .toCurrency(),
-                                          ),
-                                        ),
-                                        Container(
-                                          width: 140,
-                                          child: defaultCellText(
-                                            text: loanDisplay.loan.assistingAgent ??
-                                                'None',
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }),
-                              gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 1,
-                                  mainAxisExtent: 72,
-                                  crossAxisSpacing: 16),
-                            )
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   )
                 ],
@@ -439,103 +335,108 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen2> {
     ));
   }
 
-  Widget _buildTableDashboard(
-      {required BuildContext context,
-      required LoanBloc loanBloc,
-      required UserBloc userBloc}) {
-    return NotificationListener(
-      onNotification: (ScrollMetricsNotification scrollNotification) {
-        if (!loanBloc.loansBottomReached) {
-          if (scrollNotification.metrics.pixels == 0 &&
-              scrollNotification.metrics.pixels ==
-                  scrollNotification.metrics.maxScrollExtent) {
-            loanBloc.getAllLoans();
-          }
-        }
-        /*else if (scrollNotification.metrics.atEdge) {
-                                  loanBloc.getAllLoans();
-                                }*/
-        return true;
-      },
-      child: SingleChildScrollView(
-        // controller: _scrollController,
-        child: DataTable(
-          dataRowHeight: 72,
-          headingRowColor: MaterialStateColor.resolveWith(
-            (states) => Theme.of(context).colorScheme.secondaryContainer,
+  Widget _buildDashboardTable({
+    required UserBloc userBloc,
+    required LoanBloc loanBloc,
+  }) {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Container(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            color: Theme.of(context).colorScheme.secondaryContainer,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _gridHeaderItem(
+                  name: Constants.loan_dashboard_table_columns[0],
+                ),
+                _gridHeaderItem(
+                    name: Constants.loan_dashboard_table_columns[1],
+                    width: 160),
+                _gridHeaderItem(
+                  name: Constants.loan_dashboard_table_columns[2],
+                ),
+                _gridHeaderItem(
+                    name: Constants.loan_dashboard_table_columns[3],
+                    width: 180),
+                _gridHeaderItem(
+                  name: Constants.loan_dashboard_table_columns[4],
+                ),
+                _gridHeaderItem(
+                  name: Constants.loan_dashboard_table_columns[5],
+                ),
+              ],
+            ),
           ),
-          columns: Constants.loan_dashboard_table_columns
-              .map(
-                (name) => DataColumn(
-                  label: Text(
-                    name.toUpperCase(),
-                    style: Theme.of(context).textTheme.titleMedium?.apply(
-                          fontWeightDelta: 3,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                  ),
-                ),
-              )
-              .toList(),
-          rows: loanBloc.filteredLoans
-              .map(
-                (loanDisplay) => DataRow(
-                  // selected: true,
-                  // onSelectChanged: (value) {
-                  //   printd(value);
-                  // },
-                  cells: [
-                    DataCell(
-                      defaultCellText(
-                        text: loanDisplay.schedule.date.toDefaultDate(),
-                      ),
-                    ),
-                    DataCell(
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          defaultCellText(
-                            text: userBloc
-                                .mappedUsers[loanDisplay.loan.clientId]!
-                                .completeName,
-                          ),
-                          Text(userBloc
-                              .mappedUsers[loanDisplay.loan.clientId]!.email)
-                        ],
-                      ),
-                    ),
-                    DataCell(
-                      defaultCellText(
-                        text: loanBloc.mappedLots[loanDisplay.loan.lotId]!
-                            .completeBlockLotNo,
-                      ),
-                    ),
-                    DataCell(
-                      paymentStatusWidget(
-                        context: context,
-                        schedule: loanDisplay.schedule,
-                        loanBloc: loanBloc,
-                        userBloc: userBloc,
-                      ),
-                    ),
-                    DataCell(
-                      defaultCellText(
-                        text: loanDisplay.schedule.monthlyAmortization
-                            .toCurrency(),
-                      ),
-                    ),
-                    DataCell(
-                      defaultCellText(
-                        text: loanDisplay.loan.assistingAgent ?? 'None',
-                      ),
-                    )
-                  ],
-                ),
-              )
-              .toList(),
         ),
-      ),
+        PagedSliverGrid(
+          pagingController: _pagingController,
+          builderDelegate: PagedChildBuilderDelegate<LoanDisplay>(
+              itemBuilder: (context, loanDisplay, index) {
+            return Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Container(
+                    width: 140,
+                    child: defaultCellText(
+                      text: loanDisplay.schedule.date.toDefaultDate(),
+                    ),
+                  ),
+                  Container(
+                    width: 160,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        defaultCellText(
+                          text: userBloc.mappedUsers[loanDisplay.loan.clientId]!
+                              .completeName,
+                        ),
+                        Text(userBloc
+                            .mappedUsers[loanDisplay.loan.clientId]!.email)
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 140,
+                    child: defaultCellText(
+                      text: loanBloc
+                          .mappedLots[loanDisplay.loan.lotId]!.completeBlockLotNo,
+                    ),
+                  ),
+                  Container(
+                    width: 180,
+                    child: paymentStatusWidget(
+                      context: context,
+                      schedule: loanDisplay.schedule,
+                      loanBloc: loanBloc,
+                      userBloc: userBloc,
+                    ),
+                  ),
+                  Container(
+                    width: 140,
+                    child: defaultCellText(
+                      text: loanDisplay.schedule.monthlyAmortization.toCurrency(),
+                    ),
+                  ),
+                  Container(
+                    width: 140,
+                    child: defaultCellText(
+                      text: loanDisplay.loan.assistingAgent ?? 'None',
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 1, mainAxisExtent: 72, crossAxisSpacing: 16),
+        )
+      ],
     );
   }
 
@@ -549,13 +450,12 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen2> {
       height: height,
       alignment: Alignment.centerLeft,
       color: Theme.of(context).colorScheme.secondaryContainer,
-
       child: Text(
         name.toUpperCase(),
         style: Theme.of(context).textTheme.titleMedium?.apply(
-          fontWeightDelta: 3,
-          color: Theme.of(context).colorScheme.secondary,
-        ),
+              fontWeightDelta: 3,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
       ),
     );
   }
