@@ -871,6 +871,114 @@ class AddLoanScreen extends StatelessWidget {
       ],
     );
   }
+  
+  Widget _buildDashboardTable({ required BuildContext context, required LoanBloc loanBloc, }) {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Container(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            color: Theme.of(context).colorScheme.secondaryContainer,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                gridHeaderItem(
+                  context: context,
+                  name: Constants.loan_dashboard_table_columns[0],
+                ),
+                gridHeaderItem(
+                    context: context,
+                    name: Constants.loan_dashboard_table_columns[1],
+                    width: 160),
+                gridHeaderItem(
+                  context: context,
+                  name: Constants.loan_dashboard_table_columns[2],
+                ),
+                gridHeaderItem(
+                    context: context,
+                    name: Constants.loan_dashboard_table_columns[3],
+                    width: 180),
+                gridHeaderItem(
+                  context: context,
+                  name: Constants.loan_dashboard_table_columns[4],
+                ),
+                gridHeaderItem(
+                  context: context,
+                  name: Constants.loan_dashboard_table_columns[5],
+                ),
+              ],
+            ),
+          ),
+        ),
+        PagedSliverGrid(
+          pagingController: _pagingController,
+          builderDelegate: PagedChildBuilderDelegate<LoanDisplay>(
+              itemBuilder: (context, loanDisplay, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Container(
+                        width: 140,
+                        child: defaultCellText(
+                          text: loanDisplay.schedule.date.toDefaultDate(),
+                        ),
+                      ),
+                      Container(
+                        width: 160,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            defaultCellText(
+                              text: userBloc.mappedUsers[loanDisplay.loan.clientId]!
+                                  .completeName,
+                            ),
+                            Text(userBloc
+                                .mappedUsers[loanDisplay.loan.clientId]!.email)
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 140,
+                        child: defaultCellText(
+                          text: loanBloc
+                              .mappedLots[loanDisplay.loan.lotId]!.completeBlockLotNo,
+                        ),
+                      ),
+                      Container(
+                        width: 180,
+                        child: paymentStatusWidget(
+                          context: context,
+                          schedule: loanDisplay.schedule,
+                          loanBloc: loanBloc,
+                          userBloc: userBloc,
+                        ),
+                      ),
+                      Container(
+                        width: 140,
+                        child: defaultCellText(
+                          text: loanDisplay.schedule.monthlyAmortization.toCurrency(),
+                        ),
+                      ),
+                      Container(
+                        width: 140,
+                        child: defaultCellText(
+                          text: loanDisplay.loan.assistingAgent ?? 'None',
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 1, mainAxisExtent: 72, crossAxisSpacing: 16),
+        )
+      ],
+    );
+  }
 
   Widget _buildTable({
     required BuildContext context,

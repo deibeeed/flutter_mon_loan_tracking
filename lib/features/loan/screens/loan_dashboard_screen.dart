@@ -321,22 +321,28 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _gridHeaderItem(
+                gridHeaderItem(
+                  context: context,
                   name: Constants.loan_dashboard_table_columns[0],
                 ),
-                _gridHeaderItem(
+                gridHeaderItem(
+                    context: context,
                     name: Constants.loan_dashboard_table_columns[1],
                     width: 160),
-                _gridHeaderItem(
+                gridHeaderItem(
+                  context: context,
                   name: Constants.loan_dashboard_table_columns[2],
                 ),
-                _gridHeaderItem(
+                gridHeaderItem(
+                    context: context,
                     name: Constants.loan_dashboard_table_columns[3],
                     width: 180),
-                _gridHeaderItem(
+                gridHeaderItem(
+                  context: context,
                   name: Constants.loan_dashboard_table_columns[4],
                 ),
-                _gridHeaderItem(
+                gridHeaderItem(
+                  context: context,
                   name: Constants.loan_dashboard_table_columns[5],
                 ),
               ],
@@ -409,26 +415,6 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
               crossAxisCount: 1, mainAxisExtent: 72, crossAxisSpacing: 16),
         )
       ],
-    );
-  }
-
-  Widget _gridHeaderItem({
-    required String name,
-    double width = 140,
-    double height = 72,
-  }) {
-    return Container(
-      width: width,
-      height: height,
-      alignment: Alignment.centerLeft,
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      child: Text(
-        name.toUpperCase(),
-        style: Theme.of(context).textTheme.titleMedium?.apply(
-              fontWeightDelta: 3,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-      ),
     );
   }
 }

@@ -94,3 +94,24 @@ Widget paymentStatusWidget({
     ],
   );
 }
+
+Widget gridHeaderItem({
+  required BuildContext context,
+  required String name,
+  double width = 140,
+  double height = 72,
+}) {
+  return Container(
+    width: width,
+    height: height,
+    alignment: Alignment.centerLeft,
+    color: Theme.of(context).colorScheme.secondaryContainer,
+    child: Text(
+      name.toUpperCase(),
+      style: Theme.of(context).textTheme.titleMedium?.apply(
+        fontWeightDelta: 3,
+        color: Theme.of(context).colorScheme.secondary,
+      ),
+    ),
+  );
+}
