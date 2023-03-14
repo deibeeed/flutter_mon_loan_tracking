@@ -276,30 +276,6 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                     ),
                   ),
                   Expanded(
-                    // child: SizedBox.expand(
-                    //   child: BlocBuilder<LoanBloc, LoanState>(
-                    //     buildWhen: (previous, current) =>
-                    //         current is LoanSuccessState,
-                    //     builder: (context, state) {
-                    //       if (!isLargeScreenBreakpoint) {
-                    //         return _buildTableDashboard(
-                    //           context: context,
-                    //           loanBloc: loanBloc,
-                    //           userBloc: userBloc,
-                    //         );
-                    //       }
-                    //
-                    //       return SingleChildScrollView(
-                    //         scrollDirection: Axis.horizontal,
-                    //         child: _buildTableDashboard(
-                    //           context: context,
-                    //           userBloc: userBloc,
-                    //           loanBloc: loanBloc,
-                    //         ),
-                    //       );
-                    //     },
-                    //   ),
-                    // ),
                     child: Builder(
                       builder: (context) {
                         if (!isLargeScreenBreakpoint) {
