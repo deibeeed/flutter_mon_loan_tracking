@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_mon_loan_tracking/exceptions/loan_schedule_not_found_exception.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/services/base_firebase_service.dart';
+import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 
 class LoanScheduleFirestoreService extends BaseFirestoreService<LoanSchedule> {
   DocumentSnapshot? _lastDocumentSnapshot;
@@ -54,7 +55,7 @@ class LoanScheduleFirestoreService extends BaseFirestoreService<LoanSchedule> {
       query = query.startAfterDocument(_lastDocumentSnapshot!);
     }
 
-    final doc = await query.limit(10).get();
+    final doc = await query.limit(Constants.loanScheduleQueryResultLimit).get();
 
     final schedules = doc.docs
         .map((e) => LoanSchedule.fromJson(e.data() as Map<String, dynamic>))

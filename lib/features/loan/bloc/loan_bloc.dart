@@ -114,6 +114,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   Loan? get selectedLoan => _selectedLoan;
 
+  int? _nextPageCalled;
+
   void reset({bool isLogout = false}) {
     if (isLogout) {
       loanScheduleRepository.reset();
@@ -130,6 +132,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _clientLoanSchedules.clear();
     _selectedUser = null;
     _monthlyAmortization = 0;
+    _nextPageCalled = null;
     emit(LoanSuccessState(message: 'successfully reset values'));
   }
 
@@ -168,6 +171,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       _allLoans.clear();
       _filteredLoans.clear();
       _loansBottomReached = false;
+      _nextPageCalled = null;
     }
     add(GetAllLoansEvent(clientId: clientId, clearList: clearList));
   }
@@ -530,23 +534,22 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
       final incidentalFee = totalContractPrice * incidentalFeeRate;
       final loan = Loan.create(
-        clientId: _selectedUser!.id,
-        preparedBy: authenticationService.loggedInUser!.uid,
-        lotId: _selectedLot!.id,
-        loanInterestRate: _settings!.loanInterestRate,
-        incidentalFeeRate: _settings!.incidentalFeeRate,
-        serviceFee: _settings!.serviceFee,
-        perSquareMeterRate: lotCategory.ratePerSquareMeter,
-        outstandingBalance: outstandingBalance,
-        totalContractPrice: totalContractPrice,
-        incidentalFees: incidentalFee,
-        downPayment: event.downPayment,
-        yearsToPay: event.yearsToPay,
-        deductions: _discounts,
-        assistingAgent: event.assistingAgent,
-        lotCategoryName: lotCategory.name,
-        downPaymentRate: settings!.downPaymentRate
-      );
+          clientId: _selectedUser!.id,
+          preparedBy: authenticationService.loggedInUser!.uid,
+          lotId: _selectedLot!.id,
+          loanInterestRate: _settings!.loanInterestRate,
+          incidentalFeeRate: _settings!.incidentalFeeRate,
+          serviceFee: _settings!.serviceFee,
+          perSquareMeterRate: lotCategory.ratePerSquareMeter,
+          outstandingBalance: outstandingBalance,
+          totalContractPrice: totalContractPrice,
+          incidentalFees: incidentalFee,
+          downPayment: event.downPayment,
+          yearsToPay: event.yearsToPay,
+          deductions: _discounts,
+          assistingAgent: event.assistingAgent,
+          lotCategoryName: lotCategory.name,
+          downPaymentRate: settings!.downPaymentRate);
       final loanWithId = await loanRepository.add(data: loan);
       final futureLoanSchedules = _clientLoanSchedules.map(
         (schedule) {
@@ -621,6 +624,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         _filteredLoans
           ..clear()
           ..addAll(_allLoans);
+        _nextPageCalled = null;
       } else {
         if (_loans.isEmpty) {
           final loans = await loanRepository.all();
@@ -630,6 +634,11 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
         final schedules =
             await loanScheduleRepository.next(reset: event.clearList);
+        _nextPageCalled = _nextPageCalled == null ? 0 : _nextPageCalled! + 1;
+
+        if (schedules.length < Constants.loanScheduleQueryResultLimit) {
+          _nextPageCalled = null;
+        }
 
         for (final schedule in schedules) {
           var loan = _loans[schedule.loanId];
@@ -647,12 +656,16 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       }
 
       emit(LoanLoadingState());
+      emit(LoanDisplaySummaryState(
+          nextPage: _nextPageCalled, items: _filteredLoans));
       emit(LoanSuccessState(message: 'Successfully retrieved loans'));
     } catch (err) {
       printd(err);
       _loansBottomReached = true;
+      emit(LoanDisplaySummaryState(
+          error: err, nextPage: _nextPageCalled, items: _filteredLoans));
       emit(LoanErrorState(
-          message: 'Something went wrong while getting all loans'));
+          message: 'Something went wrofng while getting all loans'));
     }
   }
 

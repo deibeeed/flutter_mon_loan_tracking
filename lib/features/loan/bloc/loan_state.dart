@@ -21,6 +21,21 @@ class LoanSuccessState extends LoanState {
   ];
 }
 
+class LoanDisplaySummaryState extends LoanState {
+  final int? nextPage;
+  final List<LoanDisplay> items;
+  final dynamic error;
+
+  LoanDisplaySummaryState({ required this.nextPage, required this.items, this.error});
+
+  @override
+  List<Object?> get props => [
+    nextPage,
+    items,
+    error,
+  ];
+}
+
 class LoanErrorState extends LoanState {
   final String message;
 

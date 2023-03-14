@@ -12,6 +12,7 @@ class Constants {
   static const maxAppBarHeight = 220.0;
   static const largeScreenShortestSideBreakPoint = 800;
   static const smallScreenShortestSideBreakPoint = 480;
+  static const loanScheduleQueryResultLimit = 10;
   static const currency = '₱';
   static Environments currentEnvironment = Environments.dev;
   static const String NO_ID = 'no_id_available';

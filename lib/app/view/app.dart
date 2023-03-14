@@ -6,6 +6,7 @@ import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_sele
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/screens/add_loan_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/screens/loan_dashboard_screen.dart';
+import 'package:flutter_mon_loan_tracking/features/loan/screens/loan_dashboard_screen2.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/general_lot_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
@@ -85,7 +86,7 @@ class _AppState extends State<App> {
           routes: [
             RouteUtils.buildNoTransitionRoute(
               path: '/loan-dashboard',
-              child: LoanDashboardScreen(),
+              child: LoanDashboardScreen2(),
             ),
             RouteUtils.buildNoTransitionRoute(
               path: '/lot-dashboard',
