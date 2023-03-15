@@ -412,7 +412,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     // TODO: uncomment when all loans are inputted
     // final monthlyIncidentalFee = (incidentalFee + serviceFee) / monthsToPay;
     final monthlyIncidentalFee = incidentalFee / monthsToPay;
-    printd('incidentalFee + serviceFee = ${incidentalFee + serviceFee}');
+    // printd('incidentalFee + serviceFee = ${incidentalFee + serviceFee}');
 
     final loanMonthlyAmortization = _calculateMonthlyPayment(
       outstandingBalance: outstandingBalance,
@@ -539,7 +539,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           lotId: _selectedLot!.id,
           loanInterestRate: _settings!.loanInterestRate,
           incidentalFeeRate: _settings!.incidentalFeeRate,
-          serviceFee: _settings!.serviceFee,
+          // serviceFee: _settings!.serviceFee,
+          serviceFee: 0, // service fee not now
           perSquareMeterRate: lotCategory.ratePerSquareMeter,
           outstandingBalance: outstandingBalance,
           totalContractPrice: totalContractPrice,
