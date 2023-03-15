@@ -570,7 +570,8 @@ Widget buildSmallScreenBody({
             return buildDashboardTable(
               context: context,
               loanBloc: loanBloc,
-              pagingController: pagingController
+              pagingController: pagingController,
+              isMobile: true,
             );
           }
           return SingleChildScrollView(
@@ -578,7 +579,8 @@ Widget buildSmallScreenBody({
             child: buildDashboardTable(
               context: context,
               loanBloc: loanBloc,
-              pagingController: pagingController
+              pagingController: pagingController,
+              isMobile: true
             ),
           );
         },

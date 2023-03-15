@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/loan.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
@@ -18,9 +19,14 @@ part 'add_loan_screen_small.dart';
 
 part 'build_dashboard_table.dart';
 
-class AddLoanScreen extends StatelessWidget {
+class AddLoanScreen extends StatefulWidget {
   AddLoanScreen({super.key});
 
+  @override
+  State<StatefulWidget> createState() => _AddLoanScreenState();
+}
+
+class _AddLoanScreenState extends State<AddLoanScreen> {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final blockNoController = TextEditingController();
@@ -37,6 +43,12 @@ class AddLoanScreen extends StatelessWidget {
   final dateController = TextEditingController(
       text: Constants.defaultDateFormat.format(DateTime.now()));
   final pagingController = PagingController<int, LoanSchedule>(firstPageKey: 0);
+
+  @override
+  void deactivate() {
+    context.read<LoanBloc>().reset();
+    super.deactivate();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,14 +157,14 @@ class AddLoanScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        appBar: !isMobile()
+        appBar: !widget.isMobile()
             ? null
             : PreferredSize(
                 preferredSize: Size.fromHeight(appBarHeight),
                 child: AppBar(
                   backgroundColor:
                       Theme.of(context).colorScheme.primary.withOpacity(0.48),
-                  leading: !isMobile()
+                  leading: !widget.isMobile()
                       ? Container()
                       : IconButton(
                           icon: const Icon(
