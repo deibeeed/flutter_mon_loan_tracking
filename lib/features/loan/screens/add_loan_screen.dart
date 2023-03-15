@@ -17,8 +17,6 @@ part 'add_loan_screen_large.dart';
 
 part 'add_loan_screen_small.dart';
 
-part 'build_dashboard_table.dart';
-
 class AddLoanScreen extends StatefulWidget {
   AddLoanScreen({super.key});
 

@@ -88,7 +88,8 @@ class Constants {
     'Monthly amortization',
     'Principal payment',
     'Interest payment',
-    'Incidental fees'
+    'Incidental    fees', // space needed for text wrapping
+    'Status'
   ];
 
   static const user_loan_schedule_table_columns = [

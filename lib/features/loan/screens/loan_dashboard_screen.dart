@@ -390,7 +390,9 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                       context: context,
                       schedule: loanDisplay.schedule,
                       loanBloc: loanBloc,
-                      userBloc: userBloc,
+                      showPaymentControls: loanDisplay.schedule.paidOn == null &&
+                          ![UserType.customer, UserType.accountant]
+                              .contains(userBloc.getLoggedInUser()?.type)
                     ),
                   ),
                   gridItem(

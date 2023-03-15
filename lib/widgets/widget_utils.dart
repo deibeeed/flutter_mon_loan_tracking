@@ -5,8 +5,10 @@ import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/models/payment_status.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
+import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 Text defaultCellText({required String text}) {
   return Text(
@@ -22,7 +24,7 @@ Widget paymentStatusWidget({
   required BuildContext context,
   required LoanSchedule schedule,
   required LoanBloc loanBloc,
-  required UserBloc userBloc,
+  bool showPaymentControls = false,
 }) {
   final status = context.read<LoanBloc>().getPaymentStatus(schedule: schedule);
   // success text color 0xff007F00
@@ -54,8 +56,7 @@ Widget paymentStatusWidget({
           Chip(
             label: Text(
               status.value,
-              style:
-              TextStyle(color: textColor, fontWeight: FontWeight.w600),
+              style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
             ),
             backgroundColor: backgroundColor,
             avatar: Icon(
@@ -76,9 +77,7 @@ Widget paymentStatusWidget({
         width: 8,
       ),
       Visibility(
-        visible: schedule.paidOn == null &&
-            ![UserType.customer, UserType.accountant]
-                .contains(userBloc.getLoggedInUser()?.type),
+        visible: showPaymentControls,
         child: InkWell(
           onTap: () {
             loanBloc.payLoanSchedule(schedule: schedule);
@@ -109,9 +108,9 @@ Widget gridHeaderItem({
     child: Text(
       name.toUpperCase(),
       style: Theme.of(context).textTheme.titleMedium?.apply(
-        fontWeightDelta: 3,
-        color: Theme.of(context).colorScheme.secondary,
-      ),
+            fontWeightDelta: 3,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
     ),
   );
 }
@@ -123,5 +122,162 @@ Widget gridItem({
   return SizedBox(
     width: width,
     child: child,
+  );
+}
+
+Widget buildDashboardTable({
+  required BuildContext context,
+  required LoanBloc loanBloc,
+  required PagingController<int, LoanSchedule> pagingController,
+  String? userId,
+  bool finiteSize = false,
+  bool isSmallScreen = false,
+  // mostly used in userDetailsScreen
+  bool withStatus = false,
+  UserType loggedInUserType = UserType.customer,
+}) {
+  return SizedBox(
+    width: !finiteSize ? null : !withStatus ? 1072 : 1212,
+    height: !finiteSize ? null : 1180,
+    child: Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.only(left: 16, right: 16),
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              gridHeaderItem(
+                context: context,
+                name: Constants.loan_schedule_table_columns[0],
+              ),
+              gridHeaderItem(
+                  context: context,
+                  name: Constants.loan_schedule_table_columns[1],
+                  width: 160),
+              gridHeaderItem(
+                context: context,
+                name: Constants.loan_schedule_table_columns[2],
+              ),
+              gridHeaderItem(
+                  context: context,
+                  name: Constants.loan_schedule_table_columns[3],
+                  width: 180),
+              gridHeaderItem(
+                context: context,
+                name: Constants.loan_schedule_table_columns[4],
+              ),
+              gridHeaderItem(
+                context: context,
+                name: Constants.loan_schedule_table_columns[5],
+              ),
+              gridHeaderItem(
+                context: context,
+                name: Constants.loan_schedule_table_columns[6],
+              ),
+              if (withStatus)
+                gridHeaderItem(
+                  context: context,
+                  name: Constants.loan_schedule_table_columns[7],
+                ),
+            ],
+          ),
+        ),
+        BlocBuilder<LoanBloc, LoanState>(builder: (context, state) {
+          if (loanBloc.clientLoanSchedules.isEmpty) {
+            return Container();
+          }
+          return Container(
+            constraints: isSmallScreen
+                ? const BoxConstraints(maxHeight: 16800, maxWidth: 1212)
+                : null,
+            height: !isSmallScreen ? 1000 : null,
+            child: PagedGridView(
+              pagingController: pagingController,
+              physics:
+                  !isSmallScreen ? null : const NeverScrollableScrollPhysics(),
+              shrinkWrap: isSmallScreen,
+              builderDelegate: PagedChildBuilderDelegate<LoanSchedule>(
+                  itemBuilder: (context, schedule, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      gridItem(
+                        child: defaultCellText(
+                          text: '${index + 1}',
+                        ),
+                      ),
+                      gridItem(
+                        child: defaultCellText(
+                          text: Constants.defaultDateFormat.format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                              schedule.date.toInt(),
+                            ),
+                          ),
+                        ),
+                      ),
+                      gridItem(
+                        child: Center(
+                          child: defaultCellText(
+                            text: schedule.outstandingBalance.toCurrency(),
+                          ),
+                        ),
+                      ),
+                      gridItem(
+                        child: Center(
+                          child: defaultCellText(
+                            text: schedule.monthlyAmortization.toCurrency(),
+                          ),
+                        ),
+                      ),
+                      gridItem(
+                        child: Center(
+                          child: defaultCellText(
+                            text: schedule.principalPayment.toCurrency(),
+                          ),
+                        ),
+                      ),
+                      gridItem(
+                        child: Center(
+                          child: defaultCellText(
+                            text: schedule.interestPayment.toCurrency(),
+                          ),
+                        ),
+                      ),
+                      gridItem(
+                        child: Center(
+                          child: defaultCellText(
+                            text: schedule.incidentalFee.toCurrency(),
+                          ),
+                        ),
+                      ),
+                      if (withStatus)
+                        gridItem(
+                          width: 180,
+                          child: Center(
+                            child: paymentStatusWidget(
+                              context: context,
+                              schedule: schedule,
+                              loanBloc: loanBloc,
+                              showPaymentControls: schedule.paidOn == null &&
+                                  ![UserType.customer, UserType.accountant]
+                                      .contains(loggedInUserType),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 1, mainAxisExtent: 72, crossAxisSpacing: 16),
+            ),
+          );
+        }),
+      ],
+    ),
   );
 }
