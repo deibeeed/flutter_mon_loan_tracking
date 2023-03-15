@@ -358,13 +358,12 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Container(
-                    width: 140,
+                  gridItem(
                     child: defaultCellText(
                       text: loanDisplay.schedule.date.toDefaultDate(),
                     ),
                   ),
-                  Container(
+                  gridItem(
                     width: 160,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,14 +378,13 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                       ],
                     ),
                   ),
-                  Container(
-                    width: 140,
+                  gridItem(
                     child: defaultCellText(
-                      text: loanBloc
-                          .mappedLots[loanDisplay.loan.lotId]!.completeBlockLotNo,
+                      text: loanBloc.mappedLots[loanDisplay.loan.lotId]!
+                          .completeBlockLotNo,
                     ),
                   ),
-                  Container(
+                  gridItem(
                     width: 180,
                     child: paymentStatusWidget(
                       context: context,
@@ -395,14 +393,13 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                       userBloc: userBloc,
                     ),
                   ),
-                  Container(
-                    width: 140,
+                  gridItem(
                     child: defaultCellText(
-                      text: loanDisplay.schedule.monthlyAmortization.toCurrency(),
+                      text:
+                          loanDisplay.schedule.monthlyAmortization.toCurrency(),
                     ),
                   ),
-                  Container(
-                    width: 140,
+                  gridItem(
                     child: defaultCellText(
                       text: loanDisplay.loan.assistingAgent ?? 'None',
                     ),

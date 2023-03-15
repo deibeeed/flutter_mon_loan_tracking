@@ -115,3 +115,13 @@ Widget gridHeaderItem({
     ),
   );
 }
+
+Widget gridItem({
+  double width = 140,
+  required Widget child,
+}) {
+  return SizedBox(
+    width: width,
+    child: child,
+  );
+}
