@@ -5,7 +5,7 @@ Widget buildDashboardTable({
   required LoanBloc loanBloc,
   required PagingController<int, LoanSchedule> pagingController,
   bool finiteSize = false,
-  bool isMobile = false
+  bool isSmallScreen = false
 }) {
 
   return SizedBox(
@@ -57,12 +57,12 @@ Widget buildDashboardTable({
                 return Container();
               }
               return Container(
-                constraints: isMobile ? const BoxConstraints(maxHeight: 16800, maxWidth: 1072) : null,
-                height: !isMobile ? 1000 : null,
+                constraints: isSmallScreen ? const BoxConstraints(maxHeight: 16800, maxWidth: 1072) : null,
+                height: !isSmallScreen ? 1000 : null,
                 child: PagedGridView(
                   pagingController: pagingController,
-                  physics: !isMobile ? null : const NeverScrollableScrollPhysics(),
-                  shrinkWrap: isMobile,
+                  physics: !isSmallScreen ? null : const NeverScrollableScrollPhysics(),
+                  shrinkWrap: isSmallScreen,
                   builderDelegate: PagedChildBuilderDelegate<LoanSchedule>(
                       itemBuilder: (context, schedule, index) {
                         return Padding(

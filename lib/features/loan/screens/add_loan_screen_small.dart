@@ -571,7 +571,7 @@ Widget buildSmallScreenBody({
               context: context,
               loanBloc: loanBloc,
               pagingController: pagingController,
-              isMobile: true,
+              isSmallScreen: true,
             );
           }
           return SingleChildScrollView(
@@ -580,7 +580,7 @@ Widget buildSmallScreenBody({
               context: context,
               loanBloc: loanBloc,
               pagingController: pagingController,
-              isMobile: true
+              isSmallScreen: true
             ),
           );
         },
