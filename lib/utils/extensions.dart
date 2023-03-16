@@ -28,6 +28,10 @@ extension FormattingExtension on num {
       DateTime.fromMillisecondsSinceEpoch(toInt()),
     );
   }
+
+  String withUnit() {
+    return '$this sqm';
+  }
 }
 
 extension MobileChecking on StatelessWidget {

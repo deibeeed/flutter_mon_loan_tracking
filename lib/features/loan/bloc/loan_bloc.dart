@@ -189,15 +189,29 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required String yearsToPay,
     required String downPayment,
     required String date,
+    String? incidentalFeeRate,
+    String? loanInterestRate,
   }) {
     try {
-      add(
-        CalculateLoanEvent(
-          downPayment: num.parse(downPayment),
-          yearsToPay: num.parse(yearsToPay),
-          date: date,
-        ),
-      );
+      if (incidentalFeeRate != null && loanInterestRate != null) {
+        add(
+          CalculateLoanEvent(
+            downPayment: num.parse(downPayment),
+            yearsToPay: num.parse(yearsToPay),
+            date: date,
+            incidentalFeeRate: num.parse(incidentalFeeRate),
+            loanInterestRate: num.parse(loanInterestRate),
+          ),
+        );
+      } else {
+        add(
+          CalculateLoanEvent(
+            downPayment: num.parse(downPayment),
+            yearsToPay: num.parse(yearsToPay),
+            date: date,
+          ),
+        );
+      }
     } catch (err) {
       printd(err);
     }
@@ -287,7 +301,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     return selectedLot!.area * lotCategory.ratePerSquareMeter;
   }
 
-  num computeIncidentalFee() {
+  num computeIncidentalFee({String? customIncidentalFeeRateStr}) {
     if (selectedLot == null || settings == null) {
       return 0;
     }
@@ -307,10 +321,21 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       tcp += getVatAmount() ?? 0;
     }
 
-    return tcp * (settings!.incidentalFeeRate / 100);
+    num? customIncidentalFeeRate;
+
+    try {
+      customIncidentalFeeRate = num.parse(customIncidentalFeeRateStr ?? '');
+    } catch (err) {
+      printd('parse exception: $err');
+    }
+
+    final incidentalFeeRate =
+        customIncidentalFeeRate ?? settings!.incidentalFeeRate;
+
+    return tcp * (incidentalFeeRate / 100);
   }
 
-  num computeDownPaymentRate() {
+  num computeDownPaymentRate({String? customDownpaymenRateStr}) {
     if (selectedLot == null || settings == null) {
       return 0;
     }
@@ -319,7 +344,19 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     if (tcp >= settings!.vattableTCP) {
       tcp += getVatAmount() ?? 0;
     }
-    final downPaymentRatePercentage = settings!.downPaymentRate / 100;
+
+    num? customDownpaymenRate;
+
+    try {
+      if (customDownpaymenRateStr != null) {
+        customDownpaymenRate = num.parse(customDownpaymenRateStr);
+      }
+    } catch (err) {
+      printd('probably a parse exception');
+    }
+
+    final downpaymentRate = customDownpaymenRate ?? settings!.downPaymentRate;
+    final downPaymentRatePercentage = downpaymentRate / 100;
 
     return tcp * downPaymentRatePercentage;
   }
@@ -394,6 +431,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         yearsToPay: event.yearsToPay,
         lotCategoryKey: _selectedLot!.lotCategoryKey,
         date: Constants.defaultDateFormat.parse(event.date),
+        loanInterestRate: event.loanInterestRate ?? _settings!.loanInterestRate,
+        incidentalFeeRate:
+            event.incidentalFeeRate ?? _settings!.incidentalFeeRate,
       );
 
       emit(LoanLoadingState());
@@ -410,6 +450,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required num yearsToPay,
     required String lotCategoryKey,
     required DateTime date,
+    required num loanInterestRate,
+    required num incidentalFeeRate,
   }) {
     _clientLoanSchedules.clear();
     final lotCategory = settings!.lotCategories.firstWhereOrNull(
@@ -428,7 +470,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
     totalContractPrice += vatValue;
     var outstandingBalance = totalContractPrice;
-    var annualInterestRate = settings!.loanInterestRate / 100;
+    // var annualInterestRate = settings!.loanInterestRate / 100;
+    var annualInterestRate = loanInterestRate / 100;
 
     var totalDiscount = downPayment;
 
@@ -437,11 +480,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
     outstandingBalance -= totalDiscount;
     _outstandingBalance = outstandingBalance;
-    var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
+    // var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
+    var computedIncidentalFeeRate = incidentalFeeRate / 100;
     var monthsToPay = yearsToPay * 12;
     // TODO: uncomment when all loans are inputted
     // final incidentalFee = (totalContractPrice * incidentalFeeRate) + serviceFee;
-    final incidentalFee = totalContractPrice * incidentalFeeRate;
+    final incidentalFee = totalContractPrice * computedIncidentalFeeRate;
     final serviceFee = settings!.serviceFee;
     // TODO: uncomment when all loans are inputted
     // final monthlyIncidentalFee = (incidentalFee + serviceFee) / monthsToPay;
@@ -554,6 +598,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         yearsToPay: event.yearsToPay,
         lotCategoryKey: _selectedLot!.lotCategoryKey,
         date: Constants.defaultDateFormat.parse(event.date),
+        incidentalFeeRate: settings!.incidentalFeeRate,
+        loanInterestRate: settings!.loanInterestRate,
       );
 
       final lotCategory = settings!.lotCategories.firstWhereOrNull(

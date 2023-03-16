@@ -5,10 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen_small.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:flutter_mon_loan_tracking/widgets/widget_utils.dart';
 import 'package:go_router/go_router.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class LoanCalculatorScreen extends StatefulWidget {
   const LoanCalculatorScreen({super.key});
@@ -30,6 +33,11 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
   final downpaymentController = TextEditingController();
   final discountController = TextEditingController();
   final discountDescriptionController = TextEditingController();
+  final incidentalFeeRateController = TextEditingController();
+  final downpaymentRateController = TextEditingController();
+  final interestRateController = TextEditingController();
+  final horizontalScrollController = ScrollController();
+  final pagingController = PagingController<int, LoanSchedule>(firstPageKey: 0);
 
   @override
   void deactivate() {
@@ -39,12 +47,22 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    context.read<LoanBloc>().getSettings();
+    final settings = context.read<LoanBloc>().settings;
+
+    if (settings != null) {
+      incidentalFeeRateController.text = settings.incidentalFeeRate.toString();
+      downpaymentRateController.text = settings.downPaymentRate.toString();
+      interestRateController.text = settings.loanInterestRate.toString();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     context.read<UserBloc>().getAllUsers();
     final loanBloc = BlocProvider.of<LoanBloc>(context)..getSettings();
-    // loanBloc
-    //   ..getSettings()
-    //   ..getAllUsers();
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
 
@@ -53,9 +71,11 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
     }
 
     var buttonPadding = const EdgeInsets.all(24);
+    var isLargeScreenBreakpoint = false;
 
     if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
       buttonPadding = const EdgeInsets.all(16);
+      isLargeScreenBreakpoint = true;
     }
 
     return BlocListener<LoanBloc, LoanState>(
@@ -75,8 +95,16 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                   lotCategory.ratePerSquareMeter.toCurrency();
               tcpController.text =
                   (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
+              downpaymentController.text = loanBloc
+                  .computeDownPaymentRate(
+                      customDownpaymenRateStr: downpaymentRateController.text)
+                  .toString();
             }
           }
+
+          pagingController.value = PagingState(
+            itemList: loanBloc.clientLoanSchedules,
+          );
         } else if (state is LoanErrorState) {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(state.message)));
@@ -110,6 +138,107 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
       child: Scaffold(
         body: ListView(
           children: [
+            BlocBuilder<LoanBloc, LoanState>(
+                buildWhen: (previous, current) => current is LoanSuccessState,
+                builder: (context, state) {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: interestRateController,
+                          decoration: const InputDecoration(
+                            label: Text('Interest rate'),
+                            suffixText: '%',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                          ],
+                          onChanged: (value) {
+                            if (blockNoController.text.isNotEmpty &&
+                                lotNoController.text.isNotEmpty) {
+                              loanBloc.setBlockAndLotNo(
+                                type: 'blockNo',
+                                no: blockNoController.text,
+                              );
+                              loanBloc.setBlockAndLotNo(
+                                type: 'lotNo',
+                                no: lotNoController.text,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 32,
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          controller: downpaymentRateController,
+                          decoration: const InputDecoration(
+                            label: Text('Downpayment rate'),
+                            border: OutlineInputBorder(),
+                            suffixText: '%',
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                          ],
+                          onChanged: (value) {
+                            printd('downpayment changedd');
+                            if (blockNoController.text.isNotEmpty &&
+                                lotNoController.text.isNotEmpty) {
+                              printd('condition ok');
+                              loanBloc.setBlockAndLotNo(
+                                type: 'blockNo',
+                                no: blockNoController.text,
+                              );
+                              loanBloc.setBlockAndLotNo(
+                                type: 'lotNo',
+                                no: lotNoController.text,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 32,
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          controller: incidentalFeeRateController,
+                          decoration: const InputDecoration(
+                            label: Text('Incidental fee rate'),
+                            suffixText: '%',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                          ],
+                          onChanged: (value) {
+                            if (blockNoController.text.isNotEmpty &&
+                                lotNoController.text.isNotEmpty) {
+                              loanBloc.setBlockAndLotNo(
+                                type: 'blockNo',
+                                no: blockNoController.text,
+                              );
+                              loanBloc.setBlockAndLotNo(
+                                type: 'lotNo',
+                                no: lotNoController.text,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+            const SizedBox(
+              height: 32,
+            ),
             BlocBuilder<LoanBloc, LoanState>(
                 buildWhen: (previous, current) => current is LoanSuccessState,
                 builder: (context, state) {
@@ -398,6 +527,8 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                     downPayment: downpaymentController.text,
                     yearsToPay: loanDurationController.text,
                     date: Constants.defaultDateFormat.format(DateTime.now()),
+                    incidentalFeeRate: incidentalFeeRateController.text,
+                    loanInterestRate: interestRateController.text,
                   ),
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,
@@ -450,7 +581,8 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text('Lot area:'),
-                                  Text(loanBloc.selectedLot?.description ?? ''),
+                                  Text(loanBloc.selectedLot?.area.withUnit() ??
+                                      ''),
                                 ],
                               ),
                               Row(
@@ -523,10 +655,23 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                 children: [
                                   const Text('Add: Incidental fee:'),
                                   Text(loanBloc
-                                      .computeIncidentalFee()
+                                      .computeIncidentalFee(
+                                          customIncidentalFeeRateStr:
+                                              incidentalFeeRateController.text)
                                       .toCurrency()),
                                 ],
                               ),
+                              if (loanBloc.getVatAmount() != null)
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('Add: VAT:'),
+                                    Text(
+                                      loanBloc.getVatAmount()!.toCurrency(),
+                                    ),
+                                  ],
+                                ),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -584,6 +729,44 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
             ),
             const SizedBox(
               height: 32,
+            ),
+            Row(
+              children: [
+                Text(
+                  'Loan schedule',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            BlocBuilder<LoanBloc, LoanState>(
+              buildWhen: (previous, current) {
+                return current is LoanSuccessState;
+              },
+              builder: (context, state) {
+                if (!isLargeScreenBreakpoint) {
+                  return buildDashboardTable(
+                      context: context,
+                      loanBloc: loanBloc,
+                      pagingController: pagingController);
+                }
+
+                return Scrollbar(
+                  controller: horizontalScrollController,
+                  thumbVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: horizontalScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: buildDashboardTable(
+                        context: context,
+                        loanBloc: loanBloc,
+                        pagingController: pagingController,
+                        finiteSize: loanBloc.clientLoanSchedules.isNotEmpty),
+                  ),
+                );
+              },
             ),
           ],
         ),

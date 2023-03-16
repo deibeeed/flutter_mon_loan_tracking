@@ -76,11 +76,13 @@ class PdfGenerator {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text('Lot details'),
-                    pw.Column(children: [
+                    pw.Column(
+                      mainAxisAlignment: pw.MainAxisAlignment.end,
+                        children: [
                       pw.Text(lot.completeBlockLotNo),
-                      pw.Text('${lot.area} sqm'),
+                      pw.Text(lot.area.withUnit()),
                       pw.Text(loan.lotCategoryName),
-                      pw.Text(lot.description),
+                      pw.Text(lot.description, textAlign: pw.TextAlign.right),
                     ]),
                   ],
                 ),

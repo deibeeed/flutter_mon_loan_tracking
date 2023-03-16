@@ -7,11 +7,15 @@ class CalculateLoanEvent extends LoanEvent {
   final num downPayment;
   final num yearsToPay;
   final String date;
+  final num? loanInterestRate;
+  final num? incidentalFeeRate;
 
   CalculateLoanEvent({
     required this.downPayment,
     required this.yearsToPay,
     required this.date,
+    this.loanInterestRate,
+    this.incidentalFeeRate,
   });
 }
 

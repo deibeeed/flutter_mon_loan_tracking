@@ -17,7 +17,8 @@ class LoanSuccessState extends LoanState {
   @override
   List<Object?> get props => [
     message,
-    data
+    data,
+    Random().nextInt(9999)
   ];
 }
 
