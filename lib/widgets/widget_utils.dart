@@ -142,6 +142,9 @@ Widget buildDashboardTable({
     child: Column(
       children: [
         Container(
+          constraints: isSmallScreen
+              ? const BoxConstraints(maxHeight: 16800, maxWidth: 1212)
+              : null,
           padding: const EdgeInsets.only(left: 16, right: 16),
           color: Theme.of(context).colorScheme.secondaryContainer,
           child: Row(

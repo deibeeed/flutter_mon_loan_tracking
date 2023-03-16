@@ -80,7 +80,12 @@ class MainSmallScreen extends StatelessWidget {
                 builder: (context, state) {
                   var menuItemName = Constants.menuItems[0].name;
                   if (state is MenuPageSelected) {
-                    menuItemName = Constants.menuItems[state.page].name;
+                    menuItemName = Constants.getMenuByUserType(
+                      type: userBloc.getLoggedInUser()?.type,
+                    )
+                        .where((item) => !item.isSeparator && !item.isDynamic)
+                        .toList()[state.page]
+                        .name;
                   }
 
                   return Row(
