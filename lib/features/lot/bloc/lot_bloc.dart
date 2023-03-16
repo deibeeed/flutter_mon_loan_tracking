@@ -217,10 +217,11 @@ class LotBloc extends Bloc<LotEvent, LotState> {
 
       await Future.wait(futureLots);
 
+      initialize();
       emit(LotLoadingState());
       emit(AddLotSuccessState(message: 'Successfully added lot/s'));
       _selectedLotCategory = null;
-      await Future.delayed(const Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 2));
       emit(CloseAddLotState());
     } catch (err) {
       printd(err);

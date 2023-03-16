@@ -3,4 +3,5 @@ enum SettingField {
   incidentalFeeRate,
   serviceFee,
   downPayment,
+  vatRate,
 }

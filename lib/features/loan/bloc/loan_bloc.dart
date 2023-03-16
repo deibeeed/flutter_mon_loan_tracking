@@ -301,15 +301,24 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       return 0;
     }
 
-    return (selectedLot!.area * lotCategory.ratePerSquareMeter) *
-        (settings!.incidentalFeeRate / 100);
+    var tcp = computeTCP();
+
+    if (tcp >= Constants.vattableTCP) {
+      tcp += getVatAmount() ?? 0;
+    }
+
+    return tcp * (settings!.incidentalFeeRate / 100);
   }
 
   num computeDownPaymentRate() {
     if (selectedLot == null || settings == null) {
       return 0;
     }
-    final tcp = computeTCP();
+    var tcp = computeTCP();
+
+    if (tcp >= Constants.vattableTCP) {
+      tcp += getVatAmount() ?? 0;
+    }
     final downPaymentRatePercentage = settings!.downPaymentRate / 100;
 
     return tcp * downPaymentRatePercentage;
@@ -321,6 +330,22 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
 
     return settings!.serviceFee;
+  }
+
+  num? getVatAmount() {
+    if (settings == null) {
+      return null;
+    }
+
+    var tcp = computeTCP();
+
+    if (tcp >= Constants.vattableTCP) {
+      final vatRatePercent = settings!.vatRate / 100;
+
+      return tcp * vatRatePercent;
+    }
+
+    return null;
   }
 
   num yearsToMonths({required String years}) {
@@ -395,6 +420,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       throw Exception('Lot category not found');
     }
     var totalContractPrice = selectedLot!.area * lotCategory.ratePerSquareMeter;
+    num vatValue = 0;
+
+    if (totalContractPrice >= Constants.vattableTCP) {
+      final vatRatePercent = settings!.vatRate / 100;
+      vatValue = totalContractPrice * vatRatePercent;
+    }
+    totalContractPrice += vatValue;
     var outstandingBalance = totalContractPrice;
     var annualInterestRate = settings!.loanInterestRate / 100;
 
@@ -407,6 +439,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _outstandingBalance = outstandingBalance;
     var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
     var monthsToPay = yearsToPay * 12;
+    // TODO: uncomment when all loans are inputted
+    // final incidentalFee = (totalContractPrice * incidentalFeeRate) + serviceFee;
     final incidentalFee = totalContractPrice * incidentalFeeRate;
     final serviceFee = settings!.serviceFee;
     // TODO: uncomment when all loans are inputted
@@ -531,26 +565,41 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       }
 
       var totalContractPrice = computeTCP(throwError: true);
+      num vatValue = 0;
+
+      if (totalContractPrice >= Constants.vattableTCP) {
+        final vatRatePercent = settings!.vatRate / 100;
+        vatValue = totalContractPrice * vatRatePercent;
+      }
+      totalContractPrice += vatValue;
       var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
+      final serviceFee = settings!.serviceFee;
+      // TODO: uncomment when all loans are inputted
+      // TODO: uncomment when serviceFee is implemented
+      // final incidentalFee = (totalContractPrice * incidentalFeeRate) + serviceFee;
       final incidentalFee = totalContractPrice * incidentalFeeRate;
       final loan = Loan.create(
-          clientId: _selectedUser!.id,
-          preparedBy: authenticationService.loggedInUser!.uid,
-          lotId: _selectedLot!.id,
-          loanInterestRate: _settings!.loanInterestRate,
-          incidentalFeeRate: _settings!.incidentalFeeRate,
-          // serviceFee: _settings!.serviceFee,
-          serviceFee: 0, // service fee not now
-          perSquareMeterRate: lotCategory.ratePerSquareMeter,
-          outstandingBalance: outstandingBalance,
-          totalContractPrice: totalContractPrice,
-          incidentalFees: incidentalFee,
-          downPayment: event.downPayment,
-          yearsToPay: event.yearsToPay,
-          deductions: _discounts,
-          assistingAgent: event.assistingAgent,
-          lotCategoryName: lotCategory.name,
-          downPaymentRate: settings!.downPaymentRate);
+        clientId: _selectedUser!.id,
+        preparedBy: authenticationService.loggedInUser!.uid,
+        lotId: _selectedLot!.id,
+        loanInterestRate: _settings!.loanInterestRate,
+        incidentalFeeRate: _settings!.incidentalFeeRate,
+        // serviceFee: _settings!.serviceFee,
+        serviceFee: 0,
+        // service fee not now
+        perSquareMeterRate: lotCategory.ratePerSquareMeter,
+        outstandingBalance: outstandingBalance,
+        totalContractPrice: totalContractPrice,
+        incidentalFees: incidentalFee,
+        downPayment: event.downPayment,
+        yearsToPay: event.yearsToPay,
+        deductions: _discounts,
+        assistingAgent: event.assistingAgent,
+        lotCategoryName: lotCategory.name,
+        downPaymentRate: settings!.downPaymentRate,
+        vatRate: settings!.vatRate,
+        vatValue: vatValue,
+      );
       final loanWithId = await loanRepository.add(data: loan);
       final futureLoanSchedules = _clientLoanSchedules.map(
         (schedule) {

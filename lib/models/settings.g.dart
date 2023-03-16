@@ -16,14 +16,18 @@ Settings _$SettingsFromJson(Map<String, dynamic> json) => Settings(
       id: json['id'] as String? ?? Constants.NO_ID,
       createdAt: json['createdAt'] as num? ?? Constants.NO_DATE,
       downPaymentRate: json['downPaymentRate'] as num? ?? 20,
+      vatRate: json['vatRate'] as num? ?? 12,
+      vattableTCP: json['vattableTCP'] as num? ?? 1500000,
     );
 
 Map<String, dynamic> _$SettingsToJson(Settings instance) => <String, dynamic>{
       'loanInterestRate': instance.loanInterestRate,
       'incidentalFeeRate': instance.incidentalFeeRate,
       'serviceFee': instance.serviceFee,
-      'lotCategories': instance.lotCategories.map((e) => e.toJson()).toList(),
+      'lotCategories': instance.lotCategories,
       'id': instance.id,
       'createdAt': instance.createdAt,
       'downPaymentRate': instance.downPaymentRate,
+      'vatRate': instance.vatRate,
+      'vattableTCP': instance.vattableTCP,
     };

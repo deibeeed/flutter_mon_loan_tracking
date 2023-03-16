@@ -21,6 +21,9 @@ class Loan extends Equatable {
   final String lotId;
   final num loanInterestRate;
   final num incidentalFeeRate;
+  /// serviceFee is defaulted to zero because there
+  /// was no service fee implemented in the past.
+  @JsonKey(defaultValue: 0)
   final num serviceFee;
   final num createdAt;
   final num ratePerSquareMeter;
@@ -31,15 +34,28 @@ class Loan extends Equatable {
   /// tcp is deducted
   final num outstandingBalance;
   /// tcp = lot area * per sqm rate
+  /// if TCP >= Constants.vattableTCP
+  /// tcp += vatValue
   final num totalContractPrice;
   /// amount of additional fees.
   /// computed as = tcp * incidentalFeeRate
+  /// TODO: add serviceFee in the computation
+  /// of incidental fee.
+  /// Computation from then should be:
+  /// incidentalFee = (tcp * incidentalFeeRate) + serviceFee
   final num incidentalFees;
   final num downPayment;
   final num yearsToPay;
   final String? assistingAgent;
   final String lotCategoryName;
+  @JsonKey(defaultValue: 20)
   final num downPaymentRate;
+  @JsonKey(defaultValue: 12)
+  final num vatRate;
+  /// by default vatValue is null.
+  /// vatValue will only have value is TCP is
+  /// 1.5M pesos or more.
+  final num? vatValue;
 
   Loan({
     required this.id,
@@ -60,6 +76,8 @@ class Loan extends Equatable {
     this.assistingAgent,
     required this.lotCategoryName,
     required this.downPaymentRate,
+    required this.vatRate,
+    this.vatValue,
   });
 
   factory Loan.create({
@@ -79,6 +97,8 @@ class Loan extends Equatable {
     String? assistingAgent,
     required String lotCategoryName,
     required num downPaymentRate,
+    required num vatRate,
+    num? vatValue,
   }) =>
       Loan(
         id: Constants.NO_ID,
@@ -99,6 +119,8 @@ class Loan extends Equatable {
         assistingAgent: assistingAgent,
         lotCategoryName: lotCategoryName,
         downPaymentRate: downPaymentRate,
+        vatRate: vatRate,
+        vatValue: vatValue,
       );
 
   factory Loan.updateId({
@@ -124,6 +146,8 @@ class Loan extends Equatable {
         assistingAgent: loan.assistingAgent,
         lotCategoryName: loan.lotCategoryName,
         downPaymentRate: loan.downPaymentRate,
+        vatRate: loan.vatRate,
+        vatValue: loan.vatValue,
       );
 
   factory Loan.fromJson(Map<String, dynamic> json) => _$LoanFromJson(json);
@@ -150,5 +174,7 @@ class Loan extends Equatable {
     deductions,
     outstandingBalance,
     totalContractPrice,
+    vatRate,
+    vatValue,
   ];
 }

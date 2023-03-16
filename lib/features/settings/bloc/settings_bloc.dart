@@ -71,6 +71,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       case SettingField.downPayment:
         _settings.downPaymentRate = num.parse(value);
         break;
+      case SettingField.vatRate:
+        _settings.vatRate = num.parse(value);
+        break;
     }
 
     add(UpdateSettingsUiEvent(updatedSettings: _settings));

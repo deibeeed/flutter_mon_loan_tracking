@@ -543,13 +543,22 @@ Widget buildLargeScreenBody({
                             Text(loanBloc.computeIncidentalFee().toCurrency()),
                           ],
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Add: Service fee:'),
-                            Text(loanBloc.getServiceFee().toCurrency()),
-                          ],
-                        ),
+                        // TODO: uncomment if service fee is implemented
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: [
+                        //     const Text('Add: Service fee:'),
+                        //     Text(loanBloc.getServiceFee().toCurrency()),
+                        //   ],
+                        // ),
+                        if (loanBloc.getVatAmount() != null)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Add: VAT:'),
+                              Text(loanBloc.getVatAmount()!.toCurrency()),
+                            ],
+                          ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
