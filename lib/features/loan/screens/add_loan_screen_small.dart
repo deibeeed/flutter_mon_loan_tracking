@@ -567,12 +567,36 @@ Widget buildSmallScreenBody({
       const SizedBox(
         height: 32,
       ),
-      Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: Text(
-          'Loan schedule',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 16),
+            child: Text(
+              'Loan schedule',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
+          ElevatedButton(
+              onPressed: () {
+                var loan = loanBloc.selectedLoan;
+                var lot = loanBloc.selectedLot;
+
+                if (loan == null || lot == null) {
+                  return;
+                }
+
+                PdfGenerator.generatePdf(
+                  schedules: loanBloc.clientLoanSchedules,
+                  loan: loan,
+                  lot: lot,
+                );
+              },
+              child: Text(
+                'Print',
+                style: Theme.of(context).textTheme.labelLarge,
+              ))
+        ],
       ),
       const SizedBox(
         height: 32,

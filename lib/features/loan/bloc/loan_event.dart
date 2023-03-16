@@ -3,22 +3,6 @@ part of 'loan_bloc.dart';
 @immutable
 abstract class LoanEvent {}
 
-class CalculateLoanEvent extends LoanEvent {
-  final num downPayment;
-  final num yearsToPay;
-  final String date;
-  final num? loanInterestRate;
-  final num? incidentalFeeRate;
-
-  CalculateLoanEvent({
-    required this.downPayment,
-    required this.yearsToPay,
-    required this.date,
-    this.loanInterestRate,
-    this.incidentalFeeRate,
-  });
-}
-
 class SearchLotEvent extends LoanEvent {
   final String blockNo;
   final String lotNo;
@@ -36,12 +20,20 @@ class AddLoanEvent extends LoanEvent {
   final num yearsToPay;
   final String assistingAgent;
   final String date;
+  final bool storeInDb;
+  final num? loanInterestRate;
+  final num? incidentalFeeRate;
+  final bool withUser;
 
   AddLoanEvent({
     required this.downPayment,
     required this.yearsToPay,
     required this.assistingAgent,
     required this.date,
+    this.storeInDb = true,
+    this.withUser = true,
+    this.loanInterestRate,
+    this.incidentalFeeRate,
   });
 }
 

@@ -24,7 +24,7 @@ Map<String, dynamic> _$SettingsToJson(Settings instance) => <String, dynamic>{
       'loanInterestRate': instance.loanInterestRate,
       'incidentalFeeRate': instance.incidentalFeeRate,
       'serviceFee': instance.serviceFee,
-      'lotCategories': instance.lotCategories,
+      'lotCategories': instance.lotCategories.map((e) => e.toJson()).toList(),
       'id': instance.id,
       'createdAt': instance.createdAt,
       'downPaymentRate': instance.downPaymentRate,

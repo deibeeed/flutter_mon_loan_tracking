@@ -308,7 +308,7 @@ Widget buildSmallScreenBody({
                     lot: lot,
                   );
                 },
-                child: Text('Generate PDF'))
+                child: Text('Print'))
           ],
         ),
       ),

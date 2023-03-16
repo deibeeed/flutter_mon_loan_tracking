@@ -603,11 +603,31 @@ Widget buildLargeScreenBody({
         height: 32,
       ),
       Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             'Loan schedule',
             style: Theme.of(context).textTheme.titleLarge,
           ),
+          ElevatedButton(
+              onPressed: () {
+                var loan = loanBloc.selectedLoan;
+                var lot = loanBloc.selectedLot;
+
+                if (loan == null || lot == null) {
+                  return;
+                }
+
+                PdfGenerator.generatePdf(
+                  schedules: loanBloc.clientLoanSchedules,
+                  loan: loan,
+                  lot: lot,
+                );
+              },
+              child: Text(
+                'Print',
+                style: Theme.of(context).textTheme.labelLarge,
+              ))
         ],
       ),
       const SizedBox(

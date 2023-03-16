@@ -13,7 +13,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 class PdfGenerator {
   static generatePdf({
-    required User user,
+    User? user,
     required List<LoanSchedule> schedules,
     required Loan loan,
     required Lot lot,
@@ -36,7 +36,7 @@ class PdfGenerator {
 
   static Future<Uint8List> _buildPdf(
       PdfPageFormat format, {
-        required User user,
+        User? user,
         required List<LoanSchedule> schedules,
         required Loan loan,
         required Lot lot,
@@ -65,19 +65,20 @@ class PdfGenerator {
             pw.Container(
               // width: format.availableWidth * 0.3,
               child: pw.Column(children: [
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Name'),
-                    pw.Text(user.completeName),
-                  ],
-                ),
+                if (user != null)
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text('Name'),
+                      pw.Text(user.completeName),
+                    ],
+                  ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text('Lot details'),
                     pw.Column(
-                      mainAxisAlignment: pw.MainAxisAlignment.end,
+                        crossAxisAlignment: pw.CrossAxisAlignment.end,
                         children: [
                       pw.Text(lot.completeBlockLotNo),
                       pw.Text(lot.area.withUnit()),
@@ -118,6 +119,23 @@ class PdfGenerator {
                         loan.downPayment.toCurrency(isDeduction: true)),
                   ],
                 ),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Add: Incidental fees'),
+                    pw.Text(
+                        loan.incidentalFees.toCurrency()),
+                  ],
+                ),
+                if (loan.vatValue != null)
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text('Add: VAT'),
+                      pw.Text(
+                          loan.vatValue!.toCurrency()),
+                    ],
+                  ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [

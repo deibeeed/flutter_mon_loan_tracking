@@ -314,7 +314,7 @@ Widget buildLargeScreenBody({
                 );
               },
               child: Text(
-                'Generate PDF',
+                'Print',
                 style: Theme.of(context).textTheme.labelLarge,
               ))
         ],

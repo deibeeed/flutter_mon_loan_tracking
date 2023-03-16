@@ -9,6 +9,7 @@ import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:flutter_mon_loan_tracking/widgets/pdf_generator.dart';
 import 'package:flutter_mon_loan_tracking/widgets/widget_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -41,6 +42,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
   final dateController = TextEditingController(
       text: Constants.defaultDateFormat.format(DateTime.now()));
   final pagingController = PagingController<int, LoanSchedule>(firstPageKey: 0);
+  var _downpaymentPopulated = false;
 
   @override
   void deactivate() {
@@ -105,8 +107,11 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
             final lot = loanBloc.selectedLot!;
             final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
-            downpaymentController.text =
-                loanBloc.computeDownPaymentRate().toString();
+            if (!_downpaymentPopulated) {
+              downpaymentController.text =
+                  loanBloc.computeDownPaymentRate().toString();
+              _downpaymentPopulated = true;
+            }
 
             final lotCategory = settings.lotCategories.firstWhereOrNull(
               (category) => category.key == lot.lotCategoryKey,

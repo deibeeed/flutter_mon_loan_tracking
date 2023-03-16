@@ -8,6 +8,7 @@ import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:flutter_mon_loan_tracking/widgets/pdf_generator.dart';
 import 'package:flutter_mon_loan_tracking/widgets/widget_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -593,12 +594,36 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                 const SizedBox(
                   height: 16,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: Text(
-                    'Loan schedule',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 16),
+                      child: Text(
+                        'Loan schedule',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                    ElevatedButton(
+                        onPressed: () {
+                          var loan = loanBloc.selectedLoan;
+                          var lot = loanBloc.selectedLot;
+
+                          if (loan == null || lot == null) {
+                            return;
+                          }
+
+                          PdfGenerator.generatePdf(
+                            schedules: loanBloc.clientLoanSchedules,
+                            loan: loan,
+                            lot: lot,
+                          );
+                        },
+                        child: Text(
+                          'Print',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ))
+                  ],
                 ),
                 const SizedBox(
                   height: 32,
