@@ -303,7 +303,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
     var tcp = computeTCP();
 
-    if (tcp >= Constants.vattableTCP) {
+    if (tcp >= settings!.vattableTCP) {
       tcp += getVatAmount() ?? 0;
     }
 
@@ -316,7 +316,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
     var tcp = computeTCP();
 
-    if (tcp >= Constants.vattableTCP) {
+    if (tcp >= settings!.vattableTCP) {
       tcp += getVatAmount() ?? 0;
     }
     final downPaymentRatePercentage = settings!.downPaymentRate / 100;
@@ -339,7 +339,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
     var tcp = computeTCP();
 
-    if (tcp >= Constants.vattableTCP) {
+    if (tcp >= settings!.vattableTCP) {
       final vatRatePercent = settings!.vatRate / 100;
 
       return tcp * vatRatePercent;
@@ -422,7 +422,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     var totalContractPrice = selectedLot!.area * lotCategory.ratePerSquareMeter;
     num vatValue = 0;
 
-    if (totalContractPrice >= Constants.vattableTCP) {
+    if (totalContractPrice >= settings!.vattableTCP) {
       final vatRatePercent = settings!.vatRate / 100;
       vatValue = totalContractPrice * vatRatePercent;
     }
@@ -567,7 +567,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       var totalContractPrice = computeTCP(throwError: true);
       num vatValue = 0;
 
-      if (totalContractPrice >= Constants.vattableTCP) {
+      if (totalContractPrice >= settings!.vattableTCP) {
         final vatRatePercent = settings!.vatRate / 100;
         vatValue = totalContractPrice * vatRatePercent;
       }

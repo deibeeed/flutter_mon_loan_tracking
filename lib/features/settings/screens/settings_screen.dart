@@ -25,6 +25,7 @@ class SettingsScreen extends StatelessWidget {
   final lotCategoryPricePerSqmController = TextEditingController();
   final downPaymentRateController = TextEditingController();
   final vatRateController = TextEditingController();
+  final vattableTCPController = TextEditingController();
   bool allowTextControllerUpdate = true;
 
   @override
@@ -51,6 +52,7 @@ class SettingsScreen extends StatelessWidget {
           lotCategoryPricePerSqmController: lotCategoryPricePerSqmController,
           downPaymentRateController: downPaymentRateController,
           vatRateController: vatRateController,
+          vattableTCPController: vattableTCPController,
           allowTextControllerUpdate: allowTextControllerUpdate,
       )
           : buildLargeScreenBody(
@@ -62,6 +64,7 @@ class SettingsScreen extends StatelessWidget {
         lotCategoryPricePerSqmController: lotCategoryPricePerSqmController,
         downPaymentRateController: downPaymentRateController,
         vatRateController: vatRateController,
+        vattableTCPController: vattableTCPController,
         allowTextControllerUpdate: allowTextControllerUpdate,
       ),
     );

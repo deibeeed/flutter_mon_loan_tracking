@@ -4,4 +4,5 @@ enum SettingField {
   serviceFee,
   downPayment,
   vatRate,
+  vattableTCP,
 }

@@ -9,6 +9,7 @@ Widget buildLargeScreenBody({
   required TextEditingController lotCategoryPricePerSqmController,
   required TextEditingController downPaymentRateController,
   required TextEditingController vatRateController,
+  required TextEditingController vattableTCPController,
   required bool allowTextControllerUpdate,
 }) {
   final settingsBloc = BlocProvider.of<SettingsBloc>(context);
@@ -36,6 +37,8 @@ Widget buildLargeScreenBody({
                 settingsBloc.settings.downPaymentRate.toString();
             allowTextControllerUpdate = false;
             vatRateController.text = settingsBloc.settings.vatRate.toString();
+            vattableTCPController.text =
+                settingsBloc.settings.vattableTCP.toString();
 
             if (state.message != null) {
               ScaffoldMessenger.of(context)
@@ -169,6 +172,25 @@ Widget buildLargeScreenBody({
                 const SizedBox(
                   height: 16,
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('VAT-able Total Contract Price'),
+                    BlocBuilder<SettingsBloc, SettingsState>(
+                      buildWhen: (previousState, currentState) {
+                        return currentState is SettingsSuccessState;
+                      },
+                      builder: (context, state) {
+                        return Text(
+                          settingsBloc.settings.vattableTCP.toCurrency(),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
                 // Row(
                 //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 //   children: [
@@ -203,7 +225,7 @@ Widget buildLargeScreenBody({
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             for (var category
-                            in settingsBloc.settings.lotCategories) ...[
+                                in settingsBloc.settings.lotCategories) ...[
                               Text(
                                 '${category.name} @ ${category.ratePerSquareMeter.toCurrency()}',
                               ),
@@ -235,7 +257,7 @@ Widget buildLargeScreenBody({
                     border: OutlineInputBorder(),
                   ),
                   keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
@@ -263,7 +285,7 @@ Widget buildLargeScreenBody({
                     border: OutlineInputBorder(),
                   ),
                   keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
@@ -283,7 +305,7 @@ Widget buildLargeScreenBody({
                     border: OutlineInputBorder(),
                   ),
                   keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
@@ -303,12 +325,31 @@ Widget buildLargeScreenBody({
                     border: OutlineInputBorder(),
                   ),
                   keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
                   onChanged: (value) => settingsBloc.updateSettings(
                     field: SettingField.vatRate,
+                    value: value,
+                  ),
+                ),
+                const SizedBox(
+                  height: 32,
+                ),
+                TextFormField(
+                  controller: vattableTCPController,
+                  decoration: const InputDecoration(
+                    label: Text('VAT-able Total Contract Price'),
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                  ],
+                  onChanged: (value) => settingsBloc.updateSettings(
+                    field: SettingField.vattableTCP,
                     value: value,
                   ),
                 ),
@@ -339,7 +380,7 @@ Widget buildLargeScreenBody({
                   children: [
                     BlocBuilder<SettingsBloc, SettingsState>(
                         buildWhen: (previous, current) =>
-                        current is SettingsSuccessState,
+                            current is SettingsSuccessState,
                         builder: (context, state) {
                           return Row(
                             mainAxisSize: MainAxisSize.min,
@@ -349,7 +390,7 @@ Widget buildLargeScreenBody({
                                 flex: 2,
                                 child: TextFormField(
                                   enabled: settingsBloc
-                                      .selectedLotCategoryKeyToUpdate ==
+                                          .selectedLotCategoryKeyToUpdate ==
                                       null,
                                   controller: lotCategoryNameController,
                                   decoration: const InputDecoration(
@@ -364,8 +405,7 @@ Widget buildLargeScreenBody({
                               Expanded(
                                 flex: 2,
                                 child: TextFormField(
-                                  controller:
-                                  lotCategoryPricePerSqmController,
+                                  controller: lotCategoryPricePerSqmController,
                                   decoration: const InputDecoration(
                                     label: Text('Rate per square meter'),
                                     border: OutlineInputBorder(),
@@ -379,48 +419,45 @@ Widget buildLargeScreenBody({
                                   flex: 1,
                                   child: IconButton(
                                     style: IconButton.styleFrom(
-                                      backgroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .primary,
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                                     onPressed: () {
                                       if (settingsBloc
-                                          .selectedLotCategoryKeyToUpdate ==
+                                              .selectedLotCategoryKeyToUpdate ==
                                           null) {
                                         settingsBloc.addLotCategory(
-                                          name:
-                                          lotCategoryNameController.text,
+                                          name: lotCategoryNameController.text,
                                           ratePerSqm:
-                                          lotCategoryPricePerSqmController
-                                              .text,
+                                              lotCategoryPricePerSqmController
+                                                  .text,
                                         );
                                       } else {
                                         settingsBloc.updateLotCategory(
-                                          name:
-                                          lotCategoryNameController.text,
+                                          name: lotCategoryNameController.text,
                                           ratePerSqm:
-                                          lotCategoryPricePerSqmController
-                                              .text,
+                                              lotCategoryPricePerSqmController
+                                                  .text,
                                         );
                                       }
 
                                       lotCategoryPricePerSqmController.text =
-                                      '';
+                                          '';
                                       lotCategoryNameController.text = '';
                                     },
                                     icon: settingsBloc
-                                        .selectedLotCategoryKeyToUpdate ==
-                                        null
+                                                .selectedLotCategoryKeyToUpdate ==
+                                            null
                                         ? const Icon(
-                                      Icons.add,
-                                      color: Colors.white,
-                                    )
+                                            Icons.add,
+                                            color: Colors.white,
+                                          )
                                         : SvgPicture.asset(
-                                      'assets/icons/refresh.svg',
-                                      width: 24,
-                                      height: 24,
-                                      color: Colors.white,
-                                    ),
+                                            'assets/icons/refresh.svg',
+                                            width: 24,
+                                            height: 24,
+                                            color: Colors.white,
+                                          ),
                                   )),
                             ],
                           );
@@ -438,7 +475,7 @@ Widget buildLargeScreenBody({
                           runSpacing: 16,
                           children: [
                             for (var category
-                            in settingsBloc.settings.lotCategories)
+                                in settingsBloc.settings.lotCategories)
                               RawChip(
                                 tapEnabled: true,
                                 padding: const EdgeInsets.only(
@@ -452,8 +489,8 @@ Widget buildLargeScreenBody({
                                     category: category,
                                   );
                                 },
-                                onDeleted: () => settingsBloc
-                                    .removeLotCategory(category: category),
+                                onDeleted: () => settingsBloc.removeLotCategory(
+                                    category: category),
                                 deleteIcon: const Icon(Icons.cancel),
                               ),
                           ],
@@ -473,7 +510,7 @@ Widget buildLargeScreenBody({
                         style: ElevatedButton.styleFrom(
                             padding: buttonPadding,
                             backgroundColor:
-                            Theme.of(context).colorScheme.primary),
+                                Theme.of(context).colorScheme.primary),
                         child: Text(
                           'Update settings',
                           style: Theme.of(context)

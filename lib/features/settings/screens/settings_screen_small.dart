@@ -9,6 +9,7 @@ Widget buildSmallScreenBody({
   required TextEditingController lotCategoryPricePerSqmController,
   required TextEditingController downPaymentRateController,
   required TextEditingController vatRateController,
+  required TextEditingController vattableTCPController,
   required bool allowTextControllerUpdate,
 }) {
   final settingsBloc = BlocProvider.of<SettingsBloc>(context);

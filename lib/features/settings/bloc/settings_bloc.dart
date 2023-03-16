@@ -74,6 +74,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       case SettingField.vatRate:
         _settings.vatRate = num.parse(value);
         break;
+      case SettingField.vattableTCP:
+        _settings.vattableTCP = num.parse(value);
+        break;
     }
 
     add(UpdateSettingsUiEvent(updatedSettings: _settings));

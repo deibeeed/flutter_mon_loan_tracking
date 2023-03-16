@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 
 class Constants {
   static String? appBarTitle;
-  static const vattableTCP = 1500000;
   static const maxAppBarHeight = 220.0;
   static const largeScreenShortestSideBreakPoint = 800;
   static const smallScreenShortestSideBreakPoint = 480;
