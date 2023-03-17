@@ -16,6 +16,18 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       id: json['id'] as String? ?? Constants.NO_ID,
       type: $enumDecodeNullable(_$UserTypeEnumMap, json['type']) ??
           UserType.customer,
+      middleName: json['middleName'] as String?,
+      gender: $enumDecodeNullable(_$GenderEnumMap, json['gender']),
+      birthPlace: json['birthPlace'] as String?,
+      nationality: json['nationality'] as String?,
+      height: json['height'] as num?,
+      weight: json['weight'] as num?,
+      childrenCount: json['childrenCount'] as num?,
+      tinNo: json['tinNo'] as String?,
+      sssNo: json['sssNo'] as String?,
+      philHealthNo: json['philHealthNo'] as String?,
+      spouseId: json['spouseId'] as String?,
+      telNo: json['telNo'] as String?,
     );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -27,6 +39,18 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'mobileNumber': instance.mobileNumber,
       'id': instance.id,
       'type': _$UserTypeEnumMap[instance.type]!,
+      'middleName': instance.middleName,
+      'gender': _$GenderEnumMap[instance.gender],
+      'birthPlace': instance.birthPlace,
+      'nationality': instance.nationality,
+      'height': instance.height,
+      'weight': instance.weight,
+      'childrenCount': instance.childrenCount,
+      'tinNo': instance.tinNo,
+      'sssNo': instance.sssNo,
+      'philHealthNo': instance.philHealthNo,
+      'spouseId': instance.spouseId,
+      'telNo': instance.telNo,
     };
 
 const _$CivilStatusEnumMap = {
@@ -44,4 +68,9 @@ const _$UserTypeEnumMap = {
   UserType.admin: 'admin',
   UserType.accountant: 'accountant',
   UserType.subAdmin: 'subAdmin',
+};
+
+const _$GenderEnumMap = {
+  Gender.male: 'male',
+  Gender.female: 'female',
 };

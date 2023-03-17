@@ -13,7 +13,17 @@ class AddUserEvent extends UserEvent {
   final UserType type;
   final String password;
   final String confirmPassword;
-
+  final String? middleName;
+  final String? gender;
+  final String? birthPlace;
+  final String? nationality;
+  final String? height;
+  final String? weight;
+  final String? childrenCount;
+  final String? tinNo;
+  final String? sssNo;
+  final String? philHealthNo;
+  final String? telNo;
   AddUserEvent({
     required this.firstName,
     required this.lastName,
@@ -24,6 +34,17 @@ class AddUserEvent extends UserEvent {
     required this.type,
     required this.password,
     required this.confirmPassword,
+    this.middleName,
+    this.gender,
+    this.birthPlace,
+    this.nationality,
+    this.height,
+    this.weight,
+    this.childrenCount,
+    this.tinNo,
+    this.sssNo,
+    this.philHealthNo,
+    this.telNo,
   });
 }
 

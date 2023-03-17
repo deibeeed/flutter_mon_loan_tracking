@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/civil_status_types.dart';
+import 'package:flutter_mon_loan_tracking/models/gender.dart';
 import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
@@ -49,6 +50,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   CivilStatus? get selectedCivilStatus => _selectedCivilStatus;
 
+  Gender? _selectedGender;
+
+  Gender? get selectedGender => _selectedGender;
+
   Map<String, User> get mappedUsers => userRepository.mappedUsers;
 
   List<User> _customers = [];
@@ -69,9 +74,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     _selectedUser = null;
     _selectedCivilStatus = null;
     _selectedType = null;
+    _selectedGender = null;
   }
 
-  void selectDate({ required DateTime date}) {
+  void selectDate({required DateTime date}) {
     emit(UserSuccessState(message: 'Successfully selected date'));
   }
 
@@ -91,12 +97,31 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
+  void selectGender({required Gender? gender}) {
+    _selectedGender = gender;
+
+    if (gender != null) {
+      emit(SelectedGenderState(gender: gender));
+    }
+  }
+
   void addUser({
     required String lastName,
     required String firstName,
     required String birthDate,
     required String mobileNumber,
     required String email,
+    String? middleName,
+    String? gender,
+    String? birthPlace,
+    String? nationality,
+    String? height,
+    String? weight,
+    String? childrenCount,
+    String? tinNo,
+    String? sssNo,
+    String? philHealthNo,
+    String? telNo,
     String? password,
     String? confirmPassword,
   }) {
@@ -122,6 +147,17 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         type: _selectedType!,
         password: email,
         confirmPassword: email,
+        middleName: middleName,
+        gender: gender,
+        birthPlace: birthPlace,
+        nationality: nationality,
+        height: height,
+        weight: weight,
+        childrenCount: childrenCount,
+        tinNo: tinNo,
+        sssNo: sssNo,
+        philHealthNo: philHealthNo,
+        telNo: telNo,
       ),
     );
   }

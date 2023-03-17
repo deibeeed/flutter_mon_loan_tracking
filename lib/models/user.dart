@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_mon_loan_tracking/models/civil_status_types.dart';
+import 'package:flutter_mon_loan_tracking/models/gender.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -8,7 +9,7 @@ part 'user.g.dart';
 
 @JsonSerializable()
 class User extends Equatable {
-  const User({
+  User({
     required this.firstName,
     required this.lastName,
     required this.email,
@@ -17,6 +18,18 @@ class User extends Equatable {
     required this.mobileNumber,
     this.id = Constants.NO_ID,
     this.type = UserType.customer,
+    this.middleName,
+    this.gender,
+    this.birthPlace,
+    this.nationality,
+    this.height,
+    this.weight,
+    this.childrenCount,
+    this.tinNo,
+    this.sssNo,
+    this.philHealthNo,
+    this.spouseId,
+    this.telNo,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
@@ -30,6 +43,18 @@ class User extends Equatable {
         civilStatus: user.civilStatus,
         mobileNumber: user.mobileNumber,
         type: user.type,
+        middleName: user.middleName,
+        gender: user.gender,
+        birthPlace: user.birthPlace,
+        nationality: user.nationality,
+        height: user.height,
+        weight: user.weight,
+        childrenCount: user.childrenCount,
+        tinNo: user.tinNo,
+        sssNo: user.sssNo,
+        philHealthNo: user.philHealthNo,
+        spouseId: user.spouseId,
+        telNo: user.telNo,
       );
 
   final String firstName;
@@ -40,6 +65,19 @@ class User extends Equatable {
   final String mobileNumber;
   final String id;
   final UserType type;
+  String? spouseId;
+  String? middleName;
+  Gender? gender;
+  String? birthPlace;
+  String? nationality;
+  num? height;
+  num? weight;
+  num? childrenCount;
+  String? tinNo;
+  String? sssNo;
+  String? philHealthNo;
+  String? telNo;
+  final num createdAt = DateTime.now().millisecondsSinceEpoch;
 
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
@@ -57,5 +95,18 @@ class User extends Equatable {
         mobileNumber,
         id,
         type,
+        middleName,
+        gender,
+        birthPlace,
+        nationality,
+        height,
+        weight,
+        childrenCount,
+        tinNo,
+        sssNo,
+        philHealthNo,
+        spouseId,
+        telNo,
+        createdAt,
       ];
 }

@@ -3,11 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/civil_status_types.dart';
+import 'package:flutter_mon_loan_tracking/models/gender.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:go_router/go_router.dart';
+
+part 'add_user_screen_small.dart';
+
+part 'add_user_screen_large.dart';
 
 class AddUserScreen extends StatelessWidget {
   AddUserScreen({super.key});
@@ -16,10 +21,19 @@ class AddUserScreen extends StatelessWidget {
   final firstNameController = TextEditingController();
   final mobileNumberController = TextEditingController();
   final emailController = TextEditingController();
-  final civilStatusController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   final birthDateController = TextEditingController();
+  final middleNameController = TextEditingController();
+  final birthPlaceController = TextEditingController();
+  final nationalityController = TextEditingController();
+  final heightController = TextEditingController();
+  final weightController = TextEditingController();
+  final childrenCountController = TextEditingController();
+  final tinNoController = TextEditingController();
+  final sssNoController = TextEditingController();
+  final philHealthController = TextEditingController();
+  final telNoController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -162,427 +176,46 @@ class AddUserScreen extends StatelessWidget {
                 ),
               ),
         body: shortestSide <= Constants.smallScreenShortestSideBreakPoint
-            ? _buildSmallScreenBody(context: context)
-            : _buildLargeScreenBody(context: context),
-      ),
-    );
-  }
-
-  Widget _buildSmallScreenBody({required BuildContext context}) {
-    final userBloc = BlocProvider.of<UserBloc>(context);
-    final screenSize = MediaQuery.of(context).size;
-    final shortestSide = screenSize.shortestSide;
-    var buttonPadding = const EdgeInsets.all(24);
-
-    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
-      buttonPadding = const EdgeInsets.all(16);
-    }
-
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            BlocBuilder<UserBloc, UserState>(
-              builder: (context, state) {
-                var type = UserType.customer;
-
-                if (state is SelectedUserTypeState) {
-                  type = state.type;
-                }
-
-                return DropdownButton<UserType>(
-                  value: type,
-                  items: UserType.values.map((type) {
-                    return DropdownMenuItem<UserType>(
-                      value: type,
-                      child: Text(type.value),
-                    );
-                  }).toList(),
-                  onChanged: (value) => userBloc.selectUserType(type: value),
-                );
-              },
-            ),
-            TextFormField(
-              controller: lastNameController,
-              decoration: const InputDecoration(
-                  label: Text('Last name'), border: OutlineInputBorder()),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: firstNameController,
-              decoration: const InputDecoration(
-                  label: Text('First name'), border: OutlineInputBorder()),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            Text(
-              'Civil status',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-            SizedBox(
-              width: double.infinity,
-              child: BlocBuilder<UserBloc, UserState>(
-                builder: (context, state) {
-                  var dropdownValue = CivilStatus.values.first;
-
-                  if (state is SelectedCivilStatusState) {
-                    dropdownValue = state.civilStatus;
-                  }
-
-                  return DropdownButton<CivilStatus>(
-                    value: dropdownValue,
-                    items: CivilStatus.values.map((category) {
-                      return DropdownMenuItem<CivilStatus>(
-                        value: category,
-                        child: Text(category.name),
-                      );
-                    }).toList(),
-                    onChanged: (value) => userBloc.selectCivilStatus(
-                      civilStatus: value,
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            BlocBuilder<UserBloc, UserState>(
-              buildWhen: (previous, current) => current is UserSuccessState,
-              builder: (context, state) {
-                return TextFormField(
-                  onTap: () {
-                    showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate:
-                      DateTime.now().subtract(Duration(days: 365 * 100)),
-                      lastDate: DateTime.now(),
-                    ).then((date) {
-                      printd('date is $date');
-                      if (date != null) {
-                        birthDateController.text =
-                            Constants.defaultDateFormat.format(date);
-                        userBloc.selectDate(date: date);
-                      }
-                    });
-                  },
-                  controller: birthDateController,
-                  decoration: const InputDecoration(
-                    label: Text('Birthdate'),
-                    border: OutlineInputBorder(),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: mobileNumberController,
-              decoration: const InputDecoration(
-                label: Text('Mobile number'),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-              ],
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                label: Text('Email'),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                label: Text('Password'),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                label: Text('Confirm password'),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => userBloc.addUser(
-                        lastName: lastNameController.text,
-                        firstName: firstNameController.text,
-                        birthDate: birthDateController.text,
-                        mobileNumber: mobileNumberController.text,
-                        email: emailController.text,
-                        password: passwordController.text,
-                        confirmPassword: confirmPasswordController.text),
-                    style: ElevatedButton.styleFrom(
-                        padding: buttonPadding,
-                        backgroundColor: Theme.of(context).colorScheme.primary),
-                    child: Text(
-                      'Add User',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.apply(color: Colors.white),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLargeScreenBody({required BuildContext context}) {
-    final userBloc = BlocProvider.of<UserBloc>(context);
-    final screenSize = MediaQuery.of(context).size;
-    final shortestSide = screenSize.shortestSide;
-    var buttonPadding = const EdgeInsets.all(24);
-
-    if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
-      buttonPadding = const EdgeInsets.all(16);
-    }
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('User type'),
-          const SizedBox(
-            height: 8,
-          ),
-          BlocBuilder<UserBloc, UserState>(
-            builder: (context, state) {
-              var type = UserType.customer;
-
-              if (state is SelectedUserTypeState) {
-                type = state.type;
-              }
-
-              return SizedBox(
-                width: double.infinity,
-                child: DropdownButton<UserType>(
-                  value: type,
-                  items: UserType.values.map((type) {
-                    return DropdownMenuItem<UserType>(
-                      value: type,
-                      child: Text(type.value),
-                    );
-                  }).toList(),
-                  onChanged: (value) => userBloc.selectUserType(type: value),
-                ),
-              );
-            },
-          ),
-          const SizedBox(
-            height: 32,
-          ),
-          TextFormField(
-            controller: lastNameController,
-            decoration: const InputDecoration(
-                label: Text('Last name'), border: OutlineInputBorder()),
-          ),
-          const SizedBox(
-            height: 32,
-          ),
-          TextFormField(
-            controller: firstNameController,
-            decoration: const InputDecoration(
-                label: Text('First name'), border: OutlineInputBorder()),
-          ),
-          const SizedBox(
-            height: 32,
-          ),
-          Row(
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Civil status',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  BlocBuilder<UserBloc, UserState>(
-                    builder: (context, state) {
-                      var dropdownValue = CivilStatus.values.first;
-
-                      if (state is SelectedCivilStatusState) {
-                        dropdownValue = state.civilStatus;
-                      }
-
-                      return DropdownButton<CivilStatus>(
-                        value: dropdownValue,
-                        items: CivilStatus.values.map((category) {
-                          return DropdownMenuItem<CivilStatus>(
-                            value: category,
-                            child: Text(category.value),
-                          );
-                        }).toList(),
-                        onChanged: (value) => userBloc.selectCivilStatus(
-                          civilStatus: value,
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(
-                width: 32,
-              ),
-              Expanded(
-                child: BlocBuilder<UserBloc, UserState>(
-                  buildWhen: (previous, current) => current is UserSuccessState,
-                  builder: (context, state) {
-                    return TextFormField(
-                      onTap: () {
-                        showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate:
-                          DateTime.now().subtract(Duration(days: 365 * 100)),
-                          lastDate: DateTime.now(),
-                        ).then((date) {
-                          printd('date is $date');
-                          if (date != null) {
-                            birthDateController.text =
-                                Constants.defaultDateFormat.format(date);
-                            userBloc.selectDate(date: date);
-                          }
-                        });
-                      },
-                      controller: birthDateController,
-                      decoration: const InputDecoration(
-                        label: Text('Birthdate'),
-                        border: OutlineInputBorder(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(
-                width: 32,
-              ),
-              Expanded(
-                child: TextFormField(
-                  controller: mobileNumberController,
-                  decoration: const InputDecoration(
-                    label: Text('Mobile number'),
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 32,
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    label: Text('Email'),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              // const SizedBox(
-              //   width: 32,
-              // ),
-              // Expanded(
-              //   child: TextFormField(
-              //     controller: passwordController,
-              //     obscureText: true,
-              //     decoration: const InputDecoration(
-              //       label: Text('Password'),
-              //       border: OutlineInputBorder(),
-              //     ),
-              //   ),
-              // ),
-              // const SizedBox(
-              //   width: 32,
-              // ),
-              // Expanded(
-              //   child: TextFormField(
-              //     controller: confirmPasswordController,
-              //     obscureText: true,
-              //     decoration: const InputDecoration(
-              //       label: Text('Confirm password'),
-              //       border: OutlineInputBorder(),
-              //     ),
-              //   ),
-              // ),
-            ],
-          ),
-          const SizedBox(
-            height: 32,
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => userBloc.addUser(
-                      lastName: lastNameController.text,
-                      firstName: firstNameController.text,
-                      birthDate: birthDateController.text,
-                      mobileNumber: mobileNumberController.text,
-                      email: emailController.text,
-                      password: passwordController.text,
-                      confirmPassword: confirmPasswordController.text),
-                  style: ElevatedButton.styleFrom(
-                      padding: buttonPadding,
-                      backgroundColor: Theme.of(context).colorScheme.primary),
-                  child: Text(
-                    'Add User',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.apply(color: Colors.white),
-                  ),
-                ),
+            ? buildSmallScreenBody(
+                context: context,
+                lastNameController: lastNameController,
+                firstNameController: firstNameController,
+                mobileNumberController: mobileNumberController,
+                emailController: emailController,
+                passwordController: passwordController,
+                confirmPasswordController: confirmPasswordController,
+                birthDateController: birthDateController,
+                middleNameController: middleNameController,
+                birthPlaceController: birthPlaceController,
+                nationalityController: nationalityController,
+                heightController: heightController,
+                weightController: weightController,
+                childrenCountController: childrenCountController,
+                tinNoController: tinNoController,
+                sssNoController: sssNoController,
+                philHealthController: philHealthController,
+                telNoController: telNoController,
               )
-            ],
-          ),
-        ],
+            : buildLargeScreenBody(
+                context: context,
+                lastNameController: lastNameController,
+                firstNameController: firstNameController,
+                mobileNumberController: mobileNumberController,
+                emailController: emailController,
+                passwordController: passwordController,
+                confirmPasswordController: confirmPasswordController,
+                birthDateController: birthDateController,
+                middleNameController: middleNameController,
+                birthPlaceController: birthPlaceController,
+                nationalityController: nationalityController,
+                heightController: heightController,
+                weightController: weightController,
+                childrenCountController: childrenCountController,
+                tinNoController: tinNoController,
+                sssNoController: sssNoController,
+                philHealthController: philHealthController,
+                telNoController: telNoController,
+              ),
       ),
     );
   }

@@ -45,4 +45,10 @@ class SelectedCivilStatusState extends UserState {
   SelectedCivilStatusState({ required this.civilStatus});
 }
 
+class SelectedGenderState extends UserState {
+  final Gender gender;
+
+  SelectedGenderState({ required this.gender});
+}
+
 class CloseScreenState extends UserState { }
