@@ -1,0 +1,3 @@
+class EmploymentDetailsNotFoundException implements Exception {
+
+}

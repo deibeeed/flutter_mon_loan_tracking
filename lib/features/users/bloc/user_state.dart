@@ -52,3 +52,5 @@ class SelectedGenderState extends UserState {
 }
 
 class CloseScreenState extends UserState { }
+
+class UpdateUiState extends UserState { }

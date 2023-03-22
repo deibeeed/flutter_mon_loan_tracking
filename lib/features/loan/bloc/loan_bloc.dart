@@ -341,7 +341,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     return tcp * (incidentalFeeRate / 100);
   }
 
-  num computeDownPaymentRate({String? customDownpaymenRateStr}) {
+  num computeDownPaymentRate({String? customDownpaymentRateStr}) {
     if (selectedLot == null || settings == null) {
       return 0;
     }
@@ -354,8 +354,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     num? customDownpaymenRate;
 
     try {
-      if (customDownpaymenRateStr != null) {
-        customDownpaymenRate = num.parse(customDownpaymenRateStr);
+      if (customDownpaymentRateStr != null) {
+        customDownpaymenRate = num.parse(customDownpaymentRateStr);
       }
     } catch (err) {
       printd('probably a parse exception');

@@ -98,7 +98,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                   (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
               downpaymentController.text = loanBloc
                   .computeDownPaymentRate(
-                      customDownpaymenRateStr: downpaymentRateController.text)
+                      customDownpaymentRateStr: downpaymentRateController.text)
                   .toString();
             }
           }

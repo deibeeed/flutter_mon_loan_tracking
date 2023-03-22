@@ -39,6 +39,7 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'mobileNumber': instance.mobileNumber,
       'id': instance.id,
       'type': _$UserTypeEnumMap[instance.type]!,
+      'spouseId': instance.spouseId,
       'middleName': instance.middleName,
       'gender': _$GenderEnumMap[instance.gender],
       'birthPlace': instance.birthPlace,
@@ -49,7 +50,6 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'tinNo': instance.tinNo,
       'sssNo': instance.sssNo,
       'philHealthNo': instance.philHealthNo,
-      'spouseId': instance.spouseId,
       'telNo': instance.telNo,
     };
 

@@ -48,6 +48,11 @@ class AddUserEvent extends UserEvent {
   });
 }
 
+class AddUserEvent2 extends UserEvent {
+  final Map<String, dynamic> values;
+  AddUserEvent2({ required this.values });
+}
+
 class UpdateUserEvent extends UserEvent {
   final String firstName;
   final String lastName;

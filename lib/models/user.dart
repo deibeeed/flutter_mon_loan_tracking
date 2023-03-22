@@ -57,14 +57,23 @@ class User extends Equatable {
         telNo: user.telNo,
       );
 
-  final String firstName;
-  final String lastName;
-  final String email;
-  final String birthDate;
-  final CivilStatus civilStatus;
-  final String mobileNumber;
-  final String id;
-  final UserType type;
+  factory User.createBlank() => User(
+    firstName: '',
+    lastName: '',
+    mobileNumber: '',
+    civilStatus: CivilStatus.single,
+    birthDate: '',
+    email: '',
+  );
+
+  String firstName;
+  String lastName;
+  String email;
+  String birthDate;
+  CivilStatus civilStatus;
+  String mobileNumber;
+  String id;
+  UserType type;
   String? spouseId;
   String? middleName;
   Gender? gender;

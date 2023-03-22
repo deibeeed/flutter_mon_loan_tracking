@@ -23,12 +23,18 @@ import 'package:flutter_mon_loan_tracking/features/users/screens/add_user_screen
 import 'package:flutter_mon_loan_tracking/features/users/screens/user_details_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/users/screens/user_list_screen.dart';
 import 'package:flutter_mon_loan_tracking/l10n/l10n.dart';
+import 'package:flutter_mon_loan_tracking/repositories/address_repository.dart';
+import 'package:flutter_mon_loan_tracking/repositories/beneficiary_repository.dart';
+import 'package:flutter_mon_loan_tracking/repositories/employment_details_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/loan_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/loan_schedule_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/lot_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
+import 'package:flutter_mon_loan_tracking/services/address_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
+import 'package:flutter_mon_loan_tracking/services/beneficiary_firestore_service.dart';
+import 'package:flutter_mon_loan_tracking/services/employment_details_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/loan_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/loan_schedule_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/lot_cache_service.dart';
@@ -48,8 +54,8 @@ class App extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _AppState();
-
 }
+
 class _AppState extends State<App> {
   static final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
   static final shellNavigatorKey =
@@ -103,68 +109,66 @@ class _AppState extends State<App> {
               path: '/loan-calculator',
               child: LoanCalculatorScreen(),
             ),
-            if (!widget.isMobile())
-              ...[
-                RouteUtils.buildNoTransitionRoute(
-                  path: '/add-loan',
-                  child: AddLoanScreen(),
-                ),
-                RouteUtils.buildNoTransitionRoute(
-                  path: '/add-lot',
-                  child: AddLotScreen(),
-                ),
-                RouteUtils.buildNoTransitionRoute(
-                  path: '/add-user',
-                  child: AddUserScreen(),
-                ),
-                RouteUtils.buildNoTransitionRoute(
-                  path: '/users/:userId',
-                  child: UserDetailsScreen(),
-                ),
-                RouteUtils.buildNoTransitionRoute(
-                  path: '/lots/:lotId',
-                  child: LotDetailsScreen(),
-                ),
-                RouteUtils.buildNoTransitionRoute(
-                  path: '/profile/:userId',
-                  child: UserDetailsScreen(),
-                ),
-              ],
+            if (!widget.isMobile()) ...[
+              RouteUtils.buildNoTransitionRoute(
+                path: '/add-loan',
+                child: AddLoanScreen(),
+              ),
+              RouteUtils.buildNoTransitionRoute(
+                path: '/add-lot',
+                child: AddLotScreen(),
+              ),
+              RouteUtils.buildNoTransitionRoute(
+                path: '/add-user',
+                child: AddUserScreen(),
+              ),
+              RouteUtils.buildNoTransitionRoute(
+                path: '/users/:userId',
+                child: UserDetailsScreen(),
+              ),
+              RouteUtils.buildNoTransitionRoute(
+                path: '/lots/:lotId',
+                child: LotDetailsScreen(),
+              ),
+              RouteUtils.buildNoTransitionRoute(
+                path: '/profile/:userId',
+                child: UserDetailsScreen(),
+              ),
+            ],
           ],
         ),
-        if (widget.isMobile())
-          ...[
-            RouteUtils.buildNoTransitionRoute(
-              path: '/add-loan',
-              parentNavigatorKey: rootNavigatorKey,
-              child: AddLoanScreen(),
-            ),
-            RouteUtils.buildNoTransitionRoute(
-              path: '/add-lot',
-              parentNavigatorKey: rootNavigatorKey,
-              child: AddLotScreen(),
-            ),
-            RouteUtils.buildNoTransitionRoute(
-              path: '/add-user',
-              parentNavigatorKey: rootNavigatorKey,
-              child: AddUserScreen(),
-            ),
-            RouteUtils.buildNoTransitionRoute(
-              path: '/users/:userId',
-              parentNavigatorKey: rootNavigatorKey,
-              child: UserDetailsScreen(),
-            ),
-            RouteUtils.buildNoTransitionRoute(
-              path: '/lots/:lotId',
-              parentNavigatorKey: rootNavigatorKey,
-              child: LotDetailsScreen(),
-            ),
-            RouteUtils.buildNoTransitionRoute(
-              path: '/profile/:userId',
-              parentNavigatorKey: rootNavigatorKey,
-              child: UserDetailsScreen(),
-            ),
-          ],
+        if (widget.isMobile()) ...[
+          RouteUtils.buildNoTransitionRoute(
+            path: '/add-loan',
+            parentNavigatorKey: rootNavigatorKey,
+            child: AddLoanScreen(),
+          ),
+          RouteUtils.buildNoTransitionRoute(
+            path: '/add-lot',
+            parentNavigatorKey: rootNavigatorKey,
+            child: AddLotScreen(),
+          ),
+          RouteUtils.buildNoTransitionRoute(
+            path: '/add-user',
+            parentNavigatorKey: rootNavigatorKey,
+            child: AddUserScreen(),
+          ),
+          RouteUtils.buildNoTransitionRoute(
+            path: '/users/:userId',
+            parentNavigatorKey: rootNavigatorKey,
+            child: UserDetailsScreen(),
+          ),
+          RouteUtils.buildNoTransitionRoute(
+            path: '/lots/:lotId',
+            parentNavigatorKey: rootNavigatorKey,
+            child: LotDetailsScreen(),
+          ),
+          RouteUtils.buildNoTransitionRoute(
+            path: '/profile/:userId',
+            parentNavigatorKey: rootNavigatorKey,
+            child: UserDetailsScreen(),
+          ),
+        ],
       ],
     );
   }
@@ -202,6 +206,21 @@ class _AppState extends State<App> {
         RepositoryProvider<LoanScheduleRepository>.value(
           value: LoanScheduleRepository(
             firestoreService: LoanScheduleFirestoreService(),
+          ),
+        ),
+        RepositoryProvider<AddressRepository>.value(
+          value: AddressRepository(
+            firestoreService: AddressFirestoreService(),
+          ),
+        ),
+        RepositoryProvider<BeneficiaryRepository>.value(
+          value: BeneficiaryRepository(
+            firestoreService: BeneficiaryFirestoreService(),
+          ),
+        ),
+        RepositoryProvider<EmploymentDetailsRepository>.value(
+          value: EmploymentDetailsRepository(
+            firestoreService: EmploymentDetailsFirestoreService(),
           ),
         ),
       ],
@@ -242,6 +261,10 @@ class _AppState extends State<App> {
                 value: UserBloc(
                   userRepository: context.read<UserRepository>(),
                   authenticationService: context.read<AuthenticationService>(),
+                  addressRepository: context.read<AddressRepository>(),
+                  beneficiaryRepository: context.read<BeneficiaryRepository>(),
+                  employmentDetailsRepository:
+                      context.read<EmploymentDetailsRepository>(),
                 ),
               ),
               BlocProvider<LoanBloc>.value(
@@ -274,11 +297,12 @@ class _AppState extends State<App> {
 
                     return MaterialApp.router(
                       routerConfig: _rootRouter,
-                      theme:
-                      ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
-                      darkTheme:
-                      ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-                      localizationsDelegates: AppLocalizations.localizationsDelegates,
+                      theme: ThemeData(
+                          useMaterial3: true, colorScheme: lightColorScheme),
+                      darkTheme: ThemeData(
+                          useMaterial3: true, colorScheme: darkColorScheme),
+                      localizationsDelegates:
+                          AppLocalizations.localizationsDelegates,
                       supportedLocales: AppLocalizations.supportedLocales,
                       // home: const MainScreen(),
                     );

@@ -1,0 +1,3 @@
+class BeneficiaryNotFoundException implements Exception {
+
+}

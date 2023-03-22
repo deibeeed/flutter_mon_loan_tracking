@@ -1,22 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/civil_status_types.dart';
+import 'package:flutter_mon_loan_tracking/models/employment_details.dart';
 import 'package:flutter_mon_loan_tracking/models/gender.dart';
+import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 
 part 'add_user_screen_small.dart';
 
 part 'add_user_screen_large.dart';
 
-class AddUserScreen extends StatelessWidget {
+class AddUserScreen extends StatefulWidget {
   AddUserScreen({super.key});
 
+  @override
+  State<StatefulWidget> createState() => _AddUserScreenState();
+}
+
+class _AddUserScreenState extends State<AddUserScreen> {
   final lastNameController = TextEditingController();
   final firstNameController = TextEditingController();
   final mobileNumberController = TextEditingController();
@@ -34,6 +43,14 @@ class AddUserScreen extends StatelessWidget {
   final sssNoController = TextEditingController();
   final philHealthController = TextEditingController();
   final telNoController = TextEditingController();
+
+  final _formKey = GlobalKey<FormBuilderState>(debugLabel: 'add_user_screen');
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserBloc>().initializeAddUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,14 +122,14 @@ class AddUserScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        appBar: !isMobile()
+        appBar: !widget.isMobile()
             ? null
             : PreferredSize(
                 preferredSize: Size.fromHeight(appBarHeight),
                 child: AppBar(
                   backgroundColor:
                       Theme.of(context).colorScheme.primary.withOpacity(0.48),
-                  leading: !isMobile()
+                  leading: !widget.isMobile()
                       ? Container()
                       : IconButton(
                           icon: const Icon(
@@ -196,26 +213,7 @@ class AddUserScreen extends StatelessWidget {
                 philHealthController: philHealthController,
                 telNoController: telNoController,
               )
-            : buildLargeScreenBody(
-                context: context,
-                lastNameController: lastNameController,
-                firstNameController: firstNameController,
-                mobileNumberController: mobileNumberController,
-                emailController: emailController,
-                passwordController: passwordController,
-                confirmPasswordController: confirmPasswordController,
-                birthDateController: birthDateController,
-                middleNameController: middleNameController,
-                birthPlaceController: birthPlaceController,
-                nationalityController: nationalityController,
-                heightController: heightController,
-                weightController: weightController,
-                childrenCountController: childrenCountController,
-                tinNoController: tinNoController,
-                sssNoController: sssNoController,
-                philHealthController: philHealthController,
-                telNoController: telNoController,
-              ),
+            : buildLargeScreenBody(context: context, formKey: _formKey),
       ),
     );
   }

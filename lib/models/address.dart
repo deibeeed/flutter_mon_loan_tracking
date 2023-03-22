@@ -6,15 +6,15 @@ part 'address.g.dart';
 
 @JsonSerializable()
 class Address extends Equatable {
-  final String houseNo;
-  final String street;
-  final String brgy;
-  final String zone;
-  final String city;
-  final String province;
-  final String zipCode;
-  final String country;
-  final String userId;
+  String houseNo;
+  String street;
+  String brgy;
+  String zone;
+  String city;
+  String province;
+  String zipCode;
+  String country;
+  String userId;
   final String id;
   final num createdAt = DateTime.now().millisecondsSinceEpoch;
 
@@ -29,21 +29,51 @@ class Address extends Equatable {
     required this.country,
     required this.userId,
     this.id = Constants.NO_ID,
-});
+  });
+
+  Map<String, dynamic> toJson() => _$AddressToJson(this);
+
+  factory Address.createBlank() => Address(
+        houseNo: '',
+        street: '',
+        brgy: '',
+        zone: '',
+        city: '',
+        province: '',
+        zipCode: '',
+        country: '',
+        userId: '',
+      );
+
+  factory Address.fromJson(Map<String, dynamic> json) =>
+      _$AddressFromJson(json);
+
+  factory Address.updateId({required String id, required Address address}) =>
+      Address(
+        id: id,
+        houseNo: address.houseNo,
+        street: address.street,
+        brgy: address.brgy,
+        zone: address.zone,
+        city: address.city,
+        province: address.province,
+        zipCode: address.zipCode,
+        country: address.country,
+        userId: address.userId,
+      );
 
   @override
   List<Object?> get props => [
-    houseNo,
-    street,
-    brgy,
-    zone,
-    city,
-    province,
-    zipCode,
-    country,
-    userId,
-    id,
-    createdAt,
-  ];
-
+        houseNo,
+        street,
+        brgy,
+        zone,
+        city,
+        province,
+        zipCode,
+        country,
+        userId,
+        id,
+        createdAt,
+      ];
 }
