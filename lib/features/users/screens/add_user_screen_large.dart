@@ -49,7 +49,7 @@ Widget buildLargeScreenBody({
                     formKey: formKey,
                     user: userBloc.addedUserSpouse!,
                     employmentDetails:
-                    userBloc.addedUserSpouseEmploymentDetails,
+                        userBloc.addedUserSpouseEmploymentDetails,
                     isSpouse: true,
                   ),
                 ],
@@ -62,12 +62,14 @@ Widget buildLargeScreenBody({
                       child: ElevatedButton(
                         onPressed: () {
                           if (formKey.currentState?.validate() ?? false) {
-                            userBloc.addUser2(fields: formKey.currentState?.fields);
+                            userBloc.addUser2(
+                                fields: formKey.currentState?.fields);
                           }
                         },
                         style: ElevatedButton.styleFrom(
                             padding: buttonPadding,
-                            backgroundColor: Theme.of(context).colorScheme.primary),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary),
                         child: Text(
                           'Add User',
                           style: Theme.of(context)
@@ -113,40 +115,42 @@ Widget _buildLargeScreenUserBlock({
         ),
         Row(
           children: [
-            Expanded(child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('User type'),
-                const SizedBox(
-                  height: 8,
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: FormBuilderDropdown<UserType>(
-                    name: 'userType',
-                    initialValue: UserType.customer,
-                    items: UserType.values.map((type) {
-                      return DropdownMenuItem<UserType>(
-                        value: type,
-                        child: Text(type.value),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-
-                      user.type = value;
-                    },
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(
-                        errorText: 'Please select a user type',
-                      ),
-                    ]),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('User type'),
+                  const SizedBox(
+                    height: 8,
                   ),
-                ),
-              ],
-            ),),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FormBuilderDropdown<UserType>(
+                      name: 'userType',
+                      initialValue: UserType.customer,
+                      items: UserType.values.map((type) {
+                        return DropdownMenuItem<UserType>(
+                          value: type,
+                          child: Text(type.value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value == null) {
+                          return;
+                        }
+
+                        user.type = value;
+                      },
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'Please select a user type',
+                        ),
+                      ]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(
               width: 32,
             ),
@@ -168,8 +172,9 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a nationality',
                   ),
-                      (value) =>
-                  value?.isEmpty ?? false ? 'Please enter a nationality' : null,
+                  (value) => value?.isEmpty ?? false
+                      ? 'Please enter a nationality'
+                      : null,
                 ]),
               ),
             ),
@@ -851,207 +856,316 @@ Widget _buildLargeScreenUserBlock({
       const SizedBox(
         height: 32,
       ),
-      BlocBuilder<UserBloc, UserState>(
-          buildWhen: (previous, current) => current is UpdateUiState,
-          builder: (context, state) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    if (!isSpouse) {
-                      if (userBloc.addedUserEmploymentDetails == null) {
-                        userBloc.initializeAddedUserEmploymentDetails();
-                      } else {
-                        userBloc.removeAddedUserEmploymentDetails();
-                      }
-                    } else {
-                      if (userBloc.addedUserSpouseEmploymentDetails == null) {
-                        userBloc.initializeAddedUserSpouseEmploymentDetails();
-                      } else {
-                        userBloc.removeAddedUserSpouseEmploymentDetails();
-                      }
-                    }
-                  },
-                  child: Text(
-                    !isSpouse
-                        ? '${userBloc.addedUserEmploymentDetails != null ? "Remove" : "Add"} employment details'
-                        : '${userBloc.addedUserSpouseEmploymentDetails != null ? "Remove" : "Add"} employment details',
-                  ),
+      ElevatedButton(
+        onPressed: () {
+          if (!isSpouse) {
+            if (userBloc.addedUserEmploymentDetails == null) {
+              userBloc.initializeAddedUserEmploymentDetails();
+            } else {
+              userBloc.removeAddedUserEmploymentDetails();
+            }
+          } else {
+            if (userBloc.addedUserSpouseEmploymentDetails == null) {
+              userBloc.initializeAddedUserSpouseEmploymentDetails();
+            } else {
+              userBloc.removeAddedUserSpouseEmploymentDetails();
+            }
+          }
+        },
+        child: Text(
+          !isSpouse
+              ? '${userBloc.addedUserEmploymentDetails != null ? "Remove" : "Add"} employment details'
+              : '${userBloc.addedUserSpouseEmploymentDetails != null ? "Remove" : "Add"} employment details',
+        ),
+      ),
+      if (!isSpouse && userBloc.addedUserEmploymentDetails != null ||
+          isSpouse && userBloc.addedUserSpouseEmploymentDetails != null) ...[
+        const SizedBox(
+          height: 32,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              !isSpouse ? 'Employment details' : 'Spouse Employment details',
+              style: Theme.of(context).textTheme.titleLarge,
+            )
+          ],
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: FormBuilderTextField(
+                name: !isSpouse ? 'companyName' : 'spouse_companyName',
+                decoration: const InputDecoration(
+                  label: Text('Company name'),
+                  border: OutlineInputBorder(),
                 ),
-                if (!isSpouse && userBloc.addedUserEmploymentDetails != null ||
-                    isSpouse &&
-                        userBloc.addedUserSpouseEmploymentDetails != null) ...[
-                  const SizedBox(
-                    height: 32,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        !isSpouse
-                            ? 'Employment details'
-                            : 'Spouse Employment details',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      )
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 32,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FormBuilderTextField(
-                          name:
-                              !isSpouse ? 'companyName' : 'spouse_companyName',
-                          decoration: const InputDecoration(
-                            label: Text('Company name'),
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
-                          onChanged: (value) {
-                            if (value == null || value.isEmpty) {
-                              return;
-                            }
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                onChanged: (value) {
+                  if (value == null || value.isEmpty) {
+                    return;
+                  }
 
-                            employmentDetails?.companyName = value;
-                          },
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                              errorText: 'Please enter a company name',
-                            ),
-                            (value) => value?.isEmpty ?? false
-                                ? 'Please enter a copmany name'
-                                : null,
-                          ]),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 32,
-                      ),
-                      Expanded(
-                        child: FormBuilderTextField(
-                          name: !isSpouse
-                              ? 'natureOfBusiness'
-                              : 'spouse_natureOfBusiness',
-                          decoration: const InputDecoration(
-                            label: Text('Nature of business'),
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
-                          onChanged: (value) {
-                            if (value == null || value.isEmpty) {
-                              return;
-                            }
-
-                            employmentDetails?.natureOfBusiness = value;
-                          },
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                              errorText: 'Please enter nature of business',
-                            ),
-                            (value) => value?.isEmpty ?? false
-                                ? 'Please enter nature of business'
-                                : null,
-                          ]),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 32,
-                      ),
-                      Expanded(
-                        child: FormBuilderTextField(
-                          name: !isSpouse ? 'position' : 'spouse_position',
-                          decoration: const InputDecoration(
-                            label: Text('Position'),
-                            border: OutlineInputBorder(),
-                          ),
-                          onChanged: (value) {
-                            if (value == null || value.isEmpty) {
-                              return;
-                            }
-
-                            employmentDetails?.position = value;
-                          },
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                              errorText: 'Please enter position',
-                            ),
-                            (value) => value?.isEmpty ?? false
-                                ? 'Please enter position'
-                                : null,
-                          ]),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 32,
-                      ),
-                      Expanded(
-                        child: FormBuilderTextField(
-                          name: !isSpouse
-                              ? 'yearsOfEmployment'
-                              : 'spouse_yearsOfEmployment',
-                          decoration: const InputDecoration(
-                            label: Text('Years of employment'),
-                            border: OutlineInputBorder(),
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                          ],
-                          onChanged: (value) {
-                            if (value == null || value.isEmpty) {
-                              return;
-                            }
-
-                            employmentDetails?.years = num.parse(value);
-                          },
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                              errorText: 'Please enter years of employment',
-                            ),
-                            (value) => value?.isEmpty ?? false
-                                ? 'Please enter years of employment'
-                                : null,
-                          ]),
-                        ),
-                      ),
-                    ],
+                  employmentDetails?.companyName = value;
+                },
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                    errorText: 'Please enter a company name',
                   ),
-                  const SizedBox(
-                    height: 32,
+                  (value) => value?.isEmpty ?? false
+                      ? 'Please enter a copmany name'
+                      : null,
+                ]),
+              ),
+            ),
+            const SizedBox(
+              width: 32,
+            ),
+            Expanded(
+              child: FormBuilderTextField(
+                name:
+                    !isSpouse ? 'natureOfBusiness' : 'spouse_natureOfBusiness',
+                decoration: const InputDecoration(
+                  label: Text('Nature of business'),
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                onChanged: (value) {
+                  if (value == null || value.isEmpty) {
+                    return;
+                  }
+
+                  employmentDetails?.natureOfBusiness = value;
+                },
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                    errorText: 'Please enter nature of business',
                   ),
-                  FormBuilderTextField(
-                    name:
-                        !isSpouse ? 'companyAddress' : 'spouse_companyAddress',
-                    decoration: const InputDecoration(
-                      label: Text('Company address'),
-                      border: OutlineInputBorder(),
+                  (value) => value?.isEmpty ?? false
+                      ? 'Please enter nature of business'
+                      : null,
+                ]),
+              ),
+            ),
+            const SizedBox(
+              width: 32,
+            ),
+            Expanded(
+              child: FormBuilderTextField(
+                name: !isSpouse ? 'position' : 'spouse_position',
+                decoration: const InputDecoration(
+                  label: Text('Position'),
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  if (value == null || value.isEmpty) {
+                    return;
+                  }
+
+                  employmentDetails?.position = value;
+                },
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                    errorText: 'Please enter position',
+                  ),
+                  (value) =>
+                      value?.isEmpty ?? false ? 'Please enter position' : null,
+                ]),
+              ),
+            ),
+            const SizedBox(
+              width: 32,
+            ),
+            Expanded(
+              child: FormBuilderTextField(
+                name: !isSpouse
+                    ? 'yearsOfEmployment'
+                    : 'spouse_yearsOfEmployment',
+                decoration: const InputDecoration(
+                  label: Text('Years of employment'),
+                  border: OutlineInputBorder(),
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                ],
+                onChanged: (value) {
+                  if (value == null || value.isEmpty) {
+                    return;
+                  }
+
+                  employmentDetails?.years = num.parse(value);
+                },
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                    errorText: 'Please enter years of employment',
+                  ),
+                  (value) => value?.isEmpty ?? false
+                      ? 'Please enter years of employment'
+                      : null,
+                ]),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        FormBuilderTextField(
+          name: !isSpouse ? 'companyAddress' : 'spouse_companyAddress',
+          decoration: const InputDecoration(
+            label: Text('Company address'),
+            border: OutlineInputBorder(),
+          ),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          onChanged: (value) {
+            if (value == null || value.isEmpty) {
+              return;
+            }
+
+            employmentDetails?.address = value;
+          },
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(
+              errorText: 'Please enter a company address',
+            ),
+            (value) => value?.isEmpty ?? false
+                ? 'Please enter a company address'
+                : null,
+          ]),
+        )
+      ],
+      const SizedBox(
+        height: 32,
+      ),
+      ElevatedButton(
+        onPressed: userBloc.addBeneficiary,
+        child: const Text(
+          'Add Beneficiary',
+        ),
+      ),
+      ...userBloc.addedUserBeneficiaries
+          .mapIndexed((index, beneficiary) => Row(
+                children: [
+                  Expanded(
+                    child: FormBuilderTextField(
+                      name: 'houseNo',
+                      decoration: const InputDecoration(
+                        label: Text('House number'),
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      onChanged: (value) {
+                        if (value == null || value.isEmpty) {
+                          return;
+                        }
+
+                        userBloc.addedUserAddress?.houseNo = value;
+                      },
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'Please enter a house number',
+                        ),
+                        (value) => value?.isEmpty ?? false
+                            ? 'Please enter a house number'
+                            : null,
+                      ]),
                     ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (value) {
-                      if (value == null || value.isEmpty) {
-                        return;
-                      }
-
-                      employmentDetails?.address = value;
-                    },
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(
-                        errorText: 'Please enter a company address',
+                  ),
+                  const SizedBox(
+                    width: 32,
+                  ),
+                  Expanded(
+                    child: FormBuilderTextField(
+                      name: 'street',
+                      decoration: const InputDecoration(
+                        label: Text('Street'),
+                        border: OutlineInputBorder(),
                       ),
-                      (value) => value?.isEmpty ?? false
-                          ? 'Please enter a company address'
-                          : null,
-                    ]),
-                  )
-                ]
-              ],
-            );
-          }),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      onChanged: (value) {
+                        if (value == null || value.isEmpty) {
+                          return;
+                        }
+
+                        userBloc.addedUserAddress?.street = value;
+                      },
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'Please enter a street',
+                        ),
+                        (value) => value?.isEmpty ?? false
+                            ? 'Please enter a street'
+                            : null,
+                      ]),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 32,
+                  ),
+                  Expanded(
+                    child: FormBuilderTextField(
+                      name: 'barangay',
+                      decoration: const InputDecoration(
+                        label: Text('Barangay'),
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        if (value == null || value.isEmpty) {
+                          return;
+                        }
+
+                        userBloc.addedUserAddress?.brgy = value;
+                      },
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'Please enter a barangay',
+                        ),
+                        (value) => value?.isEmpty ?? false
+                            ? 'Please enter a barangay'
+                            : null,
+                      ]),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 32,
+                  ),
+                  Expanded(
+                    child: FormBuilderTextField(
+                      name: 'zone',
+                      decoration: const InputDecoration(
+                        label: Text('Zone'),
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      onChanged: (value) {
+                        if (value == null || value.isEmpty) {
+                          return;
+                        }
+
+                        userBloc.addedUserAddress?.zone = value;
+                      },
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'Please enter a zone',
+                        ),
+                        (value) => value?.isEmpty ?? false
+                            ? 'Please enter a zone'
+                            : null,
+                      ]),
+                    ),
+                  ),
+                ],
+              ))
+          .toList(),
     ],
   );
 }
