@@ -53,4 +53,14 @@ class SelectedGenderState extends UserState {
 
 class CloseScreenState extends UserState { }
 
-class UpdateUiState extends UserState { }
+class UpdateUiState extends UserState {
+  final String? removeFieldsThatStartsWithKey;
+
+  UpdateUiState({ this.removeFieldsThatStartsWithKey });
+}
+
+class RemoveUiState extends UserState {
+  final String? removeFieldsThatStartsWithKey;
+
+  RemoveUiState({ this.removeFieldsThatStartsWithKey });
+}

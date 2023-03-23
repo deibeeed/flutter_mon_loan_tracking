@@ -3,6 +3,10 @@ import 'package:flutter/foundation.dart';
 /// printing on debug
 void printd(Object? content) {
   if (kDebugMode) {
-    print(content);
+    if (content is String) {
+      debugPrint(content, wrapWidth: null);
+    } else {
+      print(content);
+    }
   }
 }

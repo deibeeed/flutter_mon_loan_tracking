@@ -16,6 +16,7 @@ Widget buildLargeScreenBody({
   return SingleChildScrollView(
     child: FormBuilder(
       key: formKey,
+      clearValueOnUnregister: true,
       child: BlocBuilder<UserBloc, UserState>(
           buildWhen: (previous, current) => current is UpdateUiState,
           builder: (context, state) {
@@ -856,27 +857,32 @@ Widget _buildLargeScreenUserBlock({
       const SizedBox(
         height: 32,
       ),
-      ElevatedButton(
-        onPressed: () {
-          if (!isSpouse) {
-            if (userBloc.addedUserEmploymentDetails == null) {
-              userBloc.initializeAddedUserEmploymentDetails();
-            } else {
-              userBloc.removeAddedUserEmploymentDetails();
-            }
-          } else {
-            if (userBloc.addedUserSpouseEmploymentDetails == null) {
-              userBloc.initializeAddedUserSpouseEmploymentDetails();
-            } else {
-              userBloc.removeAddedUserSpouseEmploymentDetails();
-            }
-          }
-        },
-        child: Text(
-          !isSpouse
-              ? '${userBloc.addedUserEmploymentDetails != null ? "Remove" : "Add"} employment details'
-              : '${userBloc.addedUserSpouseEmploymentDetails != null ? "Remove" : "Add"} employment details',
-        ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              if (!isSpouse) {
+                if (userBloc.addedUserEmploymentDetails == null) {
+                  userBloc.initializeAddedUserEmploymentDetails();
+                } else {
+                  userBloc.removeAddedUserEmploymentDetails();
+                }
+              } else {
+                if (userBloc.addedUserSpouseEmploymentDetails == null) {
+                  userBloc.initializeAddedUserSpouseEmploymentDetails();
+                } else {
+                  userBloc.removeAddedUserSpouseEmploymentDetails();
+                }
+              }
+            },
+            child: Text(
+              !isSpouse
+                  ? '${userBloc.addedUserEmploymentDetails != null ? "Remove" : "Add"} employment details'
+                  : '${userBloc.addedUserSpouseEmploymentDetails != null ? "Remove" : "Add"} employment details',
+            ),
+          ),
+        ],
       ),
       if (!isSpouse && userBloc.addedUserEmploymentDetails != null ||
           isSpouse && userBloc.addedUserSpouseEmploymentDetails != null) ...[
@@ -899,7 +905,7 @@ Widget _buildLargeScreenUserBlock({
           children: [
             Expanded(
               child: FormBuilderTextField(
-                name: !isSpouse ? 'companyName' : 'spouse_companyName',
+                name: !isSpouse ? 'ed_companyName' : 'spouse_ed_companyName',
                 decoration: const InputDecoration(
                   label: Text('Company name'),
                   border: OutlineInputBorder(),
@@ -918,7 +924,7 @@ Widget _buildLargeScreenUserBlock({
                     errorText: 'Please enter a company name',
                   ),
                   (value) => value?.isEmpty ?? false
-                      ? 'Please enter a copmany name'
+                      ? 'Please enter a company name'
                       : null,
                 ]),
               ),
@@ -928,8 +934,9 @@ Widget _buildLargeScreenUserBlock({
             ),
             Expanded(
               child: FormBuilderTextField(
-                name:
-                    !isSpouse ? 'natureOfBusiness' : 'spouse_natureOfBusiness',
+                name: !isSpouse
+                    ? 'ed_natureOfBusiness'
+                    : 'spouse_ed_natureOfBusiness',
                 decoration: const InputDecoration(
                   label: Text('Nature of business'),
                   border: OutlineInputBorder(),
@@ -958,7 +965,7 @@ Widget _buildLargeScreenUserBlock({
             ),
             Expanded(
               child: FormBuilderTextField(
-                name: !isSpouse ? 'position' : 'spouse_position',
+                name: !isSpouse ? 'ed_position' : 'spouse_ed_position',
                 decoration: const InputDecoration(
                   label: Text('Position'),
                   border: OutlineInputBorder(),
@@ -985,8 +992,8 @@ Widget _buildLargeScreenUserBlock({
             Expanded(
               child: FormBuilderTextField(
                 name: !isSpouse
-                    ? 'yearsOfEmployment'
-                    : 'spouse_yearsOfEmployment',
+                    ? 'ed_yearsOfEmployment'
+                    : 'spouse_ed_yearsOfEmployment',
                 decoration: const InputDecoration(
                   label: Text('Years of employment'),
                   border: OutlineInputBorder(),
@@ -1017,7 +1024,7 @@ Widget _buildLargeScreenUserBlock({
           height: 32,
         ),
         FormBuilderTextField(
-          name: !isSpouse ? 'companyAddress' : 'spouse_companyAddress',
+          name: !isSpouse ? 'ed_companyAddress' : 'spouse_ed_companyAddress',
           decoration: const InputDecoration(
             label: Text('Company address'),
             border: OutlineInputBorder(),
@@ -1043,167 +1050,263 @@ Widget _buildLargeScreenUserBlock({
       const SizedBox(
         height: 32,
       ),
-      ElevatedButton(
-        onPressed: userBloc.addBeneficiary,
-        child: const Text(
-          'Add Beneficiary',
-        ),
-      ),
-      ...userBloc.addedUserBeneficiaries
-          .mapIndexed((index, beneficiary) => Row(
-                children: [
-                  Expanded(
-                    child: FormBuilderTextField(
-                      name: 'beneficiary_name_$index',
-                      decoration: const InputDecoration(
-                        label: Text('Beneficiary'),
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      onChanged: (value) {
-                        if (value == null || value.isEmpty) {
-                          return;
-                        }
-
-                        userBloc.addedUserBeneficiaries[index].name = value;
-                      },
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                          errorText: 'Please enter beneficiary name',
-                        ),
-                        (value) => value?.isEmpty ?? false
-                            ? 'Please enter beneficiary name'
-                            : null,
-                      ]),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 32,
-                  ),
-                  Expanded(
-                    child: FormBuilderTextField(
-                      name: 'beneficiary_birthDate_$index',
-                      onTap: () {
-                        showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now()
-                              .subtract(const Duration(days: 365 * 100)),
-                          lastDate: DateTime.now(),
-                        ).then((date) {
-                          printd('date is $date');
-                          if (date == null) {
-                            return;
-                          }
-                          final dateStr =
-                              Constants.defaultDateFormat.format(date);
-                          formKey.currentState
-                              ?.fields['beneficiary_birthDate_$index']
-                              ?.didChange(dateStr);
-                          userBloc.addedUserBeneficiaries[index].birthDate =
-                              date.millisecondsSinceEpoch;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        label: Text('Birthdate'),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                          errorText: 'Please select beneficiary birth date',
-                        ),
-                        (value) => value?.isEmpty ?? false
-                            ? 'Please select beneficiary birth date'
-                            : null,
-                      ]),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 32,
-                  ),
-                  Expanded(
+      if (!isSpouse) ...[
+        ...userBloc.addedUserBeneficiaries.mapIndexed((index, beneficiary) {
+          if (beneficiary.name.isNotEmpty) {
+            return Row(
+              children: [
+                Expanded(
                     child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Gender',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
+                        Text('Beneficiary ${index + 1}'),
                         const SizedBox(
-                          height: 8,
+                          width: 32,
                         ),
-                        FormBuilderDropdown<Gender>(
-                          name: 'beneficiary_gender_$index',
-                          initialValue: Gender.male,
-                          items: Gender.values.map((type) {
-                            return DropdownMenuItem<Gender>(
-                              value: type,
-                              child: Text(type.name),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
-
-                            userBloc.addedUserBeneficiaries[index].gender =
-                                value;
-                          },
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                              errorText: 'Please select beneficiary gender',
-                            ),
-                          ]),
+                        IconButton(
+                          onPressed: () => userBloc.removeBeneficiary(
+                              beneficiary: beneficiary),
+                          icon: Icon(
+                            Icons.remove_circle_rounded,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                         ),
                       ],
                     ),
+                    const SizedBox(
+                      width: 32,
+                    ),
+                    Row(
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            text: 'Name: ',
+                            style: Theme.of(context).textTheme.titleMedium,
+                            children: [
+                              TextSpan(
+                                  text: beneficiary.name,
+                                  style: Theme.of(context).textTheme.bodyMedium)
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 32,
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            text: 'Birthdate: ',
+                            style: Theme.of(context).textTheme.titleMedium,
+                            children: [
+                              TextSpan(
+                                  text: beneficiary.birthDate.toDefaultDate(),
+                                  style: Theme.of(context).textTheme.bodyMedium)
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 32,
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            text: 'Gender: ',
+                            style: Theme.of(context).textTheme.titleMedium,
+                            children: [
+                              TextSpan(
+                                  text: beneficiary.gender.name,
+                                  style: Theme.of(context).textTheme.bodyMedium)
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 32,
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            text: 'Relationship: ',
+                            style: Theme.of(context).textTheme.titleMedium,
+                            children: [
+                              TextSpan(
+                                  text: beneficiary.relationship,
+                                  style: Theme.of(context).textTheme.bodyMedium)
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 32,
+                    )
+                  ],
+                ))
+              ],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(
+                child: FormBuilderTextField(
+                  name: 'beneficiary_${beneficiary.createdAt}_name',
+                  decoration: const InputDecoration(
+                    label: Text('Beneficiary'),
+                    border: OutlineInputBorder(),
                   ),
-                  const SizedBox(
-                    width: 32,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  onChanged: (value) {
+                    if (value == null || value.isEmpty) {
+                      return;
+                    }
+
+                    // userBloc.addedUserBeneficiaries[index].name = value;
+                    beneficiary.name = value;
+                  },
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(
+                      errorText: 'Please enter beneficiary name',
+                    ),
+                    (value) => value?.isEmpty ?? false
+                        ? 'Please enter beneficiary name'
+                        : null,
+                  ]),
+                ),
+              ),
+              const SizedBox(
+                width: 32,
+              ),
+              Expanded(
+                child: FormBuilderTextField(
+                  name: 'beneficiary_${beneficiary.createdAt}_birthDate',
+                  onTap: () {
+                    showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now()
+                          .subtract(const Duration(days: 365 * 100)),
+                      lastDate: DateTime.now(),
+                    ).then((date) {
+                      printd('date is $date');
+                      if (date == null) {
+                        return;
+                      }
+                      final dateStr = Constants.defaultDateFormat.format(date);
+                      formKey
+                          .currentState
+                          ?.fields[
+                              'beneficiary_${beneficiary.createdAt}_birthDate']
+                          ?.didChange(dateStr);
+                      // userBloc.addedUserBeneficiaries[index].birthDate =
+                      //     date.millisecondsSinceEpoch;
+                      beneficiary.birthDate = date.millisecondsSinceEpoch;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    label: Text('Birthdate'),
+                    border: OutlineInputBorder(),
                   ),
-                  Expanded(
-                    child: FormBuilderTextField(
-                      name: 'beneficiary_relationship_$index',
-                      decoration: const InputDecoration(
-                        label: Text('Relationship'),
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(
+                      errorText: 'Please select beneficiary birth date',
+                    ),
+                    (value) => value?.isEmpty ?? false
+                        ? 'Please select beneficiary birth date'
+                        : null,
+                  ]),
+                ),
+              ),
+              const SizedBox(
+                width: 32,
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Gender',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    FormBuilderDropdown<Gender>(
+                      name: 'beneficiary_${beneficiary.createdAt}_gender',
+                      initialValue: Gender.male,
+                      items: Gender.values.map((type) {
+                        return DropdownMenuItem<Gender>(
+                          value: type,
+                          child: Text(type.name),
+                        );
+                      }).toList(),
                       onChanged: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null) {
                           return;
                         }
 
-                        userBloc.addedUserBeneficiaries[index].relationship =
-                            value;
+                        // userBloc.addedUserBeneficiaries[index].gender =
+                        //     value;
+                        beneficiary.gender = value;
                       },
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(
-                          errorText: 'Please enter a beneficiary relationship',
+                          errorText: 'Please select beneficiary gender',
                         ),
-                        (value) => value?.isEmpty ?? false
-                            ? 'Please enter a beneficiary relationship'
-                            : null,
                       ]),
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                width: 32,
+              ),
+              Expanded(
+                child: FormBuilderTextField(
+                  name: 'beneficiary_${beneficiary.createdAt}_relationship',
+                  decoration: const InputDecoration(
+                    label: Text('Relationship'),
+                    border: OutlineInputBorder(),
                   ),
-                  const SizedBox(
-                    width: 32,
-                  ),
-                  IconButton(
-                    onPressed: () =>
-                        userBloc.removeBeneficiary(position: index),
-                    icon: Icon(
-                      Icons.remove_circle_rounded,
-                      color: Theme.of(context).colorScheme.error,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  onChanged: (value) {
+                    if (value == null || value.isEmpty) {
+                      return;
+                    }
+
+                    // userBloc.addedUserBeneficiaries[index].relationship =
+                    //     value;
+                    beneficiary.relationship = value;
+                  },
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(
+                      errorText: 'Please enter a beneficiary relationship',
                     ),
-                  )
-                ],
-              ))
-          .toList(),
+                    (value) => value?.isEmpty ?? false
+                        ? 'Please enter a beneficiary relationship'
+                        : null,
+                  ]),
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+        const SizedBox(
+          height: 32,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              onPressed: userBloc.addBeneficiary,
+              child: const Text(
+                'Add Beneficiary',
+              ),
+            )
+          ],
+        ),
+      ]
     ],
   );
 }

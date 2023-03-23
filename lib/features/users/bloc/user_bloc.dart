@@ -141,8 +141,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       } else {
         removeSpouse();
       }
-
-      emit(UpdateUiState());
     }
   }
 
@@ -156,10 +154,13 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   void initializeSpouse() {
     addedUserSpouse = User.createBlank();
     addedUserSpouse?.civilStatus = CivilStatus.married;
+    emit(UpdateUiState());
   }
 
   void removeSpouse() {
+    removeAddedUserSpouseEmploymentDetails();
     addedUserSpouse = null;
+    emit(UpdateUiState(removeFieldsThatStartsWithKey: 'spouse'));
   }
 
   void initializeAddedUserEmploymentDetails() {
@@ -169,7 +170,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   void removeAddedUserEmploymentDetails() {
     addedUserEmploymentDetails = null;
-    emit(UpdateUiState());
+    emit(UpdateUiState(removeFieldsThatStartsWithKey: 'ed'));
   }
 
   void initializeAddedUserSpouseEmploymentDetails() {
@@ -179,7 +180,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   void removeAddedUserSpouseEmploymentDetails() {
     addedUserSpouseEmploymentDetails = null;
-    emit(UpdateUiState());
+    // emit(UpdateUiState());
   }
 
   void initializeBeneficiaries() {
@@ -191,9 +192,18 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     emit(UpdateUiState());
   }
 
-  void removeBeneficiary({ required int position }) {
-    addedUserBeneficiaries.removeAt(position);
-    emit(UpdateUiState());
+  void removeBeneficiary({required Beneficiary beneficiary}) {
+    addedUserBeneficiaries.remove(beneficiary);
+    emit(
+      RemoveUiState(
+        removeFieldsThatStartsWithKey: 'beneficiary_${beneficiary.createdAt}',
+      ),
+    );
+    emit(
+      UpdateUiState(
+        removeFieldsThatStartsWithKey: 'beneficiary_${beneficiary.createdAt}',
+      ),
+    );
   }
 
   void initializeAddedUserAddress() {

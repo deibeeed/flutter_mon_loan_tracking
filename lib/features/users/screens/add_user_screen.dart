@@ -120,6 +120,23 @@ class _AddUserScreenState extends State<AddUserScreen> {
               .showSnackBar(SnackBar(content: Text(state.message)));
         } else if (state is CloseScreenState) {
           GoRouter.of(context).pop();
+        } else if (state is RemoveUiState) {
+          if (state.removeFieldsThatStartsWithKey != null) {
+            final fieldKeys = _formKey.currentState?.fields.keys
+                .where(
+                  (key) => key.startsWith(state.removeFieldsThatStartsWithKey!),
+                )
+                .toList();
+
+            if (fieldKeys != null) {
+              for (final name in fieldKeys) {
+                _formKey.currentState?.removeInternalFieldValue(
+                  name,
+                  isSetState: true,
+                );
+              }
+            }
+          }
         }
       },
       child: Scaffold(
