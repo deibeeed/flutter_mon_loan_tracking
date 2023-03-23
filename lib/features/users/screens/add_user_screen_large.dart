@@ -1054,9 +1054,9 @@ Widget _buildLargeScreenUserBlock({
                 children: [
                   Expanded(
                     child: FormBuilderTextField(
-                      name: 'houseNo',
+                      name: 'beneficiary_name_$index',
                       decoration: const InputDecoration(
-                        label: Text('House number'),
+                        label: Text('Beneficiary'),
                         border: OutlineInputBorder(),
                       ),
                       keyboardType:
@@ -1066,14 +1066,14 @@ Widget _buildLargeScreenUserBlock({
                           return;
                         }
 
-                        userBloc.addedUserAddress?.houseNo = value;
+                        userBloc.addedUserBeneficiaries[index].name = value;
                       },
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(
-                          errorText: 'Please enter a house number',
+                          errorText: 'Please enter beneficiary name',
                         ),
                         (value) => value?.isEmpty ?? false
-                            ? 'Please enter a house number'
+                            ? 'Please enter beneficiary name'
                             : null,
                       ]),
                     ),
@@ -1083,9 +1083,91 @@ Widget _buildLargeScreenUserBlock({
                   ),
                   Expanded(
                     child: FormBuilderTextField(
-                      name: 'street',
+                      name: 'beneficiary_birthDate_$index',
+                      onTap: () {
+                        showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now()
+                              .subtract(const Duration(days: 365 * 100)),
+                          lastDate: DateTime.now(),
+                        ).then((date) {
+                          printd('date is $date');
+                          if (date == null) {
+                            return;
+                          }
+                          final dateStr =
+                              Constants.defaultDateFormat.format(date);
+                          formKey.currentState
+                              ?.fields['beneficiary_birthDate_$index']
+                              ?.didChange(dateStr);
+                          userBloc.addedUserBeneficiaries[index].birthDate =
+                              date.millisecondsSinceEpoch;
+                        });
+                      },
                       decoration: const InputDecoration(
-                        label: Text('Street'),
+                        label: Text('Birthdate'),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'Please select beneficiary birth date',
+                        ),
+                        (value) => value?.isEmpty ?? false
+                            ? 'Please select beneficiary birth date'
+                            : null,
+                      ]),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 32,
+                  ),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Gender',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        FormBuilderDropdown<Gender>(
+                          name: 'beneficiary_gender_$index',
+                          initialValue: Gender.male,
+                          items: Gender.values.map((type) {
+                            return DropdownMenuItem<Gender>(
+                              value: type,
+                              child: Text(type.name),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value == null) {
+                              return;
+                            }
+
+                            userBloc.addedUserBeneficiaries[index].gender =
+                                value;
+                          },
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                              errorText: 'Please select beneficiary gender',
+                            ),
+                          ]),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 32,
+                  ),
+                  Expanded(
+                    child: FormBuilderTextField(
+                      name: 'beneficiary_relationship_$index',
+                      decoration: const InputDecoration(
+                        label: Text('Relationship'),
                         border: OutlineInputBorder(),
                       ),
                       keyboardType:
@@ -1095,14 +1177,15 @@ Widget _buildLargeScreenUserBlock({
                           return;
                         }
 
-                        userBloc.addedUserAddress?.street = value;
+                        userBloc.addedUserBeneficiaries[index].relationship =
+                            value;
                       },
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(
-                          errorText: 'Please enter a street',
+                          errorText: 'Please enter a beneficiary relationship',
                         ),
                         (value) => value?.isEmpty ?? false
-                            ? 'Please enter a street'
+                            ? 'Please enter a beneficiary relationship'
                             : null,
                       ]),
                     ),
@@ -1110,59 +1193,14 @@ Widget _buildLargeScreenUserBlock({
                   const SizedBox(
                     width: 32,
                   ),
-                  Expanded(
-                    child: FormBuilderTextField(
-                      name: 'barangay',
-                      decoration: const InputDecoration(
-                        label: Text('Barangay'),
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        if (value == null || value.isEmpty) {
-                          return;
-                        }
-
-                        userBloc.addedUserAddress?.brgy = value;
-                      },
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                          errorText: 'Please enter a barangay',
-                        ),
-                        (value) => value?.isEmpty ?? false
-                            ? 'Please enter a barangay'
-                            : null,
-                      ]),
+                  IconButton(
+                    onPressed: () =>
+                        userBloc.removeBeneficiary(position: index),
+                    icon: Icon(
+                      Icons.remove_circle_rounded,
+                      color: Theme.of(context).colorScheme.error,
                     ),
-                  ),
-                  const SizedBox(
-                    width: 32,
-                  ),
-                  Expanded(
-                    child: FormBuilderTextField(
-                      name: 'zone',
-                      decoration: const InputDecoration(
-                        label: Text('Zone'),
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      onChanged: (value) {
-                        if (value == null || value.isEmpty) {
-                          return;
-                        }
-
-                        userBloc.addedUserAddress?.zone = value;
-                      },
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                          errorText: 'Please enter a zone',
-                        ),
-                        (value) => value?.isEmpty ?? false
-                            ? 'Please enter a zone'
-                            : null,
-                      ]),
-                    ),
-                  ),
+                  )
                 ],
               ))
           .toList(),

@@ -188,6 +188,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   void addBeneficiary() {
     addedUserBeneficiaries.add(Beneficiary.createBlank());
+    emit(UpdateUiState());
+  }
+
+  void removeBeneficiary({ required int position }) {
+    addedUserBeneficiaries.removeAt(position);
+    emit(UpdateUiState());
   }
 
   void initializeAddedUserAddress() {

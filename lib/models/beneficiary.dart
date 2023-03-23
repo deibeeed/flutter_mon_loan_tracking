@@ -7,12 +7,12 @@ part 'beneficiary.g.dart';
 
 @JsonSerializable()
 class Beneficiary extends Equatable {
-  final String name;
-  final num birthDate;
-  final String relationship;
-  final Gender gender;
+  String name;
+  num birthDate;
+  String relationship;
+  Gender gender;
   final String id;
-  final String parentId;
+  String parentId;
   final num createdAt = DateTime.now().millisecondsSinceEpoch;
 
   Beneficiary({
