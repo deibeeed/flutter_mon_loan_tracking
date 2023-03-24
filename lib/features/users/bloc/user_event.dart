@@ -39,3 +39,9 @@ class GetUserEvent extends UserEvent {
 
   GetUserEvent({ required this.userId });
 }
+
+class RemoveBeneficiaryEvent extends UserEvent {
+  final Beneficiary beneficiary;
+
+  RemoveBeneficiaryEvent({ required this.beneficiary, });
+}

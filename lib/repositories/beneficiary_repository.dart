@@ -18,6 +18,10 @@ class BeneficiariesRepository extends BaseRepository<Beneficiary> {
     return firestoreService.all();
   }
 
+  Future<List<Beneficiary>> allFromParent({ required String parentId }) {
+    return firestoreService.allFromParent(parentId: parentId);
+  }
+
   @override
   Future<Beneficiary> delete({required Beneficiary data}) {
     return firestoreService.delete(data: data);

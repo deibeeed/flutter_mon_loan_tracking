@@ -28,6 +28,10 @@ class EmploymentDetailsRepository extends BaseRepository<EmploymentDetails> {
     return firestoreService.get(id: id);
   }
 
+  Future<EmploymentDetails> getByUserId({required String userId}) {
+    return firestoreService.getByUserId(userId: userId);
+  }
+
   @override
   Future<EmploymentDetails> update({required EmploymentDetails data}) {
     return firestoreService.update(data: data);

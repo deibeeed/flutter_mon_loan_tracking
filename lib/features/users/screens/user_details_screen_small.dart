@@ -4,15 +4,8 @@ Widget buildSmallScreenBody({
   required BuildContext context,
   String? userId,
   bool isProfile = false,
-  required TextEditingController lastNameController,
-  required TextEditingController firstNameController,
-  required TextEditingController mobileNumberController,
-  required TextEditingController emailController,
-  required TextEditingController civilStatusController,
-  required TextEditingController passwordController,
-  required TextEditingController confirmPasswordController,
-  required TextEditingController birthDateController,
   required PagingController<int, LoanSchedule> pagingController,
+  required GlobalKey<FormBuilderState> formKey,
 }) {
   final horizontalScrollController = ScrollController();
   final authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
@@ -68,113 +61,10 @@ Widget buildSmallScreenBody({
         padding: EdgeInsets.all(16),
         child: Column(
           children: [
-            TextFormField(
-              controller: lastNameController,
-              decoration: const InputDecoration(
-                  label: Text('Last name'), border: OutlineInputBorder()),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: firstNameController,
-              decoration: const InputDecoration(
-                  label: Text('First name'), border: OutlineInputBorder()),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            Text(
-              'Civil status',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-            SizedBox(
-              width: double.infinity,
-              child: BlocBuilder<UserBloc, UserState>(
-                builder: (context, state) {
-                  var dropdownValue = CivilStatus.values.first;
-
-                  if (userBloc.selectedCivilStatus != null) {
-                    dropdownValue = userBloc.selectedCivilStatus!;
-                  }
-
-                  if (state is SelectedCivilStatusState) {
-                    dropdownValue = state.civilStatus;
-                  }
-
-                  return DropdownButton<CivilStatus>(
-                    value: dropdownValue,
-                    items: CivilStatus.values.map((category) {
-                      return DropdownMenuItem<CivilStatus>(
-                        value: category,
-                        child: Text(category.name),
-                      );
-                    }).toList(),
-                    onChanged: (value) => userBloc.selectCivilStatus(
-                      civilStatus: value,
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            BlocBuilder<UserBloc, UserState>(
-              buildWhen: (previous, current) => current is UserSuccessState,
-              builder: (context, state) {
-                return TextFormField(
-                  onTap: () {
-                    showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate:
-                      DateTime.now().subtract(Duration(days: 365 * 100)),
-                      lastDate: DateTime.now(),
-                    ).then((date) {
-                      printd('date is $date');
-                      if (date != null) {
-                        birthDateController.text =
-                            Constants.defaultDateFormat.format(date);
-                        userBloc.selectDate(date: date);
-                      }
-                    });
-                  },
-                  controller: birthDateController,
-                  decoration: const InputDecoration(
-                    label: Text('Birthdate'),
-                    border: OutlineInputBorder(),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: mobileNumberController,
-              decoration: const InputDecoration(
-                label: Text('Mobile number'),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType:
-              const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-              ],
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                label: Text('Email'),
-                border: OutlineInputBorder(),
-              ),
+            buildSmallScreenUserForm(
+              context: context,
+              formKey: formKey,
+              isUpdate: true,
             ),
             const SizedBox(
               height: 32,
@@ -185,17 +75,11 @@ Widget buildSmallScreenBody({
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => userBloc.updateUser(
-                        lastName: lastNameController.text,
-                        firstName: firstNameController.text,
-                        birthDate: birthDateController.text,
-                        mobileNumber: mobileNumberController.text,
-                        email: emailController.text,
-                      ),
+                      onPressed: () => userBloc.updateUser2(),
                       style: ElevatedButton.styleFrom(
                           padding: buttonPadding,
                           backgroundColor:
-                          Theme.of(context).colorScheme.primary),
+                              Theme.of(context).colorScheme.primary),
                       child: Text(
                         'Update profile',
                         style: Theme.of(context)
@@ -214,12 +98,12 @@ Widget buildSmallScreenBody({
                       style: ElevatedButton.styleFrom(
                           padding: buttonPadding,
                           backgroundColor:
-                          Theme.of(context).colorScheme.errorContainer),
+                              Theme.of(context).colorScheme.errorContainer),
                       child: Text(
                         'Logout',
                         style: Theme.of(context).textTheme.titleMedium?.apply(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
+                              color: Theme.of(context).colorScheme.error,
+                            ),
                       ),
                     ),
                   ),
@@ -241,12 +125,12 @@ Widget buildSmallScreenBody({
                       style: ElevatedButton.styleFrom(
                           padding: buttonPadding,
                           backgroundColor:
-                          Theme.of(context).colorScheme.errorContainer),
+                              Theme.of(context).colorScheme.errorContainer),
                       child: Text(
                         'Delete',
                         style: Theme.of(context).textTheme.titleMedium?.apply(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
+                              color: Theme.of(context).colorScheme.error,
+                            ),
                       ),
                     ),
                   )
@@ -293,7 +177,7 @@ Widget buildSmallScreenBody({
             ),
             ElevatedButton(
                 onPressed: () {
-                  var user = userBloc.selectedUser;
+                  var user = userBloc.tempUser;
                   var loan = loanBloc.selectedLoan;
                   var lot = loanBloc.selectedLot;
 
@@ -328,7 +212,7 @@ Widget buildSmallScreenBody({
               withStatus: true,
               userId: userId,
               loggedInUserType:
-              userBloc.getLoggedInUser()?.type ?? UserType.customer,
+                  userBloc.getLoggedInUser()?.type ?? UserType.customer,
               isSmallScreen: true,
             );
           }
@@ -347,7 +231,7 @@ Widget buildSmallScreenBody({
                 userId: userId,
                 finiteSize: loanBloc.clientLoanSchedules.isNotEmpty,
                 loggedInUserType:
-                userBloc.getLoggedInUser()?.type ?? UserType.customer,
+                    userBloc.getLoggedInUser()?.type ?? UserType.customer,
                 isSmallScreen: true,
               ),
             ),

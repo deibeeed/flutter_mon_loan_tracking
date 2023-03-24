@@ -56,20 +56,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   List<User> get filteredUsers => _filteredUsers;
 
-  User? _selectedUser;
-
-  User? get selectedUser => _selectedUser;
-
-  UserType? _selectedType;
-
-  CivilStatus? _selectedCivilStatus;
-
-  CivilStatus? get selectedCivilStatus => _selectedCivilStatus;
-
-  Gender? _selectedGender;
-
-  Gender? get selectedGender => _selectedGender;
-
   Map<String, User> get mappedUsers => userRepository.mappedUsers;
 
   List<User> _customers = [];
@@ -101,10 +87,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   }
 
   void reset() {
-    _selectedUser = null;
-    _selectedCivilStatus = null;
-    _selectedType = null;
-    _selectedGender = null;
     tempUser = null;
     tempUserSpouse = null;
     tempUserEmploymentDetails = null;
@@ -117,43 +99,28 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     emit(UserSuccessState(message: 'Successfully selected date'));
   }
 
-  void selectUserType({required UserType? type}) {
-    _selectedType = type;
-
-    if (type != null) {
-      emit(SelectedUserTypeState(type: type));
-    }
-  }
-
-  // used by user details screen
-  // TODO: remove this function when user details screen is updated with the new form
-  void selectCivilStatus({required CivilStatus? civilStatus}) {
-    _selectedCivilStatus = civilStatus;
-
-    if (civilStatus != null) {
-      emit(SelectedCivilStatusState(civilStatus: civilStatus));
-    }
-  }
-
   void selectCivilStatus2({required CivilStatus? civilStatus}) {
-    _selectedCivilStatus = civilStatus;
-
-    if (civilStatus != null) {
-      tempUser?.civilStatus = civilStatus;
-
-      if (civilStatus == CivilStatus.married) {
-        initializeSpouse();
-      } else {
-        removeSpouse();
-      }
-    }
+    // if (civilStatus != null) {
+    //   tempUser?.civilStatus = civilStatus;
+    //
+    //   if (civilStatus == CivilStatus.married) {
+    //     initializeSpouse();
+    //   } else {
+    //     removeSpouse();
+    //   }
+    // }
   }
 
-  void initializeAddUser() {
-    tempUser = User.createBlank();
-    initializeAddedUserAddress();
-    initializeBeneficiaries();
-    emit(UpdateUiState());
+  void initializeAddUser({String? withId}) {
+    if (withId == null) {
+      tempUser = User.createBlank();
+      initializeAddedUserAddress();
+      initializeBeneficiaries();
+      emit(UpdateUiState());
+      return;
+    }
+
+    add(GetUserEvent(userId: withId));
   }
 
   void initializeSpouse() {
@@ -220,10 +187,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   }
 
   void removeBeneficiary({required Beneficiary beneficiary}) {
-    tempUserBeneficiaries.remove(beneficiary);
-    emit(
-      UpdateUiState(),
-    );
+    if (beneficiary.id == Constants.NO_ID) {
+      tempUserBeneficiaries.remove(beneficiary);
+      emit(
+        UpdateUiState(),
+      );
+    } else {
+      add(RemoveBeneficiaryEvent(beneficiary: beneficiary));
+    }
   }
 
   void initializeAddedUserAddress() {
@@ -234,9 +205,11 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     tempUserAddress = null;
   }
 
-  void addUser({required Map<String,
-      FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>>?
-  fields}) {
+  void addUser({
+    required Map<String,
+            FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>>?
+        fields,
+  }) {
     final values = fields?.map((key, value) => MapEntry(key, value.value));
 
     if (values == null) {
@@ -254,20 +227,22 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     required String mobileNumber,
     required String email,
   }) {
-    if (_selectedCivilStatus == null) {
-      emit(UserErrorState(message: 'Please select civil status'));
-      return;
-    }
-
-    add(UpdateUserEvent(
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      birthDate: birthDate,
-      civilStatus: _selectedCivilStatus!,
-      mobileNumber: mobileNumber,
-    ));
+    // if (_selectedCivilStatus == null) {
+    //   emit(UserErrorState(message: 'Please select civil status'));
+    //   return;
+    // }
+    //
+    // add(UpdateUserEvent(
+    //   firstName: firstName,
+    //   lastName: lastName,
+    //   email: email,
+    //   birthDate: birthDate,
+    //   civilStatus: _selectedCivilStatus!,
+    //   mobileNumber: mobileNumber,
+    // ));
   }
+
+  void updateUser2() {}
 
   void getAllUsers() {
     add(GetAllUsersEvent());
@@ -277,8 +252,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     return userRepository.getLoggedInUser();
   }
 
-  Future<void> _handleAddUserEvent(AddUserEvent event,
-      Emitter<UserState> emit,) async {
+  Future<void> _handleAddUserEvent(
+    AddUserEvent event,
+    Emitter<UserState> emit,
+  ) async {
     try {
       emit(UserLoadingState(isLoading: true));
       final values = event.values;
@@ -317,7 +294,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       final addedUser = await userRepository.add(data: tempUser!);
       tempUserAddress!.userId = userId;
       final addedUserAddress =
-      await addressRepository.add(data: tempUserAddress!);
+          await addressRepository.add(data: tempUserAddress!);
       if (tempUserEmploymentDetails != null) {
         tempUserEmploymentDetails!.userId = userId;
         final addedUserEmploymentDetails = await employmentDetailsRepository
@@ -356,42 +333,57 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
-  Future<void> _handleUpdateUserEvent(UpdateUserEvent event,
-      Emitter<UserState> emit,) async {
+  Future<void> _handleUpdateUserEvent(
+    UpdateUserEvent event,
+    Emitter<UserState> emit,
+  ) async {
+    // update user
+    // update spouse
+    // update address
+    // update employment details
+    // update spouse employment details
+    // update beneficiaries
     try {
-      if (_selectedUser == null) {
+      if (tempUser == null) {
         emit(UserErrorState(message: 'User not selected'));
         return;
       }
 
       emit(UserLoadingState(isLoading: true));
-      var civilStatus = event.civilStatus;
+      final updatedUser = await userRepository.update(data: tempUser!);
+      final updatedSpouse = await userRepository.update(data: tempUserSpouse!);
+      final updatedUserEmploymentDetails = await employmentDetailsRepository
+          .update(data: tempUserEmploymentDetails!);
+      final updatedUserSpouseEmploymentDetails =
+          await employmentDetailsRepository.update(
+              data: tempUserSpouseEmploymentDetails!);
+      final updatedUserAddress =
+          await addressRepository.update(data: tempUserAddress!);
 
-      var tmpUser = User(
-        firstName: event.firstName,
-        lastName: event.lastName,
-        email: event.email,
-        birthDate: event.birthDate,
-        civilStatus: civilStatus,
-        mobileNumber: event.mobileNumber,
-      );
-      tmpUser = User.updateId(id: _selectedUser!.id, user: tmpUser);
-      final addedUser = await userRepository.update(data: tmpUser);
-      _filteredUsers.add(addedUser);
+      for (final beneficiary in tempUserBeneficiaries) {
+        if (beneficiary.id == Constants.NO_ID) {
+          beneficiary.parentId = updatedUser.id;
+          await beneficiaryRepository.add(data: beneficiary);
+        } else {
+          await beneficiaryRepository.update(data: beneficiary);
+        }
+      }
+      getAllUsers();
       emit(UserLoadingState());
       emit(UserSuccessState(
-          user: addedUser, message: 'Successfully updated user'));
+          user: updatedUser, message: 'Successfully updated user'));
     } catch (err) {
       printd(err);
     }
   }
 
-  Future<void> _handleGetAllUsersEvent(GetAllUsersEvent event,
-      Emitter<UserState> emit) async {
+  Future<void> _handleGetAllUsersEvent(
+      GetAllUsersEvent event, Emitter<UserState> emit) async {
     try {
       emit(UserLoadingState(isLoading: true));
       final tmpUsers = await userRepository.all();
-      final spouseIds = tmpUsers.where((user) => user.spouseId != null)
+      final spouseIds = tmpUsers
+          .where((user) => user.spouseId != null)
           .toList()
           .map((e) => e.spouseId!)
           .toList();
@@ -406,8 +398,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
-  Future<void> _handleSearchUsersEvent(SearchUsersEvent event,
-      Emitter<UserState> emit) async {
+  Future<void> _handleSearchUsersEvent(
+      SearchUsersEvent event, Emitter<UserState> emit) async {
     try {
       emit(UserLoadingState(isLoading: true));
       final query = event.query.toLowerCase();
@@ -415,7 +407,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
       if (query.isNotEmpty) {
         final filteredList = users.where(
-              (user) {
+          (user) {
             final lastName = user.lastName.toLowerCase();
             final firstName = user.firstName.toLowerCase();
             final email = user.email;
@@ -447,18 +439,91 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
-  Future<void> _handleGetUserEvent(GetUserEvent event,
-      Emitter<UserState> emit) async {
+  Future<void> _handleGetUserEvent(
+      GetUserEvent event, Emitter<UserState> emit) async {
     try {
       emit(UserLoadingState(isLoading: true));
-      _selectedUser = await userRepository.get(id: event.userId);
-      _selectedCivilStatus = _selectedUser!.civilStatus;
+      // get user
+      // get spouse
+      // get address
+      // get employment details
+      // get spouse employment details
+      // get beneficiaries
+      tempUser = await userRepository.get(id: event.userId);
+      emit(UpdateUiState());
+
+      if (tempUser == null) {
+        throw Exception('User not found');
+      }
+
+      try {
+        tempUserEmploymentDetails =
+            await employmentDetailsRepository.getByUserId(userId: tempUser!.id);
+        emit(UpdateUiState());
+      } catch (err) {
+        printd('User employment details error: $err');
+      }
+
+      try {
+        tempUserAddress =
+            await addressRepository.getByUserId(userId: tempUser!.id);
+        emit(UpdateUiState());
+      } catch (err) {
+        printd('User address error: $err');
+      }
+
+      try {
+        tempUserBeneficiaries =
+            await beneficiaryRepository.allFromParent(parentId: tempUser!.id);
+        emit(UpdateUiState());
+      } catch (err) {
+        printd('User beneficiaries error: $err');
+      }
+
+      if (tempUser!.spouseId != null) {
+        try {
+          tempUserSpouse = await userRepository.get(id: tempUser!.spouseId!);
+          emit(UpdateUiState());
+        } catch (err) {
+          printd('Spouse retrieve error: $err');
+        }
+        try {
+          tempUserSpouseEmploymentDetails = await employmentDetailsRepository
+              .getByUserId(userId: tempUserSpouse!.id);
+          emit(UpdateUiState());
+        } catch (err) {
+          printd('Spouse employment details error: $err');
+        }
+      }
+
       emit(UserLoadingState());
       emit(UserSuccessState(message: 'Successfully retrieved user'));
+      emit(UpdateUiState());
     } catch (err) {
       printd(err);
       emit(UserLoadingState());
       emit(UserErrorState(message: 'Something went wrong while getting user'));
+    }
+  }
+
+  Future<void> _handleRemoveBeneficiaryEvent(
+    RemoveBeneficiaryEvent event,
+    Emitter<UserState> emit,
+  ) async {
+    try {
+      emit(UserLoadingState(isLoading: true));
+      final removedBeneficiary =
+          await beneficiaryRepository.delete(data: event.beneficiary);
+      tempUserBeneficiaries.remove(removedBeneficiary);
+
+      emit(UpdateUiState());
+      emit(UserLoadingState());
+      emit(UserSuccessState(message: 'Successfully removed beneficiary'));
+    } catch (err) {
+      printd(err);
+      emit(UserLoadingState());
+      emit(UserErrorState(
+          message: 'Something went wrong while removing beneficiary: $err'));
     }
   }
 }

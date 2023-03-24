@@ -1,8 +1,23 @@
-part of 'add_user_screen.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/civil_status_types.dart';
+import 'package:flutter_mon_loan_tracking/models/employment_details.dart';
+import 'package:flutter_mon_loan_tracking/models/gender.dart';
+import 'package:flutter_mon_loan_tracking/models/user.dart';
+import 'package:flutter_mon_loan_tracking/models/user_type.dart';
+import 'package:flutter_mon_loan_tracking/utils/constants.dart';
+import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
+import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 
-Widget buildLargeScreenBody({
+Widget buildLargeScreenUserForm({
   required BuildContext context,
   required GlobalKey<FormBuilderState> formKey,
+  bool isUpdate = false,
 }) {
   final userBloc = BlocProvider.of<UserBloc>(context);
   final screenSize = MediaQuery.of(context).size;
@@ -23,12 +38,13 @@ Widget buildLargeScreenBody({
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildLargeScreenUserBlock(
-                  context: context,
-                  formKey: formKey,
-                  user: userBloc.tempUser!,
-                  employmentDetails: userBloc.tempUserEmploymentDetails,
-                ),
+                if (userBloc.tempUser != null)
+                  _buildLargeScreenUserBlock(
+                    context: context,
+                    formKey: formKey,
+                    user: userBloc.tempUser!,
+                    employmentDetails: userBloc.tempUserEmploymentDetails,
+                  ),
                 if (userBloc.tempUserSpouse != null) ...[
                   const SizedBox(
                     height: 32,
@@ -53,39 +69,43 @@ Widget buildLargeScreenBody({
                     isSpouse: true,
                   ),
                 ],
-                _buildLargeScreenBeneficiaryBlock(
-                  context: context,
-                  userBloc: userBloc,
-                  formKey: formKey,
-                ),
-                const SizedBox(
-                  height: 32,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (formKey.currentState?.validate() ?? false) {
-                            userBloc.addUser(
-                                fields: formKey.currentState?.fields);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                            padding: buttonPadding,
-                            backgroundColor:
+                if (userBloc.tempUser != null) ...[
+                  _buildLargeScreenBeneficiaryBlock(
+                    context: context,
+                    userBloc: userBloc,
+                    formKey: formKey,
+                  ),
+                  const SizedBox(
+                    height: 32,
+                  ),
+                  if (!isUpdate)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (formKey.currentState?.validate() ?? false) {
+                                userBloc.addUser(
+                                    fields: formKey.currentState?.fields);
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                                padding: buttonPadding,
+                                backgroundColor:
                                 Theme.of(context).colorScheme.primary),
-                        child: Text(
-                          'Add User',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.apply(color: Colors.white),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
+                            child: Text(
+                              'Add User',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.apply(color: Colors.white),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                ],
+
               ],
             );
           }),
@@ -177,7 +197,7 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a nationality',
                   ),
-                  (value) => value?.isEmpty ?? false
+                      (value) => value?.isEmpty ?? false
                       ? 'Please enter a nationality'
                       : null,
                 ]),
@@ -210,8 +230,8 @@ Widget _buildLargeScreenUserBlock({
                 FormBuilderValidators.required(
                   errorText: 'Please enter a last name',
                 ),
-                (value) =>
-                    value?.isEmpty ?? false ? 'Please enter a last name' : null,
+                    (value) =>
+                value?.isEmpty ?? false ? 'Please enter a last name' : null,
               ]),
             ),
           ),
@@ -237,7 +257,7 @@ Widget _buildLargeScreenUserBlock({
                 FormBuilderValidators.required(
                   errorText: 'Please enter a first name',
                 ),
-                (value) => value?.isEmpty ?? false
+                    (value) => value?.isEmpty ?? false
                     ? 'Please enter a first name'
                     : null,
               ]),
@@ -263,40 +283,40 @@ Widget _buildLargeScreenUserBlock({
           if (!isSpouse)
             Expanded(
                 child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Civil status',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(
-                  height: 8,
-                ),
-                FormBuilderDropdown<CivilStatus>(
-                  name: 'civilStatus',
-                  initialValue: CivilStatus.single,
-                  items: CivilStatus.values.map((type) {
-                    return DropdownMenuItem<CivilStatus>(
-                      value: type,
-                      child: Text(type.value),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value == null) {
-                      return;
-                    }
-
-                    userBloc.selectCivilStatus2(civilStatus: value);
-                  },
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(
-                      errorText: 'Please select a civil status',
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Civil status',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  ]),
-                ),
-              ],
-            )),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    FormBuilderDropdown<CivilStatus>(
+                      name: 'civilStatus',
+                      initialValue: CivilStatus.single,
+                      items: CivilStatus.values.map((type) {
+                        return DropdownMenuItem<CivilStatus>(
+                          value: type,
+                          child: Text(type.value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value == null) {
+                          return;
+                        }
+
+                        userBloc.selectCivilStatus2(civilStatus: value);
+                      },
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(
+                          errorText: 'Please select a civil status',
+                        ),
+                      ]),
+                    ),
+                  ],
+                )),
           const SizedBox(
             width: 32,
           ),
@@ -352,7 +372,7 @@ Widget _buildLargeScreenUserBlock({
                   context: context,
                   initialDate: DateTime.now(),
                   firstDate:
-                      DateTime.now().subtract(const Duration(days: 365 * 100)),
+                  DateTime.now().subtract(const Duration(days: 365 * 100)),
                   lastDate: DateTime.now(),
                 ).then((date) {
                   printd('date is $date');
@@ -378,7 +398,7 @@ Widget _buildLargeScreenUserBlock({
                 FormBuilderValidators.required(
                   errorText: 'Please select a birth date',
                 ),
-                (value) => value?.isEmpty ?? false
+                    (value) => value?.isEmpty ?? false
                     ? 'Please select a birth date'
                     : null,
               ]),
@@ -395,7 +415,7 @@ Widget _buildLargeScreenUserBlock({
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              const TextInputType.numberWithOptions(decimal: true),
               onChanged: (value) => user.birthPlace = value,
             ),
           ),
@@ -411,7 +431,7 @@ Widget _buildLargeScreenUserBlock({
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -436,7 +456,7 @@ Widget _buildLargeScreenUserBlock({
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -464,7 +484,7 @@ Widget _buildLargeScreenUserBlock({
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -473,7 +493,7 @@ Widget _buildLargeScreenUserBlock({
                 FormBuilderValidators.required(
                   errorText: 'Please enter a TIN number',
                 ),
-                (value) => value?.isEmpty ?? false
+                    (value) => value?.isEmpty ?? false
                     ? 'Please enter a TIN number'
                     : null,
               ]),
@@ -490,7 +510,7 @@ Widget _buildLargeScreenUserBlock({
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -508,7 +528,7 @@ Widget _buildLargeScreenUserBlock({
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -542,7 +562,7 @@ Widget _buildLargeScreenUserBlock({
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -557,7 +577,7 @@ Widget _buildLargeScreenUserBlock({
                 FormBuilderValidators.required(
                   errorText: 'Please enter a mobile number',
                 ),
-                (value) => value?.isEmpty ?? false
+                    (value) => value?.isEmpty ?? false
                     ? 'Please enter a mobile number'
                     : null,
               ]),
@@ -574,7 +594,7 @@ Widget _buildLargeScreenUserBlock({
                 border: OutlineInputBorder(),
               ),
               keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
               ],
@@ -603,8 +623,8 @@ Widget _buildLargeScreenUserBlock({
                     errorText: 'Please enter an email'),
                 FormBuilderValidators.email(
                     errorText: 'Please enter a valid email'),
-                (value) =>
-                    value?.isEmpty ?? false ? 'Please enter an email' : null,
+                    (value) =>
+                value?.isEmpty ?? false ? 'Please enter an email' : null,
               ]),
             ),
           ),
@@ -639,7 +659,7 @@ Widget _buildLargeScreenUserBlock({
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                const TextInputType.numberWithOptions(decimal: true),
                 onChanged: (value) {
                   if (value == null || value.isEmpty) {
                     return;
@@ -651,7 +671,7 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a house number',
                   ),
-                  (value) => value?.isEmpty ?? false
+                      (value) => value?.isEmpty ?? false
                       ? 'Please enter a house number'
                       : null,
                 ]),
@@ -668,7 +688,7 @@ Widget _buildLargeScreenUserBlock({
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                const TextInputType.numberWithOptions(decimal: true),
                 onChanged: (value) {
                   if (value == null || value.isEmpty) {
                     return;
@@ -680,8 +700,8 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a street',
                   ),
-                  (value) =>
-                      value?.isEmpty ?? false ? 'Please enter a street' : null,
+                      (value) =>
+                  value?.isEmpty ?? false ? 'Please enter a street' : null,
                 ]),
               ),
             ),
@@ -706,7 +726,7 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a barangay',
                   ),
-                  (value) => value?.isEmpty ?? false
+                      (value) => value?.isEmpty ?? false
                       ? 'Please enter a barangay'
                       : null,
                 ]),
@@ -723,7 +743,7 @@ Widget _buildLargeScreenUserBlock({
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                const TextInputType.numberWithOptions(decimal: true),
                 onChanged: (value) {
                   if (value == null || value.isEmpty) {
                     return;
@@ -735,8 +755,8 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a zone',
                   ),
-                  (value) =>
-                      value?.isEmpty ?? false ? 'Please enter a zone' : null,
+                      (value) =>
+                  value?.isEmpty ?? false ? 'Please enter a zone' : null,
                 ]),
               ),
             ),
@@ -755,7 +775,7 @@ Widget _buildLargeScreenUserBlock({
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                const TextInputType.numberWithOptions(decimal: true),
                 onChanged: (value) {
                   if (value == null || value.isEmpty) {
                     return;
@@ -767,7 +787,7 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a municipality or city',
                   ),
-                  (value) => value?.isEmpty ?? false
+                      (value) => value?.isEmpty ?? false
                       ? 'Please enter a municipality or city'
                       : null,
                 ]),
@@ -794,7 +814,7 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a province',
                   ),
-                  (value) => value?.isEmpty ?? false
+                      (value) => value?.isEmpty ?? false
                       ? 'Please enter a province'
                       : null,
                 ]),
@@ -821,7 +841,7 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a zip code',
                   ),
-                  (value) => value?.isEmpty ?? false
+                      (value) => value?.isEmpty ?? false
                       ? 'Please enter a zip code'
                       : null,
                 ]),
@@ -850,8 +870,8 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a country',
                   ),
-                  (value) =>
-                      value?.isEmpty ?? false ? 'Please enter a country' : null,
+                      (value) =>
+                  value?.isEmpty ?? false ? 'Please enter a country' : null,
                 ]),
               ),
             ),
@@ -915,7 +935,7 @@ Widget _buildLargeScreenUserBlock({
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                const TextInputType.numberWithOptions(decimal: true),
                 onChanged: (value) {
                   if (value == null || value.isEmpty) {
                     return;
@@ -927,7 +947,7 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter a company name',
                   ),
-                  (value) => value?.isEmpty ?? false
+                      (value) => value?.isEmpty ?? false
                       ? 'Please enter a company name'
                       : null,
                 ]),
@@ -946,7 +966,7 @@ Widget _buildLargeScreenUserBlock({
                   border: OutlineInputBorder(),
                 ),
                 keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                const TextInputType.numberWithOptions(decimal: true),
                 onChanged: (value) {
                   if (value == null || value.isEmpty) {
                     return;
@@ -958,7 +978,7 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter nature of business',
                   ),
-                  (value) => value?.isEmpty ?? false
+                      (value) => value?.isEmpty ?? false
                       ? 'Please enter nature of business'
                       : null,
                 ]),
@@ -985,8 +1005,8 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter position',
                   ),
-                  (value) =>
-                      value?.isEmpty ?? false ? 'Please enter position' : null,
+                      (value) =>
+                  value?.isEmpty ?? false ? 'Please enter position' : null,
                 ]),
               ),
             ),
@@ -1016,7 +1036,7 @@ Widget _buildLargeScreenUserBlock({
                   FormBuilderValidators.required(
                     errorText: 'Please enter years of employment',
                   ),
-                  (value) => value?.isEmpty ?? false
+                      (value) => value?.isEmpty ?? false
                       ? 'Please enter years of employment'
                       : null,
                 ]),
@@ -1045,7 +1065,7 @@ Widget _buildLargeScreenUserBlock({
             FormBuilderValidators.required(
               errorText: 'Please enter a company address',
             ),
-            (value) => value?.isEmpty ?? false
+                (value) => value?.isEmpty ?? false
                 ? 'Please enter a company address'
                 : null,
           ]),
@@ -1088,93 +1108,93 @@ Widget _buildLargeScreenBeneficiaryBlock({
           children: [
             Expanded(
                 child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Beneficiary ${index + 1}',
-                      style: Theme.of(context).textTheme.titleMedium,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Beneficiary ${index + 1}',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(
+                          width: 32,
+                        ),
+                        IconButton(
+                          onPressed: () =>
+                              userBloc.removeBeneficiary(beneficiary: beneficiary),
+                          icon: Icon(
+                            Icons.remove_circle_rounded,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(
                       width: 32,
                     ),
-                    IconButton(
-                      onPressed: () =>
-                          userBloc.removeBeneficiary(beneficiary: beneficiary),
-                      icon: Icon(
-                        Icons.remove_circle_rounded,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+                    Row(
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            text: 'Name: ',
+                            style: Theme.of(context).textTheme.titleMedium,
+                            children: [
+                              TextSpan(
+                                  text: beneficiary.name,
+                                  style: Theme.of(context).textTheme.bodyMedium)
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 32,
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            text: 'Birthdate: ',
+                            style: Theme.of(context).textTheme.titleMedium,
+                            children: [
+                              TextSpan(
+                                  text: beneficiary.birthDate.toDefaultDate(),
+                                  style: Theme.of(context).textTheme.bodyMedium)
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 32,
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            text: 'Gender: ',
+                            style: Theme.of(context).textTheme.titleMedium,
+                            children: [
+                              TextSpan(
+                                  text: beneficiary.gender.name,
+                                  style: Theme.of(context).textTheme.bodyMedium)
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 32,
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            text: 'Relationship: ',
+                            style: Theme.of(context).textTheme.titleMedium,
+                            children: [
+                              TextSpan(
+                                  text: beneficiary.relationship,
+                                  style: Theme.of(context).textTheme.bodyMedium)
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 16,
                     ),
                   ],
-                ),
-                const SizedBox(
-                  width: 32,
-                ),
-                Row(
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        text: 'Name: ',
-                        style: Theme.of(context).textTheme.titleMedium,
-                        children: [
-                          TextSpan(
-                              text: beneficiary.name,
-                              style: Theme.of(context).textTheme.bodyMedium)
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 32,
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Birthdate: ',
-                        style: Theme.of(context).textTheme.titleMedium,
-                        children: [
-                          TextSpan(
-                              text: beneficiary.birthDate.toDefaultDate(),
-                              style: Theme.of(context).textTheme.bodyMedium)
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 32,
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Gender: ',
-                        style: Theme.of(context).textTheme.titleMedium,
-                        children: [
-                          TextSpan(
-                              text: beneficiary.gender.name,
-                              style: Theme.of(context).textTheme.bodyMedium)
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 32,
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Relationship: ',
-                        style: Theme.of(context).textTheme.titleMedium,
-                        children: [
-                          TextSpan(
-                              text: beneficiary.relationship,
-                              style: Theme.of(context).textTheme.bodyMedium)
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-              ],
-            ))
+                ))
           ],
         );
       }).toList(),
@@ -1195,12 +1215,12 @@ Widget _buildLargeScreenBeneficiaryBlock({
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    const TextInputType.numberWithOptions(decimal: true),
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(
                         errorText: 'Please enter beneficiary name',
                       ),
-                      (value) => value?.isEmpty ?? false
+                          (value) => value?.isEmpty ?? false
                           ? 'Please enter beneficiary name'
                           : null,
                     ]),
@@ -1269,12 +1289,12 @@ Widget _buildLargeScreenBeneficiaryBlock({
                       border: OutlineInputBorder(),
                     ),
                     keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    const TextInputType.numberWithOptions(decimal: true),
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(
                         errorText: 'Please enter a beneficiary relationship',
                       ),
-                      (value) => value?.isEmpty ?? false
+                          (value) => value?.isEmpty ?? false
                           ? 'Please enter a beneficiary relationship'
                           : null,
                     ]),

@@ -57,6 +57,17 @@ class EmploymentDetailsFirestoreService
     return EmploymentDetails.fromJson(data.data() as Map<String, dynamic>);
   }
 
+  Future<EmploymentDetails> getByUserId({required String userId}) async {
+    final doc = root.where('userId', isEqualTo: userId).limit(1);
+    final data = await doc.get();
+
+    if (data.docs.isEmpty) {
+      return Future.error(EmploymentDetailsNotFoundException());
+    }
+
+    return EmploymentDetails.fromJson(data.docs[0].data() as Map<String, dynamic>);
+  }
+
   @override
   Future<EmploymentDetails> update({required EmploymentDetails data}) async {
     final doc = root.doc(data.id);

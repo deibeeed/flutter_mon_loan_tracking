@@ -28,6 +28,10 @@ class AddressRepository extends BaseRepository<Address> {
     return firestoreService.get(id: id);
   }
 
+  Future<Address> getByUserId({required String userId}) {
+    return firestoreService.getByUserId(userId: userId);
+  }
+
   @override
   Future<Address> update({required Address data}) {
     return firestoreService.update(data: data);

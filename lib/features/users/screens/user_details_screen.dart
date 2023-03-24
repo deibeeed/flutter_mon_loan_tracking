@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
-import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
-import 'package:flutter_mon_loan_tracking/models/civil_status_types.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
-import 'package:flutter_mon_loan_tracking/models/menu_item.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:flutter_mon_loan_tracking/widgets/pdf_generator.dart';
+import 'package:flutter_mon_loan_tracking/widgets/user_form_widget_large.dart';
+import 'package:flutter_mon_loan_tracking/widgets/user_form_widget_small.dart';
 import 'package:flutter_mon_loan_tracking/widgets/widget_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -37,16 +37,10 @@ class UserDetailsScreen extends StatefulWidget {
 }
 
 class _UserDetailsScreenState extends State<UserDetailsScreen> {
-  final lastNameController = TextEditingController();
-  final firstNameController = TextEditingController();
-  final mobileNumberController = TextEditingController();
-  final emailController = TextEditingController();
-  final civilStatusController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
-  final birthDateController = TextEditingController();
   final _pagingController =
       PagingController<int, LoanSchedule>(firstPageKey: 0);
+  final _formKey =
+      GlobalKey<FormBuilderState>(debugLabel: 'user_details_screen');
 
   @override
   void deactivate() {
@@ -61,6 +55,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   void initState() {
     super.initState();
     context.read<UserBloc>().getAllUsers();
+    context.read<UserBloc>().initializeAddUser(withId: widget.userId);
     context.read<LoanBloc>()
       ..getAllLots()
       ..getAllLoans(clearList: true, clientId: widget.userId);
@@ -76,10 +71,6 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     final loanBloc = BlocProvider.of<LoanBloc>(context);
 
     final userBloc = BlocProvider.of<UserBloc>(context);
-
-    if (widget.userId != null) {
-      userBloc.selectUser(userId: widget.userId!);
-    }
 
     final screenSize = MediaQuery.of(context).size;
     final shortestSide = screenSize.shortestSide;
@@ -126,15 +117,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         BlocListener<UserBloc, UserState>(
           listener: (context, state) {
             if (state is UserSuccessState) {
-              if (userBloc.selectedUser != null) {
-                final user = userBloc.selectedUser!;
-                lastNameController.text = user.lastName;
-                firstNameController.text = user.firstName;
-                mobileNumberController.text = user.mobileNumber;
-                emailController.text = user.email;
-                civilStatusController.text = user.civilStatus.value;
-                birthDateController.text = user.birthDate;
-              }
+
             } else if (state is UserErrorState) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(state.message)));
@@ -161,6 +144,67 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                   printd(err);
                 }
               }
+            } else if (state is UpdateUiState) {
+              final user = userBloc.tempUser;
+              final spouse = userBloc.tempUserSpouse;
+              final address = userBloc.tempUserAddress;
+              final edUser = userBloc.tempUserEmploymentDetails;
+              final edUserSpouse = userBloc.tempUserSpouseEmploymentDetails;
+              final beneficiaries = userBloc.tempUserBeneficiaries;
+
+              final values = <String, dynamic>{
+                'userType': user?.type,
+                'nationality': user?.nationality,
+                'lastName': user?.lastName,
+                'firstName': user?.firstName,
+                'middleName': user?.middleName,
+                'civilStatus': user?.civilStatus,
+                'gender': user?.gender,
+                'birthDate': user?.birthDate,
+                'birthPlace': user?.birthPlace,
+                'weight': user?.weight,
+                'height': user?.height,
+                'tinNo': user?.tinNo,
+                'sssNo': user?.sssNo,
+                'philHealthNo': user?.philHealthNo,
+                'mobileNo': user?.mobileNumber,
+                'telNo': user?.telNo,
+                'email': user?.email,
+                'houseNo': address?.houseNo,
+                'street': address?.street,
+                'barangay': address?.brgy,
+                'zone': address?.zone,
+                'city': address?.city,
+                'province': address?.province,
+                'zipCode': address?.zipCode,
+                'country': address?.country ?? 'Philippines',
+                'spouse_lastName': spouse?.lastName,
+                'spouse_firstName': spouse?.firstName,
+                'spouse_middleName': spouse?.middleName,
+                'spouse_gender': spouse?.gender,
+                'spouse_birthDate': spouse?.birthDate,
+                'spouse_birthPlace': spouse?.birthPlace,
+                'spouse_weight': spouse?.weight,
+                'spouse_height': spouse?.height,
+                'spouse_tinNo': spouse?.tinNo,
+                'spouse_sssNo': spouse?.sssNo,
+                'spouse_philHealthNo': spouse?.philHealthNo,
+                'spouse_mobileNo': spouse?.mobileNumber,
+                'spouse_telNo': spouse?.telNo,
+                'spouse_email': spouse?.email,
+                'ed_companyName': edUser?.companyName,
+                'ed_natureOfBusiness': edUser?.natureOfBusiness,
+                'ed_position': edUser?.position,
+                'ed_yearsOfEmployment': edUser?.years.toString(),
+                'ed_companyAddress': edUser?.address,
+                'spouse_ed_companyName': edUserSpouse?.companyName,
+                'spouse_ed_natureOfBusiness': edUserSpouse?.natureOfBusiness,
+                'spouse_ed_position': edUserSpouse?.position,
+                'spouse_ed_yearsOfEmployment': edUserSpouse?.years.toString(),
+                'spouse_ed_companyAddress': edUserSpouse?.address,
+              };
+
+              _formKey.currentState?.patchValue(values);
             }
           },
         ),
@@ -200,7 +244,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            userBloc.selectedUser?.completeName ?? 'User',
+                            userBloc.tempUser?.completeName ?? 'User',
                             style: titleTextStyle?.apply(color: Colors.white),
                           ),
                           SizedBox(
@@ -246,29 +290,15 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 context: context,
                 userId: widget.userId,
                 isProfile: widget.isProfile,
-                lastNameController: lastNameController,
-                firstNameController: firstNameController,
-                mobileNumberController: mobileNumberController,
-                emailController: emailController,
-                civilStatusController: civilStatusController,
-                passwordController: passwordController,
-                confirmPasswordController: confirmPasswordController,
-                birthDateController: birthDateController,
                 pagingController: _pagingController,
+                formKey: _formKey,
               )
             : buildLargeScreenBody(
                 context: context,
                 userId: widget.userId,
                 isProfile: widget.isProfile,
-                lastNameController: lastNameController,
-                firstNameController: firstNameController,
-                mobileNumberController: mobileNumberController,
-                emailController: emailController,
-                civilStatusController: civilStatusController,
-                passwordController: passwordController,
-                confirmPasswordController: confirmPasswordController,
-                birthDateController: birthDateController,
                 pagingController: _pagingController,
+                formKey: _formKey,
               ),
       ),
     );

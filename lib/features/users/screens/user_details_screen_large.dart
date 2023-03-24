@@ -4,15 +4,8 @@ Widget buildLargeScreenBody({
   required BuildContext context,
   String? userId,
   bool isProfile = false,
-  required TextEditingController lastNameController,
-  required TextEditingController firstNameController,
-  required TextEditingController mobileNumberController,
-  required TextEditingController emailController,
-  required TextEditingController civilStatusController,
-  required TextEditingController passwordController,
-  required TextEditingController confirmPasswordController,
-  required TextEditingController birthDateController,
   required PagingController<int, LoanSchedule> pagingController,
+  required GlobalKey<FormBuilderState> formKey,
 }) {
   final horizontalScrollController = ScrollController();
   final authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
@@ -28,16 +21,7 @@ Widget buildLargeScreenBody({
     buttonPadding = const EdgeInsets.all(16);
   }
 
-  final width = screenSize.width;
-  final computedWidth = width * 0.88;
   var appBarHeight = screenSize.height * 0.16;
-  var loginContainerRadius = Constants.defaultRadius;
-  var loginContainerMarginTop = 64.0;
-  var titleTextStyle = Theme.of(context).textTheme.displaySmall;
-  var avatarTextStyle = Theme.of(context).textTheme.titleLarge;
-  var avatarSize = 56.0;
-  var contentPadding = const EdgeInsets.all(58);
-  var appBarBottomPadding = 48.0;
   var isLargeScreenBreakpoint = false;
 
   if (appBarHeight > Constants.maxAppBarHeight) {
@@ -45,18 +29,6 @@ Widget buildLargeScreenBody({
   }
 
   if (shortestSide < Constants.largeScreenShortestSideBreakPoint) {
-    loginContainerRadius = const Radius.circular(64);
-    loginContainerMarginTop = 32;
-    titleTextStyle = Theme.of(context).textTheme.headlineMedium;
-    avatarTextStyle = Theme.of(context).textTheme.titleSmall;
-    avatarSize = 48;
-    contentPadding = const EdgeInsets.only(
-      left: 32,
-      right: 32,
-      top: 16,
-      bottom: 16,
-    );
-    appBarBottomPadding = 24;
     isLargeScreenBreakpoint = true;
   }
 
@@ -65,121 +37,10 @@ Widget buildLargeScreenBody({
       const SizedBox(
         height: 16,
       ),
-      TextFormField(
-        controller: lastNameController,
-        decoration: const InputDecoration(
-            label: Text('Last name'), border: OutlineInputBorder()),
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      TextFormField(
-        controller: firstNameController,
-        decoration: const InputDecoration(
-            label: Text('First name'), border: OutlineInputBorder()),
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      Row(
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Civil status',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              BlocBuilder<UserBloc, UserState>(
-                builder: (context, state) {
-                  var dropdownValue = CivilStatus.values.first;
-
-                  if (state is SelectedCivilStatusState) {
-                    dropdownValue = state.civilStatus;
-                  }
-
-                  return DropdownButton<CivilStatus>(
-                    value: dropdownValue,
-                    items: CivilStatus.values.map((category) {
-                      return DropdownMenuItem<CivilStatus>(
-                        value: category,
-                        child: Text(category.value),
-                      );
-                    }).toList(),
-                    onChanged: (value) => userBloc.selectCivilStatus(
-                      civilStatus: value,
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          const SizedBox(
-            width: 32,
-          ),
-          Expanded(
-            child: BlocBuilder<UserBloc, UserState>(
-              buildWhen: (previous, current) => current is UserSuccessState,
-              builder: (context, state) {
-                return TextFormField(
-                  onTap: () {
-                    showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate:
-                          DateTime.now().subtract(Duration(days: 365 * 100)),
-                      lastDate: DateTime.now(),
-                    ).then((date) {
-                      printd('date is $date');
-                      if (date != null) {
-                        birthDateController.text =
-                            Constants.defaultDateFormat.format(date);
-                        userBloc.selectDate(date: date);
-                      }
-                    });
-                  },
-                  controller: birthDateController,
-                  decoration: const InputDecoration(
-                    label: Text('Birthdate'),
-                    border: OutlineInputBorder(),
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(
-            width: 32,
-          ),
-          Expanded(
-            child: TextFormField(
-              controller: mobileNumberController,
-              decoration: const InputDecoration(
-                label: Text('Mobile number'),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-              ],
-            ),
-          ),
-          const SizedBox(
-            width: 32,
-          ),
-          Expanded(
-            child: TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                label: Text('Email'),
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-        ],
+      buildLargeScreenUserForm(
+        context: context,
+        formKey: formKey,
+        isUpdate: true,
       ),
       const SizedBox(
         height: 32,
@@ -190,13 +51,7 @@ Widget buildLargeScreenBody({
             visible: shouldShowUpdateButton(context: context, userId: userId),
             child: Expanded(
               child: ElevatedButton(
-                onPressed: () => userBloc.updateUser(
-                  lastName: lastNameController.text,
-                  firstName: firstNameController.text,
-                  birthDate: birthDateController.text,
-                  mobileNumber: mobileNumberController.text,
-                  email: emailController.text,
-                ),
+                onPressed: () => userBloc.updateUser2(),
                 style: ElevatedButton.styleFrom(
                     padding: buttonPadding,
                     backgroundColor: Theme.of(context).colorScheme.primary),
@@ -298,7 +153,7 @@ Widget buildLargeScreenBody({
           ),
           ElevatedButton(
               onPressed: () {
-                var user = userBloc.selectedUser;
+                var user = userBloc.tempUser;
                 var loan = loanBloc.selectedLoan;
                 var lot = loanBloc.selectedLot;
 

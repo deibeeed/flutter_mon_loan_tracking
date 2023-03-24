@@ -52,6 +52,17 @@ class AddressFirestoreService extends BaseFirestoreService<Address> {
     return Address.fromJson(data.data() as Map<String, dynamic>);
   }
 
+  Future<Address> getByUserId({required String userId}) async {
+    final doc = root.where('userId', isEqualTo: userId).limit(1);
+    final data = await doc.get();
+
+    if (data.docs.isEmpty) {
+      return Future.error(AddressNotFoundException());
+    }
+
+    return Address.fromJson(data.docs[0].data() as Map<String, dynamic>);
+  }
+
   @override
   Future<Address> update({required Address data}) async {
     final doc = root.doc(data.id);

@@ -35,6 +35,15 @@ class BeneficiariesFirestoreService extends BaseFirestoreService<Beneficiary> {
     return beneficiaries;
   }
 
+  Future<List<Beneficiary>> allFromParent({ required String parentId }) async {
+    final doc = await root.where('parentId', isEqualTo: parentId).get();
+    final beneficiaries = doc.docs
+        .map((e) => Beneficiary.fromJson(e.data() as Map<String, dynamic>))
+        .toList();
+
+    return beneficiaries;
+  }
+
   @override
   Future<Beneficiary> delete({required Beneficiary data}) async {
     final doc = root.doc(data.id);

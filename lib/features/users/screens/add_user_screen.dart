@@ -1,23 +1,14 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
-import 'package:flutter_mon_loan_tracking/models/civil_status_types.dart';
-import 'package:flutter_mon_loan_tracking/models/employment_details.dart';
-import 'package:flutter_mon_loan_tracking/models/gender.dart';
-import 'package:flutter_mon_loan_tracking/models/user.dart';
-import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:flutter_mon_loan_tracking/widgets/user_form_widget_large.dart';
+import 'package:flutter_mon_loan_tracking/widgets/user_form_widget_small.dart';
 import 'package:go_router/go_router.dart';
-
-part 'add_user_screen_small.dart';
-
-part 'add_user_screen_large.dart';
 
 class AddUserScreen extends StatefulWidget {
   AddUserScreen({super.key});
@@ -211,11 +202,11 @@ class _AddUserScreenState extends State<AddUserScreen> {
                 ),
               ),
         body: shortestSide <= Constants.smallScreenShortestSideBreakPoint
-            ? buildSmallScreenBody(
+            ? buildSmallScreenUserForm(
                 context: context,
                 formKey: _formKey,
               )
-            : buildLargeScreenBody(
+            : buildLargeScreenUserForm(
                 context: context,
                 formKey: _formKey,
               ),
