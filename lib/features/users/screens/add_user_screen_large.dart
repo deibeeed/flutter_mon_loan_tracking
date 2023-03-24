@@ -1050,263 +1050,256 @@ Widget _buildLargeScreenUserBlock({
       const SizedBox(
         height: 32,
       ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Beneficiaries',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          ElevatedButton(
+            onPressed: userBloc.showBeneficiary,
+            child: const Text(
+              'Add',
+            ),
+          )
+        ],
+      ),
       if (!isSpouse) ...[
-        ...userBloc.addedUserBeneficiaries.mapIndexed((index, beneficiary) {
-          if (beneficiary.name.isNotEmpty) {
-            return Row(
-              children: [
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('Beneficiary ${index + 1}'),
-                        const SizedBox(
-                          width: 32,
-                        ),
-                        IconButton(
-                          onPressed: () => userBloc.removeBeneficiary(
-                              beneficiary: beneficiary),
-                          icon: Icon(
-                            Icons.remove_circle_rounded,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      width: 32,
-                    ),
-                    Row(
-                      children: [
-                        RichText(
-                          text: TextSpan(
-                            text: 'Name: ',
-                            style: Theme.of(context).textTheme.titleMedium,
-                            children: [
-                              TextSpan(
-                                  text: beneficiary.name,
-                                  style: Theme.of(context).textTheme.bodyMedium)
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 32,
-                        ),
-                        RichText(
-                          text: TextSpan(
-                            text: 'Birthdate: ',
-                            style: Theme.of(context).textTheme.titleMedium,
-                            children: [
-                              TextSpan(
-                                  text: beneficiary.birthDate.toDefaultDate(),
-                                  style: Theme.of(context).textTheme.bodyMedium)
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 32,
-                        ),
-                        RichText(
-                          text: TextSpan(
-                            text: 'Gender: ',
-                            style: Theme.of(context).textTheme.titleMedium,
-                            children: [
-                              TextSpan(
-                                  text: beneficiary.gender.name,
-                                  style: Theme.of(context).textTheme.bodyMedium)
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 32,
-                        ),
-                        RichText(
-                          text: TextSpan(
-                            text: 'Relationship: ',
-                            style: Theme.of(context).textTheme.titleMedium,
-                            children: [
-                              TextSpan(
-                                  text: beneficiary.relationship,
-                                  style: Theme.of(context).textTheme.bodyMedium)
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 32,
-                    )
-                  ],
-                ))
-              ],
-            );
-          }
-          return Row(
-            children: [
-              Expanded(
-                child: FormBuilderTextField(
-                  name: 'beneficiary_${beneficiary.createdAt}_name',
-                  decoration: const InputDecoration(
-                    label: Text('Beneficiary'),
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  onChanged: (value) {
-                    if (value == null || value.isEmpty) {
-                      return;
-                    }
-
-                    // userBloc.addedUserBeneficiaries[index].name = value;
-                    beneficiary.name = value;
-                  },
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(
-                      errorText: 'Please enter beneficiary name',
-                    ),
-                    (value) => value?.isEmpty ?? false
-                        ? 'Please enter beneficiary name'
-                        : null,
-                  ]),
-                ),
-              ),
-              const SizedBox(
-                width: 32,
-              ),
-              Expanded(
-                child: FormBuilderTextField(
-                  name: 'beneficiary_${beneficiary.createdAt}_birthDate',
-                  onTap: () {
-                    showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime.now()
-                          .subtract(const Duration(days: 365 * 100)),
-                      lastDate: DateTime.now(),
-                    ).then((date) {
-                      printd('date is $date');
-                      if (date == null) {
-                        return;
-                      }
-                      final dateStr = Constants.defaultDateFormat.format(date);
-                      formKey
-                          .currentState
-                          ?.fields[
-                              'beneficiary_${beneficiary.createdAt}_birthDate']
-                          ?.didChange(dateStr);
-                      // userBloc.addedUserBeneficiaries[index].birthDate =
-                      //     date.millisecondsSinceEpoch;
-                      beneficiary.birthDate = date.millisecondsSinceEpoch;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    label: Text('Birthdate'),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(
-                      errorText: 'Please select beneficiary birth date',
-                    ),
-                    (value) => value?.isEmpty ?? false
-                        ? 'Please select beneficiary birth date'
-                        : null,
-                  ]),
-                ),
-              ),
-              const SizedBox(
-                width: 32,
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Gender',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    FormBuilderDropdown<Gender>(
-                      name: 'beneficiary_${beneficiary.createdAt}_gender',
-                      initialValue: Gender.male,
-                      items: Gender.values.map((type) {
-                        return DropdownMenuItem<Gender>(
-                          value: type,
-                          child: Text(type.name),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value == null) {
-                          return;
-                        }
-
-                        // userBloc.addedUserBeneficiaries[index].gender =
-                        //     value;
-                        beneficiary.gender = value;
-                      },
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(
-                          errorText: 'Please select beneficiary gender',
-                        ),
-                      ]),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                width: 32,
-              ),
-              Expanded(
-                child: FormBuilderTextField(
-                  name: 'beneficiary_${beneficiary.createdAt}_relationship',
-                  decoration: const InputDecoration(
-                    label: Text('Relationship'),
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  onChanged: (value) {
-                    if (value == null || value.isEmpty) {
-                      return;
-                    }
-
-                    // userBloc.addedUserBeneficiaries[index].relationship =
-                    //     value;
-                    beneficiary.relationship = value;
-                  },
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(
-                      errorText: 'Please enter a beneficiary relationship',
-                    ),
-                    (value) => value?.isEmpty ?? false
-                        ? 'Please enter a beneficiary relationship'
-                        : null,
-                  ]),
-                ),
-              ),
-            ],
-          );
-        }).toList(),
         const SizedBox(
           height: 32,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            ElevatedButton(
-              onPressed: userBloc.addBeneficiary,
-              child: const Text(
-                'Add Beneficiary',
-              ),
-            )
-          ],
+        ...userBloc.addedUserBeneficiaries.mapIndexed((index, beneficiary) {
+          return Row(
+            children: [
+              Expanded(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Beneficiary ${index + 1}',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(
+                        width: 32,
+                      ),
+                      IconButton(
+                        onPressed: () => userBloc.removeBeneficiary(
+                            beneficiary: beneficiary),
+                        icon: Icon(
+                          Icons.remove_circle_rounded,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    width: 32,
+                  ),
+                  Row(
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          text: 'Name: ',
+                          style: Theme.of(context).textTheme.titleMedium,
+                          children: [
+                            TextSpan(
+                                text: beneficiary.name,
+                                style: Theme.of(context).textTheme.bodyMedium)
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 32,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          text: 'Birthdate: ',
+                          style: Theme.of(context).textTheme.titleMedium,
+                          children: [
+                            TextSpan(
+                                text: beneficiary.birthDate.toDefaultDate(),
+                                style: Theme.of(context).textTheme.bodyMedium)
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 32,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          text: 'Gender: ',
+                          style: Theme.of(context).textTheme.titleMedium,
+                          children: [
+                            TextSpan(
+                                text: beneficiary.gender.name,
+                                style: Theme.of(context).textTheme.bodyMedium)
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 32,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          text: 'Relationship: ',
+                          style: Theme.of(context).textTheme.titleMedium,
+                          children: [
+                            TextSpan(
+                                text: beneficiary.relationship,
+                                style: Theme.of(context).textTheme.bodyMedium)
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                ],
+              ))
+            ],
+          );
+        }).toList(),
+      ],
+      if (userBloc.showBeneficiaryInputFields) ...[
+        const SizedBox(
+          height: 32,
         ),
-      ]
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: FormBuilderTextField(
+                    name: 'beneficiary_name',
+                    decoration: const InputDecoration(
+                      label: Text('Beneficiary'),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(
+                        errorText: 'Please enter beneficiary name',
+                      ),
+                      (value) => value?.isEmpty ?? false
+                          ? 'Please enter beneficiary name'
+                          : null,
+                    ]),
+                  ),
+                ),
+                const SizedBox(
+                  width: 32,
+                ),
+                Expanded(
+                  child: FormBuilderDateTimePicker(
+                    name: 'beneficiary_birthDate',
+                    format: Constants.defaultDateFormat,
+                    inputType: InputType.date,
+                    decoration: const InputDecoration(
+                      label: Text('Birthdate'),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(
+                        errorText: 'Please select beneficiary birth date',
+                      ),
+                    ]),
+                  ),
+                ),
+                const SizedBox(
+                  width: 32,
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Gender',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      FormBuilderDropdown<Gender>(
+                        name: 'beneficiary_gender',
+                        initialValue: Gender.male,
+                        items: Gender.values.map((type) {
+                          return DropdownMenuItem<Gender>(
+                            value: type,
+                            child: Text(type.name),
+                          );
+                        }).toList(),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(
+                            errorText: 'Please select beneficiary gender',
+                          ),
+                        ]),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  width: 32,
+                ),
+                Expanded(
+                  child: FormBuilderTextField(
+                    name: 'beneficiary_relationship',
+                    decoration: const InputDecoration(
+                      label: Text('Relationship'),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(
+                        errorText: 'Please enter a beneficiary relationship',
+                      ),
+                      (value) => value?.isEmpty ?? false
+                          ? 'Please enter a beneficiary relationship'
+                          : null,
+                    ]),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 16,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    userBloc.addBeneficiary(
+                        name: formKey.currentState?.fields['beneficiary_name']
+                            ?.value as String,
+                        birthDate: formKey
+                            .currentState
+                            ?.fields['beneficiary_birthDate']
+                            ?.value as DateTime,
+                        gender: formKey.currentState
+                            ?.fields['beneficiary_gender']?.value as Gender,
+                        relationship: formKey
+                            .currentState
+                            ?.fields['beneficiary_relationship']
+                            ?.value as String);
+                  },
+                  child: const Text(
+                    'Add Beneficiary',
+                  ),
+                )
+              ],
+            ),
+          ],
+        )
+      ],
     ],
   );
 }

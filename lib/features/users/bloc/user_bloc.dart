@@ -14,6 +14,7 @@ import 'package:flutter_mon_loan_tracking/repositories/beneficiary_repository.da
 import 'package:flutter_mon_loan_tracking/repositories/employment_details_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
+import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:meta/meta.dart';
 
@@ -86,6 +87,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   EmploymentDetails? addedUserSpouseEmploymentDetails;
 
   List<Beneficiary> addedUserBeneficiaries = [];
+
+  bool showBeneficiaryInputFields = false;
 
   void search({required String query}) {
     add(SearchUsersEvent(query: query));
@@ -187,22 +190,37 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     addedUserBeneficiaries.clear();
   }
 
-  void addBeneficiary() {
-    addedUserBeneficiaries.add(Beneficiary.createBlank());
+  void showBeneficiary() {
+    showBeneficiaryInputFields = true;
+    emit(UpdateUiState());
+  }
+
+  void addBeneficiary({
+    required String name,
+    required DateTime birthDate,
+    required Gender gender,
+    required String relationship,
+  }) {
+    showBeneficiaryInputFields = false;
+    addedUserBeneficiaries.add(Beneficiary(
+      name: name,
+      birthDate: birthDate.millisecondsSinceEpoch,
+      relationship: relationship,
+      gender: gender,
+      parentId: '',
+    ));
+    emit(
+      RemoveUiState(
+        removeFieldsThatStartsWithKey: 'beneficiary',
+      ),
+    );
     emit(UpdateUiState());
   }
 
   void removeBeneficiary({required Beneficiary beneficiary}) {
     addedUserBeneficiaries.remove(beneficiary);
     emit(
-      RemoveUiState(
-        removeFieldsThatStartsWithKey: 'beneficiary_${beneficiary.createdAt}',
-      ),
-    );
-    emit(
-      UpdateUiState(
-        removeFieldsThatStartsWithKey: 'beneficiary_${beneficiary.createdAt}',
-      ),
+      UpdateUiState(),
     );
   }
 

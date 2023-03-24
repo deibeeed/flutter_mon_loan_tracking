@@ -213,25 +213,12 @@ class _AddUserScreenState extends State<AddUserScreen> {
         body: shortestSide <= Constants.smallScreenShortestSideBreakPoint
             ? buildSmallScreenBody(
                 context: context,
-                lastNameController: lastNameController,
-                firstNameController: firstNameController,
-                mobileNumberController: mobileNumberController,
-                emailController: emailController,
-                passwordController: passwordController,
-                confirmPasswordController: confirmPasswordController,
-                birthDateController: birthDateController,
-                middleNameController: middleNameController,
-                birthPlaceController: birthPlaceController,
-                nationalityController: nationalityController,
-                heightController: heightController,
-                weightController: weightController,
-                childrenCountController: childrenCountController,
-                tinNoController: tinNoController,
-                sssNoController: sssNoController,
-                philHealthController: philHealthController,
-                telNoController: telNoController,
+                formKey: _formKey,
               )
-            : buildLargeScreenBody(context: context, formKey: _formKey),
+            : buildLargeScreenBody(
+                context: context,
+                formKey: _formKey,
+              ),
       ),
     );
   }
