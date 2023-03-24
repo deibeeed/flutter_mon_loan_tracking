@@ -11,6 +11,7 @@ class EmploymentDetails extends Equatable {
   String address;
   String position;
   num years;
+  String userId;
   final String id;
   final num createdAt = DateTime.now().millisecondsSinceEpoch;
 
@@ -21,6 +22,7 @@ class EmploymentDetails extends Equatable {
     required this.position,
     required this.years,
     this.id = Constants.NO_ID,
+    required this.userId,
   });
 
   Map<String, dynamic> toJson() => _$EmploymentDetailsToJson(this);
@@ -31,6 +33,7 @@ class EmploymentDetails extends Equatable {
         address: '',
         position: '',
         years: -1,
+        userId: '',
       );
 
   factory EmploymentDetails.fromJson(Map<String, dynamic> json) =>
@@ -44,7 +47,8 @@ class EmploymentDetails extends Equatable {
         address: employmentDetails.address,
         position: employmentDetails.position,
         years: employmentDetails.years,
-        id: id
+        id: id,
+        userId: employmentDetails.userId,
       );
 
   @override
@@ -54,5 +58,7 @@ class EmploymentDetails extends Equatable {
         address,
         position,
         years,
+        userId,
+        createdAt,
       ];
 }

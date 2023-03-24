@@ -28,10 +28,10 @@ Widget buildSmallScreenBody({
                   _buildSmallScreenUserBlock(
                     context: context,
                     formKey: formKey,
-                    user: userBloc.addedUser!,
-                    employmentDetails: userBloc.addedUserEmploymentDetails,
+                    user: userBloc.tempUser!,
+                    employmentDetails: userBloc.tempUserEmploymentDetails,
                   ),
-                  if (userBloc.addedUserSpouse != null) ...[
+                  if (userBloc.tempUserSpouse != null) ...[
                     const SizedBox(
                       height: 32,
                     ),
@@ -50,12 +50,17 @@ Widget buildSmallScreenBody({
                     _buildSmallScreenUserBlock(
                       context: context,
                       formKey: formKey,
-                      user: userBloc.addedUserSpouse!,
+                      user: userBloc.tempUserSpouse!,
                       employmentDetails:
-                          userBloc.addedUserSpouseEmploymentDetails,
+                          userBloc.tempUserSpouseEmploymentDetails,
                       isSpouse: true,
                     ),
                   ],
+                  _buildSmallScreenBeneficiariyBlock(
+                    context: context,
+                    userBloc: userBloc,
+                    formKey: formKey,
+                  ),
                   const SizedBox(
                     height: 32,
                   ),
@@ -65,7 +70,7 @@ Widget buildSmallScreenBody({
                         child: ElevatedButton(
                           onPressed: () {
                             if (formKey.currentState?.validate() ?? false) {
-                              userBloc.addUser2(
+                              userBloc.addUser(
                                   fields: formKey.currentState?.fields);
                             }
                           },
@@ -510,7 +515,7 @@ Widget _buildSmallScreenUserBlock({
               return;
             }
 
-            userBloc.addedUserAddress?.houseNo = value;
+            userBloc.tempUserAddress?.houseNo = value;
           },
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(
@@ -535,7 +540,7 @@ Widget _buildSmallScreenUserBlock({
               return;
             }
 
-            userBloc.addedUserAddress?.street = value;
+            userBloc.tempUserAddress?.street = value;
           },
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(
@@ -558,7 +563,7 @@ Widget _buildSmallScreenUserBlock({
               return;
             }
 
-            userBloc.addedUserAddress?.brgy = value;
+            userBloc.tempUserAddress?.brgy = value;
           },
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(
@@ -583,7 +588,7 @@ Widget _buildSmallScreenUserBlock({
               return;
             }
 
-            userBloc.addedUserAddress?.zone = value;
+            userBloc.tempUserAddress?.zone = value;
           },
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(
@@ -607,7 +612,7 @@ Widget _buildSmallScreenUserBlock({
               return;
             }
 
-            userBloc.addedUserAddress?.city = value;
+            userBloc.tempUserAddress?.city = value;
           },
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(
@@ -632,7 +637,7 @@ Widget _buildSmallScreenUserBlock({
               return;
             }
 
-            userBloc.addedUserAddress?.province = value;
+            userBloc.tempUserAddress?.province = value;
           },
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(
@@ -656,7 +661,7 @@ Widget _buildSmallScreenUserBlock({
               return;
             }
 
-            userBloc.addedUserAddress?.zipCode = value;
+            userBloc.tempUserAddress?.zipCode = value;
           },
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(
@@ -682,7 +687,7 @@ Widget _buildSmallScreenUserBlock({
               return;
             }
 
-            userBloc.addedUserAddress?.country = value;
+            userBloc.tempUserAddress?.country = value;
           },
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(
@@ -702,13 +707,13 @@ Widget _buildSmallScreenUserBlock({
           ElevatedButton(
             onPressed: () {
               if (!isSpouse) {
-                if (userBloc.addedUserEmploymentDetails == null) {
+                if (userBloc.tempUserEmploymentDetails == null) {
                   userBloc.initializeAddedUserEmploymentDetails();
                 } else {
                   userBloc.removeAddedUserEmploymentDetails();
                 }
               } else {
-                if (userBloc.addedUserSpouseEmploymentDetails == null) {
+                if (userBloc.tempUserSpouseEmploymentDetails == null) {
                   userBloc.initializeAddedUserSpouseEmploymentDetails();
                 } else {
                   userBloc.removeAddedUserSpouseEmploymentDetails();
@@ -717,14 +722,14 @@ Widget _buildSmallScreenUserBlock({
             },
             child: Text(
               !isSpouse
-                  ? '${userBloc.addedUserEmploymentDetails != null ? "Remove" : "Add"} employment details'
-                  : '${userBloc.addedUserSpouseEmploymentDetails != null ? "Remove" : "Add"} employment details',
+                  ? '${userBloc.tempUserEmploymentDetails != null ? "Remove" : "Add"} employment details'
+                  : '${userBloc.tempUserSpouseEmploymentDetails != null ? "Remove" : "Add"} employment details',
             ),
           ),
         ],
       ),
-      if (!isSpouse && userBloc.addedUserEmploymentDetails != null ||
-          isSpouse && userBloc.addedUserSpouseEmploymentDetails != null) ...[
+      if (!isSpouse && userBloc.tempUserEmploymentDetails != null ||
+          isSpouse && userBloc.tempUserSpouseEmploymentDetails != null) ...[
         const SizedBox(
           height: 32,
         ),
@@ -865,6 +870,17 @@ Widget _buildSmallScreenUserBlock({
           ]),
         )
       ],
+    ],
+  );
+}
+
+Widget _buildSmallScreenBeneficiariyBlock({
+  required BuildContext context,
+  required UserBloc userBloc,
+  required GlobalKey<FormBuilderState> formKey,
+}) {
+  return Column(
+    children: [
       const SizedBox(
         height: 32,
       ),
@@ -883,97 +899,95 @@ Widget _buildSmallScreenUserBlock({
           )
         ],
       ),
-      if (!isSpouse) ...[
-        const SizedBox(
-          height: 32,
-        ),
-        ...userBloc.addedUserBeneficiaries.mapIndexed((index, beneficiary) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      const SizedBox(
+        height: 32,
+      ),
+      ...userBloc.tempUserBeneficiaries.mapIndexed((index, beneficiary) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Beneficiary ${index + 1}',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(
+                  width: 32,
+                ),
+                IconButton(
+                  onPressed: () =>
+                      userBloc.removeBeneficiary(beneficiary: beneficiary),
+                  icon: Icon(
+                    Icons.remove_circle_rounded,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 16,
+            ),
+            RichText(
+              text: TextSpan(
+                text: 'Name: ',
+                style: Theme.of(context).textTheme.titleMedium,
                 children: [
-                  Text(
-                    'Beneficiary ${index + 1}',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(
-                    width: 32,
-                  ),
-                  IconButton(
-                    onPressed: () =>
-                        userBloc.removeBeneficiary(beneficiary: beneficiary),
-                    icon: Icon(
-                      Icons.remove_circle_rounded,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
+                  TextSpan(
+                      text: beneficiary.name,
+                      style: Theme.of(context).textTheme.bodyMedium)
                 ],
               ),
-              const SizedBox(
-                height: 16,
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            RichText(
+              text: TextSpan(
+                text: 'Birthdate: ',
+                style: Theme.of(context).textTheme.titleMedium,
+                children: [
+                  TextSpan(
+                      text: beneficiary.birthDate.toDefaultDate(),
+                      style: Theme.of(context).textTheme.bodyMedium)
+                ],
               ),
-              RichText(
-                text: TextSpan(
-                  text: 'Name: ',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  children: [
-                    TextSpan(
-                        text: beneficiary.name,
-                        style: Theme.of(context).textTheme.bodyMedium)
-                  ],
-                ),
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            RichText(
+              text: TextSpan(
+                text: 'Gender: ',
+                style: Theme.of(context).textTheme.titleMedium,
+                children: [
+                  TextSpan(
+                      text: beneficiary.gender.name,
+                      style: Theme.of(context).textTheme.bodyMedium)
+                ],
               ),
-              SizedBox(
-                height: 8,
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            RichText(
+              text: TextSpan(
+                text: 'Relationship: ',
+                style: Theme.of(context).textTheme.titleMedium,
+                children: [
+                  TextSpan(
+                      text: beneficiary.relationship,
+                      style: Theme.of(context).textTheme.bodyMedium)
+                ],
               ),
-              RichText(
-                text: TextSpan(
-                  text: 'Birthdate: ',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  children: [
-                    TextSpan(
-                        text: beneficiary.birthDate.toDefaultDate(),
-                        style: Theme.of(context).textTheme.bodyMedium)
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 8,
-              ),
-              RichText(
-                text: TextSpan(
-                  text: 'Gender: ',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  children: [
-                    TextSpan(
-                        text: beneficiary.gender.name,
-                        style: Theme.of(context).textTheme.bodyMedium)
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 8,
-              ),
-              RichText(
-                text: TextSpan(
-                  text: 'Relationship: ',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  children: [
-                    TextSpan(
-                        text: beneficiary.relationship,
-                        style: Theme.of(context).textTheme.bodyMedium)
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 16,
-              ),
-            ],
-          );
-        }).toList(),
-      ],
+            ),
+            SizedBox(
+              height: 16,
+            ),
+          ],
+        );
+      }).toList(),
       if (userBloc.showBeneficiaryInputFields) ...[
         const SizedBox(
           height: 32,

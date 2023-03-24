@@ -41,7 +41,7 @@ class Address extends Equatable {
         city: '',
         province: '',
         zipCode: '',
-        country: '',
+        country: 'Philippines',
         userId: '',
       );
 

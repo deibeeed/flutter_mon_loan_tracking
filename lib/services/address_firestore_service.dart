@@ -1,16 +1,25 @@
 import 'package:flutter_mon_loan_tracking/exceptions/address_not_found_exception.dart';
 import 'package:flutter_mon_loan_tracking/models/address.dart';
 import 'package:flutter_mon_loan_tracking/services/base_firebase_service.dart';
+import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 
 class AddressFirestoreService extends BaseFirestoreService<Address> {
   @override
   Future<Address> add({required Address data}) async {
-    final doc = root.doc(data.id);
-    // final updatedUser = Address.updateId(id: doc.id, user: data);
+    var doc = root.doc();
 
-    await doc.set(data.toJson());
+    if (data.id != Constants.NO_ID) {
+      doc = root.doc(data.id);
+      await doc.set(data.toJson());
 
-    return data;
+      return data;
+    } else {
+      final updatedAddress = Address.updateId(id: doc.id, address: data);
+
+      await doc.set(updatedAddress.toJson());
+
+      return updatedAddress;
+    }
   }
 
   @override

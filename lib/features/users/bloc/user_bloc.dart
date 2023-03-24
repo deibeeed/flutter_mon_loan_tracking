@@ -37,7 +37,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on(_handleSearchUsersEvent);
     on(_handleGetUserEvent);
     on(_handleUpdateUserEvent);
-    on(_handleAddUserEvent2);
+    on(_handleAddUserEvent);
     getAllUsers();
   }
 
@@ -47,7 +47,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   final AddressRepository addressRepository;
 
-  final BeneficiaryRepository beneficiaryRepository;
+  final BeneficiariesRepository beneficiaryRepository;
 
   final EmploymentDetailsRepository employmentDetailsRepository;
 
@@ -75,17 +75,17 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   List<User> get customers => _customers;
 
-  User? addedUser;
+  User? tempUser;
 
-  User? addedUserSpouse;
+  User? tempUserSpouse;
 
-  Address? addedUserAddress;
+  Address? tempUserAddress;
 
-  EmploymentDetails? addedUserEmploymentDetails;
+  EmploymentDetails? tempUserEmploymentDetails;
 
-  EmploymentDetails? addedUserSpouseEmploymentDetails;
+  EmploymentDetails? tempUserSpouseEmploymentDetails;
 
-  List<Beneficiary> addedUserBeneficiaries = [];
+  List<Beneficiary> tempUserBeneficiaries = [];
 
   bool showBeneficiaryInputFields = false;
 
@@ -104,12 +104,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     _selectedCivilStatus = null;
     _selectedType = null;
     _selectedGender = null;
-    addedUser = null;
-    addedUserSpouse = null;
-    addedUserEmploymentDetails = null;
-    addedUserBeneficiaries = [];
-    addedUserAddress = null;
-    addedUserSpouseEmploymentDetails = null;
+    tempUser = null;
+    tempUserSpouse = null;
+    tempUserEmploymentDetails = null;
+    tempUserBeneficiaries = [];
+    tempUserAddress = null;
+    tempUserSpouseEmploymentDetails = null;
   }
 
   void selectDate({required DateTime date}) {
@@ -124,6 +124,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
+  // used by user details screen
+  // TODO: remove this function when user details screen is updated with the new form
   void selectCivilStatus({required CivilStatus? civilStatus}) {
     _selectedCivilStatus = civilStatus;
 
@@ -136,7 +138,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     _selectedCivilStatus = civilStatus;
 
     if (civilStatus != null) {
-      addedUser?.civilStatus = civilStatus;
+      tempUser?.civilStatus = civilStatus;
 
       if (civilStatus == CivilStatus.married) {
         initializeSpouse();
@@ -147,46 +149,46 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   }
 
   void initializeAddUser() {
-    addedUser = User.createBlank();
+    tempUser = User.createBlank();
     initializeAddedUserAddress();
     initializeBeneficiaries();
     emit(UpdateUiState());
   }
 
   void initializeSpouse() {
-    addedUserSpouse = User.createBlank();
-    addedUserSpouse?.civilStatus = CivilStatus.married;
+    tempUserSpouse = User.createBlank();
+    tempUserSpouse?.civilStatus = CivilStatus.married;
     emit(UpdateUiState());
   }
 
   void removeSpouse() {
     removeAddedUserSpouseEmploymentDetails();
-    addedUserSpouse = null;
+    tempUserSpouse = null;
     emit(UpdateUiState(removeFieldsThatStartsWithKey: 'spouse'));
   }
 
   void initializeAddedUserEmploymentDetails() {
-    addedUserEmploymentDetails = EmploymentDetails.createBlank();
+    tempUserEmploymentDetails = EmploymentDetails.createBlank();
     emit(UpdateUiState());
   }
 
   void removeAddedUserEmploymentDetails() {
-    addedUserEmploymentDetails = null;
+    tempUserEmploymentDetails = null;
     emit(UpdateUiState(removeFieldsThatStartsWithKey: 'ed'));
   }
 
   void initializeAddedUserSpouseEmploymentDetails() {
-    addedUserSpouseEmploymentDetails = EmploymentDetails.createBlank();
+    tempUserSpouseEmploymentDetails = EmploymentDetails.createBlank();
     emit(UpdateUiState());
   }
 
   void removeAddedUserSpouseEmploymentDetails() {
-    addedUserSpouseEmploymentDetails = null;
+    tempUserSpouseEmploymentDetails = null;
     // emit(UpdateUiState());
   }
 
   void initializeBeneficiaries() {
-    addedUserBeneficiaries.clear();
+    tempUserBeneficiaries.clear();
   }
 
   void showBeneficiary() {
@@ -201,7 +203,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     required String relationship,
   }) {
     showBeneficiaryInputFields = false;
-    addedUserBeneficiaries.add(Beneficiary(
+    tempUserBeneficiaries.add(Beneficiary(
       name: name,
       birthDate: birthDate.millisecondsSinceEpoch,
       relationship: relationship,
@@ -217,21 +219,21 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   }
 
   void removeBeneficiary({required Beneficiary beneficiary}) {
-    addedUserBeneficiaries.remove(beneficiary);
+    tempUserBeneficiaries.remove(beneficiary);
     emit(
       UpdateUiState(),
     );
   }
 
   void initializeAddedUserAddress() {
-    addedUserAddress = Address.createBlank();
+    tempUserAddress = Address.createBlank();
   }
 
   void removeAddedUserAddress() {
-    addedUserAddress = null;
+    tempUserAddress = null;
   }
 
-  void addUser2(
+  void addUser(
       {required Map<String,
               FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>>?
           fields}) {
@@ -242,7 +244,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       return;
     }
 
-    add(AddUserEvent2(values: values));
+    add(AddUserEvent(values: values));
   }
 
   void updateUser({
@@ -275,22 +277,26 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     return userRepository.getLoggedInUser();
   }
 
-  Future<void> _handleAddUserEvent2(
-    AddUserEvent2 event,
+  Future<void> _handleAddUserEvent(
+    AddUserEvent event,
     Emitter<UserState> emit,
   ) async {
     try {
       emit(UserLoadingState(isLoading: true));
       final values = event.values;
 
-      if (addedUser == null) {
+      if (tempUser == null) {
         throw Exception('User is not initialized. Please reload page');
       }
 
-      if (addedUser!.civilStatus == CivilStatus.married &&
-          addedUserSpouse == null) {
+      if (tempUser!.civilStatus == CivilStatus.married &&
+          tempUserSpouse == null) {
         throw Exception(
             'Spouse not initialized. Please choose civil status correctly');
+      }
+
+      if (tempUserAddress == null) {
+        throw Exception('Please provide address');
       }
 
       /// NOTE: we will only be checking a couple of fields as
@@ -300,32 +306,50 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         throw Exception('Please supply email address');
       }
 
-      final lastName = values['lastName'] as String?;
-      final firstName = values['firstName'] as String?;
+      final userId = await authenticationService.register(
+        email: email,
+        password: email,
+      );
 
-      if (lastName == null || firstName == null) {
-        throw Exception('Please supply last name or first name');
+      if (userId == null) {
+        throw Exception('Cannot register user');
       }
 
-      // final userId = await authenticationService.register(
-      //   email: email,
-      //   password: email,
-      // );
-      //
-      // if (userId == null) {
-      //   throw Exception('Cannot register user');
-      // }
+      tempUser = User.updateId(id: userId, user: tempUser!);
+      final addedUser = await userRepository.add(data: tempUser!);
+      tempUserAddress!.userId = userId;
+      final addedUserAddress =
+          await addressRepository.add(data: tempUserAddress!);
+      if (tempUserEmploymentDetails != null) {
+        tempUserEmploymentDetails!.userId = userId;
+        final addedUserEmploymentDetails = await employmentDetailsRepository
+            .add(data: tempUserEmploymentDetails!);
+      }
 
-      // final tmpAddedUser = User.updateId(id: userId, user: addedUser!);
-      // final addedUser = await userRepository.add(data: tmpUser);
-      // _filteredUsers.add(addedUser);
+      for (var beneficiary in tempUserBeneficiaries) {
+        beneficiary.parentId = userId;
+        await beneficiaryRepository.add(data: beneficiary);
+      }
+
+      if (addedUser.civilStatus == CivilStatus.married) {
+        final addedUserSpouse = await userRepository.add(data: tempUserSpouse!);
+        if (tempUserSpouseEmploymentDetails != null) {
+          tempUserSpouseEmploymentDetails!.userId = addedUserSpouse.id;
+          await employmentDetailsRepository.add(
+              data: tempUserSpouseEmploymentDetails!);
+        }
+        // update spouseId of user
+        addedUser.spouseId = addedUserSpouse.id;
+        await userRepository.update(data: addedUser);
+      }
+      _filteredUsers.add(addedUser);
       // refresh
-      // getAllUsers();
+      getAllUsers();
       emit(UserLoadingState());
-      emit(UserSuccessState(
-          user: addedUser, message: 'Successfully added user'));
-      // await Future.delayed(Duration(seconds: 2));
-      // emit(CloseScreenState());
+      emit(
+          UserSuccessState(user: tempUser, message: 'Successfully added user'));
+      await Future.delayed(Duration(seconds: 1));
+      emit(CloseScreenState());
     } catch (err) {
       printd(err);
       emit(UserLoadingState());

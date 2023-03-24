@@ -38,14 +38,14 @@ class Beneficiary extends Equatable {
       _$BeneficiaryFromJson(json);
 
   factory Beneficiary.updateId(
-          {required String id, required Beneficiary benificiary}) =>
+          {required String id, required Beneficiary beneficiary}) =>
       Beneficiary(
-          name: benificiary.name,
-          birthDate: benificiary.birthDate,
-          relationship: benificiary.relationship,
-          gender: benificiary.gender,
+          name: beneficiary.name,
+          birthDate: beneficiary.birthDate,
+          relationship: beneficiary.relationship,
+          gender: beneficiary.gender,
           id: id,
-          parentId: benificiary.parentId);
+          parentId: beneficiary.parentId);
 
   @override
   List<Object?> get props => [

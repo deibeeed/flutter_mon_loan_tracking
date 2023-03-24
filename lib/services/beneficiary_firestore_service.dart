@@ -1,16 +1,28 @@
 import 'package:flutter_mon_loan_tracking/exceptions/beneficiary_not_found_exception.dart';
 import 'package:flutter_mon_loan_tracking/models/beneficiary.dart';
 import 'package:flutter_mon_loan_tracking/services/base_firebase_service.dart';
+import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 
-class BeneficiaryFirestoreService extends BaseFirestoreService<Beneficiary> {
+class BeneficiariesFirestoreService extends BaseFirestoreService<Beneficiary> {
   @override
   Future<Beneficiary> add({required Beneficiary data}) async {
-    final doc = root.doc(data.id);
-    // final updatedUser = Beneficiary.updateId(id: doc.id, user: data);
+    var doc = root.doc();
 
-    await doc.set(data.toJson());
+    if (data.id != Constants.NO_ID) {
+      doc = root.doc(data.id);
+      await doc.set(data.toJson());
 
-    return data;
+      return data;
+    } else {
+      final updatedEmploymentDetails = Beneficiary.updateId(
+        id: doc.id,
+        beneficiary: data,
+      );
+
+      await doc.set(updatedEmploymentDetails.toJson());
+
+      return updatedEmploymentDetails;
+    }
   }
 
   @override
@@ -53,5 +65,5 @@ class BeneficiaryFirestoreService extends BaseFirestoreService<Beneficiary> {
   }
 
   @override
-  String get collectionName => 'beneficiary';
+  String get collectionName => 'beneficiaries';
 }

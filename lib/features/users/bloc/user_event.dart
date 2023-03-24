@@ -3,9 +3,9 @@ part of 'user_bloc.dart';
 @immutable
 abstract class UserEvent {}
 
-class AddUserEvent2 extends UserEvent {
+class AddUserEvent extends UserEvent {
   final Map<String, dynamic> values;
-  AddUserEvent2({ required this.values });
+  AddUserEvent({ required this.values });
 }
 
 class UpdateUserEvent extends UserEvent {

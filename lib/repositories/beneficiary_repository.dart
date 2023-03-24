@@ -2,11 +2,11 @@ import 'package:flutter_mon_loan_tracking/models/beneficiary.dart';
 import 'package:flutter_mon_loan_tracking/repositories/base_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/beneficiary_firestore_service.dart';
 
-class BeneficiaryRepository extends BaseRepository<Beneficiary> {
-  BeneficiaryRepository({
+class BeneficiariesRepository extends BaseRepository<Beneficiary> {
+  BeneficiariesRepository({
     required this.firestoreService,
   });
-  final BeneficiaryFirestoreService firestoreService;
+  final BeneficiariesFirestoreService firestoreService;
 
   @override
   Future<Beneficiary> add({required Beneficiary data}) {

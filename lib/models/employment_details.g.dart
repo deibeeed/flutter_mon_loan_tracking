@@ -14,6 +14,7 @@ EmploymentDetails _$EmploymentDetailsFromJson(Map<String, dynamic> json) =>
       position: json['position'] as String,
       years: json['years'] as num,
       id: json['id'] as String? ?? Constants.NO_ID,
+      userId: json['userId'] as String,
     );
 
 Map<String, dynamic> _$EmploymentDetailsToJson(EmploymentDetails instance) =>
@@ -23,5 +24,6 @@ Map<String, dynamic> _$EmploymentDetailsToJson(EmploymentDetails instance) =>
       'address': instance.address,
       'position': instance.position,
       'years': instance.years,
+      'userId': instance.userId,
       'id': instance.id,
     };

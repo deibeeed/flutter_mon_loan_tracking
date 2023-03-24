@@ -64,6 +64,7 @@ class User extends Equatable {
     civilStatus: CivilStatus.single,
     birthDate: '',
     email: '',
+    gender: Gender.male,
   );
 
   String firstName;

@@ -213,9 +213,9 @@ class _AppState extends State<App> {
             firestoreService: AddressFirestoreService(),
           ),
         ),
-        RepositoryProvider<BeneficiaryRepository>.value(
-          value: BeneficiaryRepository(
-            firestoreService: BeneficiaryFirestoreService(),
+        RepositoryProvider<BeneficiariesRepository>.value(
+          value: BeneficiariesRepository(
+            firestoreService: BeneficiariesFirestoreService(),
           ),
         ),
         RepositoryProvider<EmploymentDetailsRepository>.value(
@@ -262,7 +262,7 @@ class _AppState extends State<App> {
                   userRepository: context.read<UserRepository>(),
                   authenticationService: context.read<AuthenticationService>(),
                   addressRepository: context.read<AddressRepository>(),
-                  beneficiaryRepository: context.read<BeneficiaryRepository>(),
+                  beneficiaryRepository: context.read<BeneficiariesRepository>(),
                   employmentDetailsRepository:
                       context.read<EmploymentDetailsRepository>(),
                 ),
