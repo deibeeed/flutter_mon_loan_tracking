@@ -33,7 +33,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     // on<UserEvent>((event, emit) {
     //   // TODO: implement event handler
     // });
-    on(_handleAddUserEvent);
     on(_handleGetAllUsersEvent);
     on(_handleSearchUsersEvent);
     on(_handleGetUserEvent);
@@ -232,63 +231,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     addedUserAddress = null;
   }
 
-  void addUser({
-    required String lastName,
-    required String firstName,
-    required String birthDate,
-    required String mobileNumber,
-    required String email,
-    String? middleName,
-    String? gender,
-    String? birthPlace,
-    String? nationality,
-    String? height,
-    String? weight,
-    String? childrenCount,
-    String? tinNo,
-    String? sssNo,
-    String? philHealthNo,
-    String? telNo,
-    String? password,
-    String? confirmPassword,
-  }) {
-    if (_selectedType == null) {
-      emit(UserErrorState(message: 'Please select type'));
-      return;
-    }
-
-    if (_selectedCivilStatus == null) {
-      emit(UserErrorState(message: 'Please select civil status'));
-      return;
-    }
-
-    // for now, force email to become password
-    add(
-      AddUserEvent(
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        birthDate: birthDate,
-        civilStatus: _selectedCivilStatus!,
-        mobileNumber: mobileNumber,
-        type: _selectedType!,
-        password: email,
-        confirmPassword: email,
-        middleName: middleName,
-        gender: gender,
-        birthPlace: birthPlace,
-        nationality: nationality,
-        height: height,
-        weight: weight,
-        childrenCount: childrenCount,
-        tinNo: tinNo,
-        sssNo: sssNo,
-        philHealthNo: philHealthNo,
-        telNo: telNo,
-      ),
-    );
-  }
-
   void addUser2(
       {required Map<String,
               FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>>?
@@ -331,50 +273,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   User? getLoggedInUser() {
     return userRepository.getLoggedInUser();
-  }
-
-  Future<void> _handleAddUserEvent(
-    AddUserEvent event,
-    Emitter<UserState> emit,
-  ) async {
-    try {
-      emit(UserLoadingState(isLoading: true));
-      var civilStatus = event.civilStatus;
-
-      final userId = await authenticationService.register(
-        email: event.email,
-        password: event.password,
-      );
-
-      if (userId == null) {
-        throw Exception('Cannot register user');
-      }
-
-      var tmpUser = User(
-        firstName: event.firstName,
-        lastName: event.lastName,
-        email: event.email,
-        birthDate: event.birthDate,
-        civilStatus: civilStatus,
-        mobileNumber: event.mobileNumber,
-        type: event.type,
-      );
-      tmpUser = User.updateId(id: userId, user: tmpUser);
-      final addedUser = await userRepository.add(data: tmpUser);
-      _filteredUsers.add(addedUser);
-      // refresh
-      getAllUsers();
-      emit(UserLoadingState());
-      emit(UserSuccessState(
-          user: addedUser, message: 'Successfully added user'));
-      await Future.delayed(Duration(seconds: 2));
-      emit(CloseScreenState());
-    } catch (err) {
-      printd(err);
-      emit(UserLoadingState());
-      emit(UserErrorState(
-          message: 'Something went wrong while adding user: $err'));
-    }
   }
 
   Future<void> _handleAddUserEvent2(
