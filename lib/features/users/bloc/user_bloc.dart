@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_mon_loan_tracking/models/address.dart';
 import 'package:flutter_mon_loan_tracking/models/beneficiary.dart';
@@ -233,10 +234,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     tempUserAddress = null;
   }
 
-  void addUser(
-      {required Map<String,
-              FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>>?
-          fields}) {
+  void addUser({required Map<String,
+      FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>>?
+  fields}) {
     final values = fields?.map((key, value) => MapEntry(key, value.value));
 
     if (values == null) {
@@ -277,10 +277,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     return userRepository.getLoggedInUser();
   }
 
-  Future<void> _handleAddUserEvent(
-    AddUserEvent event,
-    Emitter<UserState> emit,
-  ) async {
+  Future<void> _handleAddUserEvent(AddUserEvent event,
+      Emitter<UserState> emit,) async {
     try {
       emit(UserLoadingState(isLoading: true));
       final values = event.values;
@@ -319,7 +317,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       final addedUser = await userRepository.add(data: tempUser!);
       tempUserAddress!.userId = userId;
       final addedUserAddress =
-          await addressRepository.add(data: tempUserAddress!);
+      await addressRepository.add(data: tempUserAddress!);
       if (tempUserEmploymentDetails != null) {
         tempUserEmploymentDetails!.userId = userId;
         final addedUserEmploymentDetails = await employmentDetailsRepository
@@ -358,10 +356,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
-  Future<void> _handleUpdateUserEvent(
-    UpdateUserEvent event,
-    Emitter<UserState> emit,
-  ) async {
+  Future<void> _handleUpdateUserEvent(UpdateUserEvent event,
+      Emitter<UserState> emit,) async {
     try {
       if (_selectedUser == null) {
         emit(UserErrorState(message: 'User not selected'));
@@ -390,14 +386,18 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
-  Future<void> _handleGetAllUsersEvent(
-      GetAllUsersEvent event, Emitter<UserState> emit) async {
+  Future<void> _handleGetAllUsersEvent(GetAllUsersEvent event,
+      Emitter<UserState> emit) async {
     try {
       emit(UserLoadingState(isLoading: true));
       final tmpUsers = await userRepository.all();
+      final spouseIds = tmpUsers.where((user) => user.spouseId != null)
+          .toList()
+          .map((e) => e.spouseId!)
+          .toList();
       _filteredUsers
         ..clear()
-        ..addAll(tmpUsers);
+        ..addAll(tmpUsers.whereNot((user) => spouseIds.contains(user.id)));
       _customers = await userRepository.customers();
       emit(UserLoadingState());
       emit(UserSuccessState(message: 'Successfully loaded all users'));
@@ -406,8 +406,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
-  Future<void> _handleSearchUsersEvent(
-      SearchUsersEvent event, Emitter<UserState> emit) async {
+  Future<void> _handleSearchUsersEvent(SearchUsersEvent event,
+      Emitter<UserState> emit) async {
     try {
       emit(UserLoadingState(isLoading: true));
       final query = event.query.toLowerCase();
@@ -415,7 +415,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
       if (query.isNotEmpty) {
         final filteredList = users.where(
-          (user) {
+              (user) {
             final lastName = user.lastName.toLowerCase();
             final firstName = user.firstName.toLowerCase();
             final email = user.email;
@@ -447,8 +447,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     }
   }
 
-  Future<void> _handleGetUserEvent(
-      GetUserEvent event, Emitter<UserState> emit) async {
+  Future<void> _handleGetUserEvent(GetUserEvent event,
+      Emitter<UserState> emit) async {
     try {
       emit(UserLoadingState(isLoading: true));
       _selectedUser = await userRepository.get(id: event.userId);
