@@ -54,7 +54,6 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<UserBloc>().getAllUsers();
     context.read<UserBloc>().initializeAddUser(withId: widget.userId);
     context.read<LoanBloc>()
       ..getAllLots()
