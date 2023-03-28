@@ -135,6 +135,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
           builder: (context, state) {
             return ListView(
               children: [
+                SizedBox(
+                  height: 8,
+                ),
                 TextFormField(
                   controller: interestRateController,
                   decoration: const InputDecoration(

@@ -139,6 +139,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
       child: Scaffold(
         body: ListView(
           children: [
+            SizedBox(height: 8,),
             BlocBuilder<LoanBloc, LoanState>(
                 buildWhen: (previous, current) => current is LoanSuccessState,
                 builder: (context, state) {
