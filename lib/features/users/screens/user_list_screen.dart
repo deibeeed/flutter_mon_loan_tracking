@@ -252,7 +252,6 @@ class UserListScreen extends StatelessWidget {
             .map(
               (user) => DataRow(
                 onSelectChanged: (value) {
-                  userBloc.selectUser(userId: user.id);
                   Constants.appBarTitle = user.completeName;
                   context.read<MenuSelectionCubit>().select(
                     page: 2,

@@ -75,7 +75,7 @@ Widget buildSmallScreenBody({
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => userBloc.updateUser2(),
+                      onPressed: () => userBloc.updateUser(fields: formKey.currentState?.fields),
                       style: ElevatedButton.styleFrom(
                           padding: buttonPadding,
                           backgroundColor:
@@ -89,24 +89,32 @@ Widget buildSmallScreenBody({
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 32,
-                  ),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: authenticationBloc.logout,
-                      style: ElevatedButton.styleFrom(
-                          padding: buttonPadding,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.errorContainer),
-                      child: Text(
-                        'Logout',
-                        style: Theme.of(context).textTheme.titleMedium?.apply(
-                              color: Theme.of(context).colorScheme.error,
+                  Visibility(
+                      visible: isProfile,
+                      child: Expanded(
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 32,
                             ),
-                      ),
-                    ),
-                  ),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: authenticationBloc.logout,
+                                style: ElevatedButton.styleFrom(
+                                    padding: buttonPadding,
+                                    backgroundColor: Theme.of(context).colorScheme.error),
+                                child: Text(
+                                  'Logout',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.apply(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
                 ],
               ),
             ),

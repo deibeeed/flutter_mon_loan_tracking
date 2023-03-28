@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_mon_loan_tracking/models/address.dart';
 import 'package:flutter_mon_loan_tracking/models/beneficiary.dart';
@@ -39,6 +41,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on(_handleGetUserEvent);
     on(_handleUpdateUserEvent);
     on(_handleAddUserEvent);
+    on(_handleRemoveBeneficiaryEvent);
     getAllUsers();
   }
 
@@ -76,14 +79,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   bool showBeneficiaryInputFields = false;
 
+  String? updateBeneficiaryId;
+
   void search({required String query}) {
     add(SearchUsersEvent(query: query));
-  }
-
-  void selectUser({
-    required String userId,
-  }) {
-    add(GetUserEvent(userId: userId));
   }
 
   void reset() {
@@ -120,6 +119,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       return;
     }
 
+    printd('called');
     add(GetUserEvent(userId: withId));
   }
 
@@ -164,25 +164,41 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     emit(UpdateUiState());
   }
 
-  void addBeneficiary({
+  Future<void> addBeneficiary({
     required String name,
     required DateTime birthDate,
     required Gender gender,
     required String relationship,
-  }) {
+  }) async {
     showBeneficiaryInputFields = false;
-    tempUserBeneficiaries.add(Beneficiary(
-      name: name,
-      birthDate: birthDate.millisecondsSinceEpoch,
-      relationship: relationship,
-      gender: gender,
-      parentId: '',
-    ));
+    if (updateBeneficiaryId == null) {
+      tempUserBeneficiaries.add(Beneficiary(
+        name: name,
+        birthDate: birthDate.millisecondsSinceEpoch,
+        relationship: relationship,
+        gender: gender,
+        parentId: '',
+      ));
+    } else if (updateBeneficiaryId != Constants.NO_ID) {
+      final beneficiary = tempUserBeneficiaries
+          .firstWhere((beneficiary) => beneficiary.id == updateBeneficiaryId);
+
+      beneficiary
+        ..name = name
+        ..birthDate = birthDate.millisecondsSinceEpoch
+        ..gender = gender
+        ..relationship = relationship;
+      updateBeneficiaryId = null;
+    } else {
+      return;
+    }
+
     emit(
       RemoveUiState(
         removeFieldsThatStartsWithKey: 'beneficiary',
       ),
     );
+    await Future.delayed(const Duration(milliseconds: 100));
     emit(UpdateUiState());
   }
 
@@ -195,6 +211,25 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     } else {
       add(RemoveBeneficiaryEvent(beneficiary: beneficiary));
     }
+  }
+
+  Future<void> updateBeneficiary({required Beneficiary beneficiary}) async {
+    if (beneficiary.id == Constants.NO_ID) {
+      return;
+    }
+    showBeneficiaryInputFields = true;
+
+    emit(UpdateUiState());
+    await Future.delayed(const Duration(milliseconds: 100));
+    updateBeneficiaryId = beneficiary.id;
+    final values = <String, dynamic>{};
+
+    values['beneficiary_name'] = beneficiary.name;
+    values['beneficiary_birthDate'] =
+        DateTime.fromMillisecondsSinceEpoch(beneficiary.birthDate.toInt());
+    values['beneficiary_gender'] = beneficiary.gender;
+    values['beneficiary_relationship'] = beneficiary.relationship;
+    emit(UpdateUiState(showValues: values));
   }
 
   void initializeAddedUserAddress() {
@@ -221,28 +256,19 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   }
 
   void updateUser({
-    required String lastName,
-    required String firstName,
-    required String birthDate,
-    required String mobileNumber,
-    required String email,
+    required Map<String,
+            FormBuilderFieldState<FormBuilderField<dynamic>, dynamic>>?
+        fields,
   }) {
-    // if (_selectedCivilStatus == null) {
-    //   emit(UserErrorState(message: 'Please select civil status'));
-    //   return;
-    // }
-    //
-    // add(UpdateUserEvent(
-    //   firstName: firstName,
-    //   lastName: lastName,
-    //   email: email,
-    //   birthDate: birthDate,
-    //   civilStatus: _selectedCivilStatus!,
-    //   mobileNumber: mobileNumber,
-    // ));
-  }
+    final values = fields?.map((key, value) => MapEntry(key, value.value));
 
-  void updateUser2() {}
+    if (values == null) {
+      emit(UserErrorState(message: 'Please enter user values'));
+      return;
+    }
+
+    add(UpdateUserEvent(values: values));
+  }
 
   void getAllUsers() {
     add(GetAllUsersEvent());
@@ -442,6 +468,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   Future<void> _handleGetUserEvent(
       GetUserEvent event, Emitter<UserState> emit) async {
     try {
+      printd('called2');
       emit(UserLoadingState(isLoading: true));
       // get user
       // get spouse

@@ -1117,9 +1117,19 @@ Widget _buildLargeScreenBeneficiaryBlock({
                           'Beneficiary ${index + 1}',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        const SizedBox(
-                          width: 32,
-                        ),
+                        if (beneficiary.id != Constants.NO_ID) ...[
+                          IconButton(
+                            onPressed: () =>
+                                userBloc.updateBeneficiary(beneficiary: beneficiary),
+                            icon: Icon(
+                              Icons.edit_rounded,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                        ],
                         IconButton(
                           onPressed: () =>
                               userBloc.removeBeneficiary(beneficiary: beneficiary),

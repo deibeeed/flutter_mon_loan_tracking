@@ -51,7 +51,7 @@ Widget buildLargeScreenBody({
             visible: shouldShowUpdateButton(context: context, userId: userId),
             child: Expanded(
               child: ElevatedButton(
-                onPressed: () => userBloc.updateUser2(),
+                onPressed: () => userBloc.updateUser(fields: formKey.currentState?.fields),
                 style: ElevatedButton.styleFrom(
                     padding: buttonPadding,
                     backgroundColor: Theme.of(context).colorScheme.primary),
@@ -65,24 +65,30 @@ Widget buildLargeScreenBody({
               ),
             ),
           ),
-          SizedBox(
-            width: 32,
-          ),
           Visibility(
               visible: isProfile,
               child: Expanded(
-                child: ElevatedButton(
-                  onPressed: authenticationBloc.logout,
-                  style: ElevatedButton.styleFrom(
-                      padding: buttonPadding,
-                      backgroundColor: Theme.of(context).colorScheme.error),
-                  child: Text(
-                    'Logout',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.apply(color: Colors.white),
-                  ),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 32,
+                    ),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: authenticationBloc.logout,
+                        style: ElevatedButton.styleFrom(
+                            padding: buttonPadding,
+                            backgroundColor: Theme.of(context).colorScheme.error),
+                        child: Text(
+                          'Logout',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.apply(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               )),
         ],

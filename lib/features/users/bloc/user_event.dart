@@ -9,21 +9,9 @@ class AddUserEvent extends UserEvent {
 }
 
 class UpdateUserEvent extends UserEvent {
-  final String firstName;
-  final String lastName;
-  final String email;
-  final String birthDate;
-  final CivilStatus civilStatus;
-  final String mobileNumber;
+  final Map<String, dynamic> values;
 
-  UpdateUserEvent({
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-    required this.birthDate,
-    required this.civilStatus,
-    required this.mobileNumber,
-  });
+  UpdateUserEvent({ required this.values, });
 }
 
 class GetAllUsersEvent extends UserEvent { }
@@ -44,4 +32,10 @@ class RemoveBeneficiaryEvent extends UserEvent {
   final Beneficiary beneficiary;
 
   RemoveBeneficiaryEvent({ required this.beneficiary, });
+}
+
+class UpdateBeneficiaryEvent extends UserEvent {
+  final Beneficiary beneficiary;
+
+  UpdateBeneficiaryEvent({ required this.beneficiary });
 }

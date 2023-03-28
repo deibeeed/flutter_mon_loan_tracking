@@ -40,12 +40,13 @@ Widget buildSmallScreenUserForm({
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSmallScreenUserBlock(
-                    context: context,
-                    formKey: formKey,
-                    user: userBloc.tempUser!,
-                    employmentDetails: userBloc.tempUserEmploymentDetails,
-                  ),
+                  if (userBloc.tempUser != null)
+                    _buildSmallScreenUserBlock(
+                      context: context,
+                      formKey: formKey,
+                      user: userBloc.tempUser!,
+                      employmentDetails: userBloc.tempUserEmploymentDetails,
+                    ),
                   if (userBloc.tempUserSpouse != null) ...[
                     const SizedBox(
                       height: 32,
@@ -948,7 +949,6 @@ Widget _buildSmallScreenBeneficiaryBlock({
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Beneficiary ${index + 1}',
@@ -957,6 +957,19 @@ Widget _buildSmallScreenBeneficiaryBlock({
                 const SizedBox(
                   width: 32,
                 ),
+                if (beneficiary.id != Constants.NO_ID) ...[
+                  IconButton(
+                    onPressed: () =>
+                        userBloc.updateBeneficiary(beneficiary: beneficiary),
+                    icon: Icon(
+                      Icons.edit_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                ],
                 IconButton(
                   onPressed: () =>
                       userBloc.removeBeneficiary(beneficiary: beneficiary),

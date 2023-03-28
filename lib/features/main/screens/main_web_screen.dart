@@ -92,7 +92,6 @@ class MainLargeScreen extends StatelessWidget {
                               context.read<MenuSelectionCubit>().select(
                                 page: 2,
                               );
-                              userBloc.selectUser(userId: user.id);
                               GoRouter.of(context).go('/profile/${user.id}');
                             }
                           },

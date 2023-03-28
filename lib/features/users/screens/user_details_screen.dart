@@ -203,6 +203,10 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 'spouse_ed_companyAddress': edUserSpouse?.address,
               };
 
+              if (state.showValues != null) {
+                values.addAll(state.showValues!);
+              }
+
               _formKey.currentState?.patchValue(values);
             }
           },
