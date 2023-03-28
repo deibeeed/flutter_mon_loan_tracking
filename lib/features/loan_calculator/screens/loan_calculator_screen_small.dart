@@ -37,7 +37,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
   final downpaymentRateController = TextEditingController();
   final interestRateController = TextEditingController();
   final horizontalScrollController = ScrollController();
+  final serviceFeeController = TextEditingController();
   final pagingController = PagingController<int, LoanSchedule>(firstPageKey: 0);
+  var _downpaymentPopulated = false;
 
   @override
   void deactivate() {
@@ -56,6 +58,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
       incidentalFeeRateController.text = settings.incidentalFeeRate.toString();
       downpaymentRateController.text = settings.downPaymentRate.toString();
       interestRateController.text = settings.loanInterestRate.toString();
+      serviceFeeController.text = settings.serviceFee.toString();
     }
   }
 
@@ -80,6 +83,14 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
             final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
 
+            if (!_downpaymentPopulated) {
+              downpaymentController.text = loanBloc
+                  .computeDownPaymentRate(
+                  customDownpaymentRateStr: downpaymentRateController.text)
+                  .toString();
+              _downpaymentPopulated = true;
+            }
+
             final lotCategory = settings.lotCategories.firstWhereOrNull(
                 (category) => category.key == lot.lotCategoryKey);
 
@@ -89,10 +100,6 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                   lotCategory.ratePerSquareMeter.toCurrency();
               tcpController.text =
                   (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
-              downpaymentController.text = loanBloc
-                  .computeDownPaymentRate(
-                  customDownpaymentRateStr: downpaymentRateController.text)
-                  .toString();
             }
           }
 
@@ -450,6 +457,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     date: Constants.defaultDateFormat.format(DateTime.now()),
                     incidentalFeeRate: incidentalFeeRateController.text,
                     loanInterestRate: interestRateController.text,
+                    includeServiceFee: true,
                   ),
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,
@@ -544,6 +552,17 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                         .toCurrency()),
                   ],
                 ),
+                if (serviceFeeController.text.isNotEmpty ||
+                    serviceFeeController.text == '0')
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Add: Service fee:'),
+                      Text(num.parse(serviceFeeController.text)
+                          .toCurrency()),
+                    ],
+                  ),
                 if (loanBloc.getVatAmount() != null)
                   Row(
                     mainAxisAlignment:
@@ -620,6 +639,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                             schedules: loanBloc.clientLoanSchedules,
                             loan: loan,
                             lot: lot,
+                            showServiceFee: true,
                           );
                         },
                         child: Text(

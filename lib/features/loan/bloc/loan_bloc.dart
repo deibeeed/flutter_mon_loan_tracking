@@ -191,9 +191,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required String date,
     String? incidentalFeeRate,
     String? loanInterestRate,
+    String? serviceFeeRate,
+    bool includeServiceFee = false,
   }) {
     try {
-      if (incidentalFeeRate != null && loanInterestRate != null) {
+      if (incidentalFeeRate != null &&
+          loanInterestRate != null &&
+          serviceFeeRate != null) {
         add(
           AddLoanEvent(
             downPayment: num.parse(downPayment),
@@ -204,6 +208,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             assistingAgent: 'None',
             storeInDb: false,
             withUser: false,
+            includeServiceFee: includeServiceFee,
+            serviceFeeRate: num.parse(serviceFeeRate),
           ),
         );
       } else {
@@ -215,6 +221,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             assistingAgent: 'None',
             storeInDb: false,
             withUser: false,
+            includeServiceFee: includeServiceFee,
           ),
         );
       }
@@ -447,12 +454,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     // var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
     var computedIncidentalFeeRate = incidentalFeeRate / 100;
     var monthsToPay = yearsToPay * 12;
-    // TODO: uncomment when all loans are inputted
-    // final incidentalFee = (totalContractPrice * incidentalFeeRate) + serviceFee;
-    final incidentalFee = totalContractPrice * computedIncidentalFeeRate;
-    // TODO: uncomment when all loans are inputted
-    // final monthlyIncidentalFee = (incidentalFee + serviceFee) / monthsToPay;
+    final incidentalFee =
+        (totalContractPrice * computedIncidentalFeeRate) + serviceFee;
     final monthlyIncidentalFee = incidentalFee / monthsToPay;
+    // final monthlyIncidentalFee = incidentalFee / monthsToPay;
     // printd('incidentalFee + serviceFee = ${incidentalFee + serviceFee}');
 
     final loanMonthlyAmortization = _calculateMonthlyPayment(
@@ -581,10 +586,14 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
       totalContractPrice += vatValue;
 
-      // TODO: uncomment when all loans are inputted
-      // TODO: uncomment when serviceFee is implemented
-      // final serviceFee = settings!.serviceFee;
-      final serviceFee = 0;
+      num serviceFee = 0;
+      if (event.includeServiceFee) {
+        serviceFee = settings!.serviceFee;
+
+        if (event.serviceFeeRate != null) {
+          serviceFee = event.serviceFeeRate!;
+        }
+      }
       final incidentalFeeRate =
           event.incidentalFeeRate ?? settings!.incidentalFeeRate;
 
@@ -601,10 +610,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       );
 
       var computedIncidentalFeeRate = incidentalFeeRate / 100;
-      // TODO: uncomment when all loans are inputted
-      // TODO: uncomment when serviceFee is implemented
-      // final incidentalFee = (totalContractPrice * incidentalFeeRate) + serviceFee;
-      final incidentalFee = totalContractPrice * computedIncidentalFeeRate;
+      final incidentalFee =
+          (totalContractPrice * computedIncidentalFeeRate) + serviceFee;
       final loan = Loan.create(
         clientId: clientId,
         preparedBy: authenticationService.loggedInUser!.uid,

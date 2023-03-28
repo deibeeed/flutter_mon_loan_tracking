@@ -38,7 +38,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
   final downpaymentRateController = TextEditingController();
   final interestRateController = TextEditingController();
   final horizontalScrollController = ScrollController();
+  final serviceFeeController = TextEditingController();
   final pagingController = PagingController<int, LoanSchedule>(firstPageKey: 0);
+  var _downpaymentPopulated = false;
 
   @override
   void deactivate() {
@@ -57,6 +59,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
       incidentalFeeRateController.text = settings.incidentalFeeRate.toString();
       downpaymentRateController.text = settings.downPaymentRate.toString();
       interestRateController.text = settings.loanInterestRate.toString();
+      serviceFeeController.text = settings.serviceFee.toString();
     }
   }
 
@@ -87,6 +90,14 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
             final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
 
+            if (!_downpaymentPopulated) {
+              downpaymentController.text = loanBloc
+                  .computeDownPaymentRate(
+                      customDownpaymentRateStr: downpaymentRateController.text)
+                  .toString();
+              _downpaymentPopulated = true;
+            }
+
             final lotCategory = settings.lotCategories.firstWhereOrNull(
                 (category) => category.key == lot.lotCategoryKey);
 
@@ -96,10 +107,6 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                   lotCategory.ratePerSquareMeter.toCurrency();
               tcpController.text =
                   (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
-              downpaymentController.text = loanBloc
-                  .computeDownPaymentRate(
-                      customDownpaymentRateStr: downpaymentRateController.text)
-                  .toString();
             }
           }
 
@@ -139,7 +146,9 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
       child: Scaffold(
         body: ListView(
           children: [
-            SizedBox(height: 8,),
+            SizedBox(
+              height: 8,
+            ),
             BlocBuilder<LoanBloc, LoanState>(
                 buildWhen: (previous, current) => current is LoanSuccessState,
                 builder: (context, state) {
@@ -213,6 +222,36 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                           decoration: const InputDecoration(
                             label: Text('Incidental fee rate'),
                             suffixText: '%',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                          ],
+                          onChanged: (value) {
+                            if (blockNoController.text.isNotEmpty &&
+                                lotNoController.text.isNotEmpty) {
+                              loanBloc.setBlockAndLotNo(
+                                type: 'blockNo',
+                                no: blockNoController.text,
+                              );
+                              loanBloc.setBlockAndLotNo(
+                                type: 'lotNo',
+                                no: lotNoController.text,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 32,
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          controller: serviceFeeController,
+                          decoration: const InputDecoration(
+                            label: Text('Service fee rate'),
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: const TextInputType.numberWithOptions(
@@ -531,6 +570,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                     date: Constants.defaultDateFormat.format(DateTime.now()),
                     incidentalFeeRate: incidentalFeeRateController.text,
                     loanInterestRate: interestRateController.text,
+                    includeServiceFee: true,
                   ),
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,
@@ -663,6 +703,17 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                       .toCurrency()),
                                 ],
                               ),
+                              if (serviceFeeController.text.isNotEmpty ||
+                                  serviceFeeController.text == '0')
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('Add: Service fee:'),
+                                    Text(num.parse(serviceFeeController.text)
+                                        .toCurrency()),
+                                  ],
+                                ),
                               if (loanBloc.getVatAmount() != null)
                                 Row(
                                   mainAxisAlignment:
@@ -752,6 +803,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                         schedules: loanBloc.clientLoanSchedules,
                         loan: loan,
                         lot: lot,
+                        showServiceFee: true,
                       );
                     },
                     child: Text(

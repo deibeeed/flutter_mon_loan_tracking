@@ -17,6 +17,7 @@ class PdfGenerator {
     required List<LoanSchedule> schedules,
     required Loan loan,
     required Lot lot,
+    bool showServiceFee = false,
   }) {
     Printing.layoutPdf(
       // [onLayout] will be called multiple times
@@ -29,6 +30,7 @@ class PdfGenerator {
           schedules: schedules,
           loan: loan,
           lot: lot,
+          showServiceFee: showServiceFee,
         );
       },
     );
@@ -40,6 +42,7 @@ class PdfGenerator {
         required List<LoanSchedule> schedules,
         required Loan loan,
         required Lot lot,
+        required bool showServiceFee,
       }) async {
     final pdfTheme = pw.ThemeData.withFont(
         base: await PdfGoogleFonts.robotoRegular(),
@@ -101,6 +104,13 @@ class PdfGenerator {
                     pw.Text(loan.totalContractPrice.toCurrency()),
                   ],
                 ),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Interest rate'),
+                    pw.Text('${loan.loanInterestRate}%'),
+                  ],
+                ),
                 for (var deduction in loan.deductions)
                   pw.Row(
                     mainAxisAlignment:
@@ -127,6 +137,15 @@ class PdfGenerator {
                         loan.incidentalFees.toCurrency()),
                   ],
                 ),
+                if (showServiceFee)
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text('Add: Service fee'),
+                      pw.Text(
+                          loan.serviceFee.toCurrency()),
+                    ],
+                  ),
                 if (loan.vatValue != null)
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
