@@ -323,9 +323,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
               BlocBuilder<AuthenticationBloc, AuthenticationState>(
                   builder: (context, state) {
                     return Expanded(
-                      child: authenticationBloc.backgroundDownloadUrl == null
-                          ? Container()
-                          : Container(
+                      child: Container(
                         margin: EdgeInsets.only(
                             top: loginContainerMarginTop,
                             right: loginContainerMarginTop,
@@ -336,20 +334,22 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                               borderRadius:
                               BorderRadius.all(Radius.circular(64)),
                               child: Image.asset(
-                                'assets/images/login_bg.jpg',
+                                'assets/images/login_bg2.jpg',
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                               ),
                             ),
                             DropShadow(
                               offset: Offset(4, 4),
+                              borderRadius: 64,
+                              blurRadius: 2,
                               color: Colors.white,
-                              spread: 0,
+                              spread: 1,
                               child: Image.asset(
                                 'assets/images/logo.png',
                                 fit: BoxFit.cover,
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),

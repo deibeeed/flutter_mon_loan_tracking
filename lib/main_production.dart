@@ -8,7 +8,7 @@ import 'package:flutter_mon_loan_tracking/firebase_options.dart';
 import 'package:flutter_mon_loan_tracking/services/environments.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/platform_stub.dart'
-  if (kIsWeb)
+  if (dart.library.html)
     'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 Future<void> main() async {

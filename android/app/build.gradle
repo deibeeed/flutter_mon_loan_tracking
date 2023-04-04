@@ -22,7 +22,7 @@ if (flutterVersionName == null) {
 }
 
 def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
+def keystorePropertiesFile = rootProject.file('keystore/key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
@@ -82,17 +82,17 @@ android {
         production {
             dimension "default"
             applicationIdSuffix ""
-            manifestPlaceholders = [appName: "LMS"]
+            manifestPlaceholders = [appName: "BPV Loan Monitoring"]
         }
         staging {
             dimension "default"
             applicationIdSuffix ".stg"
-            manifestPlaceholders = [appName: "[STG] LMS"]
+            manifestPlaceholders = [appName: "[STG] BPV Loan Monitoring"]
         }
         development {
             dimension "default"
             applicationIdSuffix ".dev"
-            manifestPlaceholders = [appName: "[DEV] LMS"]
+            manifestPlaceholders = [appName: "[DEV] BPV Loan Monitoring"]
         }
     }
 
