@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_mon_loan_tracking/models/loan.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/models/lot.dart';
@@ -184,10 +185,10 @@ class PdfGenerator {
             pw.Table( children: [
               pw.TableRow(
                 repeat: true,
-                children: Constants.user_loan_schedule_table_columns
+                children: Constants.loan_schedule_table_columns
                     .sublist(
                     0,
-                    Constants.user_loan_schedule_table_columns
+                    Constants.loan_schedule_table_columns
                         .length -
                         1)
                     .map((header) => pw.Container(
@@ -197,7 +198,7 @@ class PdfGenerator {
                       bottom: pw.BorderSide()
                     )
                   ),
-                    width: 120,
+                    width: header.toLowerCase() == 'month' ? 80 : 120,
                     height: 40,
                     child: pw.Text(header,
                         style: pw.TextStyle(
@@ -205,15 +206,24 @@ class PdfGenerator {
                         textAlign: pw.TextAlign.center)))
                     .toList(),
               ),
-              for (var schedule in schedules)
-                pw.TableRow(children: [
-                  pw.Text(schedule.date.toDefaultDate()),
-                  pw.Text(schedule.outstandingBalance.toCurrency()),
-                  pw.Text(schedule.monthlyAmortization.toCurrency()),
-                  pw.Text(schedule.principalPayment.toCurrency()),
-                  pw.Text(schedule.interestPayment.toCurrency()),
-                  pw.Text(schedule.incidentalFee.toCurrency()),
-                ]),
+              // for (var schedule in schedules)
+              //   pw.TableRow(children: [
+              //     pw.Text(schedule.date.toDefaultDate()),
+              //     pw.Text(schedule.outstandingBalance.toCurrency()),
+              //     pw.Text(schedule.monthlyAmortization.toCurrency()),
+              //     pw.Text(schedule.principalPayment.toCurrency()),
+              //     pw.Text(schedule.interestPayment.toCurrency()),
+              //     pw.Text(schedule.incidentalFee.toCurrency()),
+              //   ]),
+              ...schedules.mapIndexed((index, schedule) => pw.TableRow(children: [
+                pw.Text('${index + 1}'),
+                pw.Text(schedule.date.toDefaultDate()),
+                pw.Text(schedule.outstandingBalance.toCurrency()),
+                pw.Text(schedule.monthlyAmortization.toCurrency()),
+                pw.Text(schedule.principalPayment.toCurrency()),
+                pw.Text(schedule.interestPayment.toCurrency()),
+                pw.Text(schedule.incidentalFee.toCurrency()),
+              ])).toList(),
             ])
           ];
         },
