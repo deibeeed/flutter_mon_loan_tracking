@@ -134,7 +134,7 @@ class PdfGenerator {
                   children: [
                     pw.Text('Add: Incidental fees'),
                     pw.Text(
-                        loan.incidentalFees.toCurrency()),
+                        (loan.incidentalFees - loan.serviceFee).toCurrency()),
                   ],
                 ),
                 if (showServiceFee)

@@ -194,6 +194,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     String? serviceFeeRate,
     bool includeServiceFee = false,
   }) {
+    printd('incidentalFeeRate: ${incidentalFeeRate}');
+
+    printd('loanInterestRate: ${loanInterestRate}');
+    printd('serviceFeeRate: ${serviceFeeRate}');
     try {
       if (incidentalFeeRate != null &&
           loanInterestRate != null &&
@@ -597,6 +601,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       final incidentalFeeRate =
           event.incidentalFeeRate ?? settings!.incidentalFeeRate;
 
+      printd('event.incidentalFeeRate: ${event.incidentalFeeRate}');
+      printd('incidentalFeeRate: ${incidentalFeeRate}');
+
+      final loanInterestRate =
+          event.loanInterestRate ?? settings!.loanInterestRate;
+
       _calculateLoan(
         totalContractPrice: totalContractPrice,
         downPayment: event.downPayment,
@@ -604,7 +614,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         lotCategoryKey: _selectedLot!.lotCategoryKey,
         date: Constants.defaultDateFormat.parse(event.date),
         incidentalFeeRate: incidentalFeeRate,
-        loanInterestRate: event.loanInterestRate ?? settings!.loanInterestRate,
+        loanInterestRate: loanInterestRate,
         lotCategory: lotCategory,
         serviceFee: serviceFee,
       );
@@ -616,8 +626,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         clientId: clientId,
         preparedBy: authenticationService.loggedInUser!.uid,
         lotId: _selectedLot!.id,
-        loanInterestRate: _settings!.loanInterestRate,
-        incidentalFeeRate: _settings!.incidentalFeeRate,
+        loanInterestRate: loanInterestRate,
+        incidentalFeeRate: incidentalFeeRate,
         serviceFee: serviceFee,
         perSquareMeterRate: lotCategory.ratePerSquareMeter,
         outstandingBalance: outstandingBalance,

@@ -570,6 +570,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                     date: Constants.defaultDateFormat.format(DateTime.now()),
                     incidentalFeeRate: incidentalFeeRateController.text,
                     loanInterestRate: interestRateController.text,
+                    serviceFeeRate: serviceFeeController.text,
                     includeServiceFee: true,
                   ),
                   style: ElevatedButton.styleFrom(
