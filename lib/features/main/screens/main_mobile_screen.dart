@@ -150,7 +150,7 @@ class MainSmallScreen extends StatelessWidget {
             visible: pageSelected <= 2 &&
                 [UserType.admin, UserType.subAdmin]
                     .contains(userBloc.getLoggedInUser()?.type),
-            child: FloatingActionButton.small(
+            child: FloatingActionButton(
               onPressed: () {
                 switch (pageSelected) {
                   case 0:
