@@ -239,6 +239,7 @@ class MainSmallScreen extends StatelessWidget {
                                   Text(
                                     item.computedShortName,
                                     style: TextStyle(
+                                      fontSize: 12,
                                       color: page == i
                                           ? bottomMenuUnselectedColor
                                           : bottomMenuSelectedColor,
