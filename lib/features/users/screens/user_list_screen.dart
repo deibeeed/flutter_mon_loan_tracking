@@ -272,7 +272,7 @@ class UserListScreen extends StatelessWidget {
                           text: user.completeName,
                         ),
                         Text(
-                          user.email,
+                          user.email ?? '',
                         )
                       ],
                     ),

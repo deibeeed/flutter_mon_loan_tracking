@@ -377,14 +377,26 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
       emit(UserLoadingState(isLoading: true));
       final updatedUser = await userRepository.update(data: tempUser!);
-      final updatedSpouse = await userRepository.update(data: tempUserSpouse!);
-      final updatedUserEmploymentDetails = await employmentDetailsRepository
-          .update(data: tempUserEmploymentDetails!);
-      final updatedUserSpouseEmploymentDetails =
-          await employmentDetailsRepository.update(
-              data: tempUserSpouseEmploymentDetails!);
-      final updatedUserAddress =
-          await addressRepository.update(data: tempUserAddress!);
+
+      if (tempUserSpouse != null) {
+        final updatedSpouse = await userRepository.update(data: tempUserSpouse!);
+      }
+
+      if (tempUserEmploymentDetails != null) {
+        final updatedUserEmploymentDetails = await employmentDetailsRepository
+            .update(data: tempUserEmploymentDetails!);
+      }
+
+      if (tempUserSpouseEmploymentDetails != null) {
+        final updatedUserSpouseEmploymentDetails =
+        await employmentDetailsRepository.update(
+            data: tempUserSpouseEmploymentDetails!);
+      }
+
+      if (tempUserAddress != null) {
+        final updatedUserAddress =
+        await addressRepository.update(data: tempUserAddress!);
+      }
 
       for (final beneficiary in tempUserBeneficiaries) {
         if (beneficiary.id == Constants.NO_ID) {
@@ -440,7 +452,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
             return lastName.contains(query) ||
                 firstName.contains(query) ||
-                email.contains(query);
+                email?.contains(query) == true;
           },
         ).toList();
         _filteredUsers

@@ -9,7 +9,7 @@ part of 'user.dart';
 User _$UserFromJson(Map<String, dynamic> json) => User(
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
-      email: json['email'] as String,
+      email: json['email'] as String?,
       birthDate: json['birthDate'] as String,
       civilStatus: $enumDecode(_$CivilStatusEnumMap, json['civilStatus']),
       mobileNumber: json['mobileNumber'] as String,

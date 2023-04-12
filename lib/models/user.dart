@@ -69,7 +69,7 @@ class User extends Equatable {
 
   String firstName;
   String lastName;
-  String email;
+  String? email;
   String birthDate;
   CivilStatus civilStatus;
   String mobileNumber;

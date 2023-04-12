@@ -811,7 +811,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
               return firstName.contains(query) ||
                   lastName.contains(query) ||
-                  email.contains(query);
+                  email?.contains(query) == true;
             })
             .map((user) => user.id)
             .toList();

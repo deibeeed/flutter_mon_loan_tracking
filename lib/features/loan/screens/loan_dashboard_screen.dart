@@ -374,7 +374,7 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                               .completeName,
                         ),
                         Text(userBloc
-                            .mappedUsers[loanDisplay.loan.clientId]!.email)
+                            .mappedUsers[loanDisplay.loan.clientId]!.email ?? '')
                       ],
                     ),
                   ),
