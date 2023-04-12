@@ -51,7 +51,8 @@ Widget buildLargeScreenBody({
             visible: shouldShowUpdateButton(context: context, userId: userId),
             child: Expanded(
               child: ElevatedButton(
-                onPressed: () => userBloc.updateUser(fields: formKey.currentState?.fields),
+                onPressed: () =>
+                    userBloc.updateUser(fields: formKey.currentState?.fields),
                 style: ElevatedButton.styleFrom(
                     padding: buttonPadding,
                     backgroundColor: Theme.of(context).colorScheme.primary),
@@ -78,7 +79,8 @@ Widget buildLargeScreenBody({
                         onPressed: authenticationBloc.logout,
                         style: ElevatedButton.styleFrom(
                             padding: buttonPadding,
-                            backgroundColor: Theme.of(context).colorScheme.error),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.error),
                         child: Text(
                           'Logout',
                           style: Theme.of(context)
@@ -157,27 +159,50 @@ Widget buildLargeScreenBody({
             'Loan schedule',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          ElevatedButton(
-              onPressed: () {
-                var user = userBloc.tempUser;
-                var loan = loanBloc.selectedLoan;
-                var lot = loanBloc.selectedLot;
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (userBloc.getLoggedInUser()?.type == UserType.admin &&
+                  userBloc.getLoggedInUser()?.id != userId) ...[
+                ElevatedButton(
+                  onPressed: loanBloc.removeLoan,
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.errorContainer),
+                  child: Text(
+                    'Remove',
+                    style: Theme.of(context).textTheme.titleMedium?.apply(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 16,
+                )
+              ],
+              ElevatedButton(
+                  onPressed: () {
+                    var user = userBloc.tempUser;
+                    var loan = loanBloc.selectedLoan;
+                    var lot = loanBloc.selectedLot;
 
-                if (user == null || loan == null || lot == null) {
-                  return;
-                }
+                    if (user == null || loan == null || lot == null) {
+                      return;
+                    }
 
-                PdfGenerator.generatePdf(
-                  user: user,
-                  schedules: loanBloc.clientLoanSchedules,
-                  loan: loan,
-                  lot: lot,
-                );
-              },
-              child: Text(
-                'Print',
-                style: Theme.of(context).textTheme.labelLarge,
-              ))
+                    PdfGenerator.generatePdf(
+                      user: user,
+                      schedules: loanBloc.clientLoanSchedules,
+                      loan: loan,
+                      lot: lot,
+                    );
+                  },
+                  child: Text(
+                    'Print',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  )),
+            ],
+          )
         ],
       ),
       const SizedBox(
@@ -185,7 +210,8 @@ Widget buildLargeScreenBody({
       ),
       BlocBuilder<LoanBloc, LoanState>(
         buildWhen: (previous, current) {
-          return current is LoanDisplaySummaryState;
+          return current is LoanDisplaySummaryState ||
+              current is LoanSuccessState;
         },
         builder: (context, state) {
           if (!isLargeScreenBreakpoint) {
@@ -214,7 +240,7 @@ Widget buildLargeScreenBody({
                 userId: userId,
                 finiteSize: loanBloc.clientLoanSchedules.isNotEmpty,
                 loggedInUserType:
-                userBloc.getLoggedInUser()?.type ?? UserType.customer,
+                    userBloc.getLoggedInUser()?.type ?? UserType.customer,
               ),
             ),
           );

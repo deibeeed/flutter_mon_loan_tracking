@@ -69,3 +69,5 @@ class PayLoanScheduleEvent extends LoanEvent{
 
   PayLoanScheduleEvent({ required this.schedule });
 }
+
+class RemoveLoanEvent extends LoanEvent { }

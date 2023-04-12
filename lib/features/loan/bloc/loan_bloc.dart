@@ -48,6 +48,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     on(_handleSearchLoanEvent);
     on(_handleFilterByStatusEvent);
     on(_handlePayLoanScheduleEvent);
+    on(_handleRemoveLoanEvent);
     getAllLots();
     getAllLoans();
     getSettings();
@@ -134,6 +135,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _monthlyAmortization = 0;
     _nextPageCalled = null;
     emit(LoanSuccessState(message: 'successfully reset values'));
+  }
+
+  void removeLoan() {
+    add(RemoveLoanEvent());
   }
 
   void search({
@@ -909,6 +914,34 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       emit(LoanLoadingState());
       emit(LoanErrorState(
           message: 'Something went wrong while paying schedule'));
+    }
+  }
+
+  Future<void> _handleRemoveLoanEvent(
+    RemoveLoanEvent event,
+    Emitter<LoanState> emit,
+  ) async {
+    try {
+      if (_selectedLoan == null) {
+        return;
+      }
+
+      emit(LoanLoadingState(isLoading: true));
+
+      await loanRepository.delete(data: _selectedLoan!);
+      final futures = _clientLoanSchedules
+          .map((e) => loanScheduleRepository.delete(data: e));
+      await Future.wait(futures);
+      _selectedLoan = null;
+      _clientLoanSchedules.clear();
+
+      emit(LoanLoadingState());
+      emit(LoanSuccessState(message: 'Successfully removed loan'));
+    } catch (err) {
+      printd('Something went wrong while removing loan: $err');
+      emit(LoanLoadingState());
+      emit(LoanErrorState(
+          message: 'Something went wrong when removing loan: $err'));
     }
   }
 

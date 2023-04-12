@@ -183,24 +183,50 @@ Widget buildSmallScreenBody({
               'Loan schedule',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            ElevatedButton(
-                onPressed: () {
-                  var user = userBloc.tempUser;
-                  var loan = loanBloc.selectedLoan;
-                  var lot = loanBloc.selectedLot;
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (userBloc.getLoggedInUser()?.type == UserType.admin &&
+                    userBloc.getLoggedInUser()?.id != userId) ...[
+                  ElevatedButton(
+                    onPressed: loanBloc.removeLoan,
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                        Theme.of(context).colorScheme.errorContainer),
+                    child: Text(
+                      'Delete',
+                      style: Theme.of(context).textTheme.titleMedium?.apply(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  )
+                ],
+                ElevatedButton(
+                    onPressed: () {
+                      var user = userBloc.tempUser;
+                      var loan = loanBloc.selectedLoan;
+                      var lot = loanBloc.selectedLot;
 
-                  if (user == null || loan == null || lot == null) {
-                    return;
-                  }
+                      if (user == null || loan == null || lot == null) {
+                        return;
+                      }
 
-                  PdfGenerator.generatePdf(
-                    user: user,
-                    schedules: loanBloc.clientLoanSchedules,
-                    loan: loan,
-                    lot: lot,
-                  );
-                },
-                child: Text('Print'))
+                      PdfGenerator.generatePdf(
+                        user: user,
+                        schedules: loanBloc.clientLoanSchedules,
+                        loan: loan,
+                        lot: lot,
+                      );
+                    },
+                    child: Text(
+                      'Print',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    )),
+              ],
+            )
           ],
         ),
       ),

@@ -41,6 +41,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       PagingController<int, LoanSchedule>(firstPageKey: 0);
   final _formKey =
       GlobalKey<FormBuilderState>(debugLabel: 'user_details_screen');
+  bool _showLoanLoadingDialog = false;
 
   @override
   void deactivate() {
@@ -142,6 +143,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 } catch (err) {
                   printd(err);
                 }
+                _showLoanLoadingDialog = true;
               }
             } else if (state is UpdateUiState) {
               final user = userBloc.tempUser;
@@ -217,6 +219,33 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
               _pagingController.value = PagingState(
                 itemList: loanBloc.clientLoanSchedules,
               );
+            } else if (state is LoanLoadingState) {
+              if (!_showLoanLoadingDialog) {
+                return;
+              }
+
+              if (state.isLoading) {
+                showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) {
+                      return const AlertDialog(
+                        content: SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    });
+              } else {
+                try {
+                  if (Navigator.of(context, rootNavigator: true).canPop()) {
+                    Navigator.of(context, rootNavigator: true).pop();
+                  }
+                } catch (err) {
+                  printd(err);
+                }
+              }
             }
           },
         )
