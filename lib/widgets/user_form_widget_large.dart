@@ -194,12 +194,12 @@ Widget _buildLargeScreenUserBlock({
                   user.nationality = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter a nationality',
-                  ),
-                      (value) => value?.isEmpty ?? false
-                      ? 'Please enter a nationality'
-                      : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter a nationality',
+                  // ),
+                  //     (value) => value?.isEmpty ?? false
+                  //     ? 'Please enter a nationality'
+                  //     : null,
                 ]),
               ),
             ),
@@ -490,12 +490,12 @@ Widget _buildLargeScreenUserBlock({
               ],
               onChanged: (value) => user.tinNo = value,
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(
-                  errorText: 'Please enter a TIN number',
-                ),
-                    (value) => value?.isEmpty ?? false
-                    ? 'Please enter a TIN number'
-                    : null,
+                // FormBuilderValidators.required(
+                //   errorText: 'Please enter a TIN number',
+                // ),
+                //     (value) => value?.isEmpty ?? false
+                //     ? 'Please enter a TIN number'
+                //     : null,
               ]),
             ),
           ),
@@ -574,12 +574,12 @@ Widget _buildLargeScreenUserBlock({
                 user.mobileNumber = value;
               },
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(
-                  errorText: 'Please enter a mobile number',
-                ),
-                    (value) => value?.isEmpty ?? false
-                    ? 'Please enter a mobile number'
-                    : null,
+                // FormBuilderValidators.required(
+                //   errorText: 'Please enter a mobile number',
+                // ),
+                //     (value) => value?.isEmpty ?? false
+                //     ? 'Please enter a mobile number'
+                //     : null,
               ]),
             ),
           ),
@@ -619,8 +619,8 @@ Widget _buildLargeScreenUserBlock({
                 user.email = value;
               },
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(
-                    errorText: 'Please enter an email'),
+                // FormBuilderValidators.required(
+                //     errorText: 'Please enter an email'),
                 FormBuilderValidators.email(
                     errorText: 'Please enter a valid email'),
                     (value) =>
@@ -668,12 +668,12 @@ Widget _buildLargeScreenUserBlock({
                   userBloc.tempUserAddress?.houseNo = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter a house number',
-                  ),
-                      (value) => value?.isEmpty ?? false
-                      ? 'Please enter a house number'
-                      : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter a house number',
+                  // ),
+                  //     (value) => value?.isEmpty ?? false
+                  //     ? 'Please enter a house number'
+                  //     : null,
                 ]),
               ),
             ),
@@ -697,11 +697,11 @@ Widget _buildLargeScreenUserBlock({
                   userBloc.tempUserAddress?.street = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter a street',
-                  ),
-                      (value) =>
-                  value?.isEmpty ?? false ? 'Please enter a street' : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter a street',
+                  // ),
+                  //     (value) =>
+                  // value?.isEmpty ?? false ? 'Please enter a street' : null,
                 ]),
               ),
             ),
@@ -723,12 +723,12 @@ Widget _buildLargeScreenUserBlock({
                   userBloc.tempUserAddress?.brgy = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter a barangay',
-                  ),
-                      (value) => value?.isEmpty ?? false
-                      ? 'Please enter a barangay'
-                      : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter a barangay',
+                  // ),
+                  //     (value) => value?.isEmpty ?? false
+                  //     ? 'Please enter a barangay'
+                  //     : null,
                 ]),
               ),
             ),
@@ -752,11 +752,11 @@ Widget _buildLargeScreenUserBlock({
                   userBloc.tempUserAddress?.zone = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter a zone',
-                  ),
-                      (value) =>
-                  value?.isEmpty ?? false ? 'Please enter a zone' : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter a zone',
+                  // ),
+                  //     (value) =>
+                  // value?.isEmpty ?? false ? 'Please enter a zone' : null,
                 ]),
               ),
             ),
@@ -784,12 +784,12 @@ Widget _buildLargeScreenUserBlock({
                   userBloc.tempUserAddress?.city = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter a municipality or city',
-                  ),
-                      (value) => value?.isEmpty ?? false
-                      ? 'Please enter a municipality or city'
-                      : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter a municipality or city',
+                  // ),
+                  //     (value) => value?.isEmpty ?? false
+                  //     ? 'Please enter a municipality or city'
+                  //     : null,
                 ]),
               ),
             ),
@@ -811,12 +811,12 @@ Widget _buildLargeScreenUserBlock({
                   userBloc.tempUserAddress?.province = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter a province',
-                  ),
-                      (value) => value?.isEmpty ?? false
-                      ? 'Please enter a province'
-                      : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter a province',
+                  // ),
+                  //     (value) => value?.isEmpty ?? false
+                  //     ? 'Please enter a province'
+                  //     : null,
                 ]),
               ),
             ),
@@ -838,12 +838,12 @@ Widget _buildLargeScreenUserBlock({
                   userBloc.tempUserAddress?.zipCode = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter a zip code',
-                  ),
-                      (value) => value?.isEmpty ?? false
-                      ? 'Please enter a zip code'
-                      : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter a zip code',
+                  // ),
+                  //     (value) => value?.isEmpty ?? false
+                  //     ? 'Please enter a zip code'
+                  //     : null,
                 ]),
               ),
             ),
@@ -867,11 +867,11 @@ Widget _buildLargeScreenUserBlock({
                   userBloc.tempUserAddress?.country = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter a country',
-                  ),
-                      (value) =>
-                  value?.isEmpty ?? false ? 'Please enter a country' : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter a country',
+                  // ),
+                  //     (value) =>
+                  // value?.isEmpty ?? false ? 'Please enter a country' : null,
                 ]),
               ),
             ),
@@ -944,12 +944,12 @@ Widget _buildLargeScreenUserBlock({
                   employmentDetails?.companyName = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter a company name',
-                  ),
-                      (value) => value?.isEmpty ?? false
-                      ? 'Please enter a company name'
-                      : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter a company name',
+                  // ),
+                  //     (value) => value?.isEmpty ?? false
+                  //     ? 'Please enter a company name'
+                  //     : null,
                 ]),
               ),
             ),
@@ -975,12 +975,12 @@ Widget _buildLargeScreenUserBlock({
                   employmentDetails?.natureOfBusiness = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter nature of business',
-                  ),
-                      (value) => value?.isEmpty ?? false
-                      ? 'Please enter nature of business'
-                      : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter nature of business',
+                  // ),
+                  //     (value) => value?.isEmpty ?? false
+                  //     ? 'Please enter nature of business'
+                  //     : null,
                 ]),
               ),
             ),
@@ -1002,11 +1002,11 @@ Widget _buildLargeScreenUserBlock({
                   employmentDetails?.position = value;
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter position',
-                  ),
-                      (value) =>
-                  value?.isEmpty ?? false ? 'Please enter position' : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter position',
+                  // ),
+                  //     (value) =>
+                  // value?.isEmpty ?? false ? 'Please enter position' : null,
                 ]),
               ),
             ),
@@ -1033,12 +1033,12 @@ Widget _buildLargeScreenUserBlock({
                   employmentDetails?.years = num.parse(value);
                 },
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(
-                    errorText: 'Please enter years of employment',
-                  ),
-                      (value) => value?.isEmpty ?? false
-                      ? 'Please enter years of employment'
-                      : null,
+                  // FormBuilderValidators.required(
+                  //   errorText: 'Please enter years of employment',
+                  // ),
+                  //     (value) => value?.isEmpty ?? false
+                  //     ? 'Please enter years of employment'
+                  //     : null,
                 ]),
               ),
             ),
@@ -1062,12 +1062,12 @@ Widget _buildLargeScreenUserBlock({
             employmentDetails?.address = value;
           },
           validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(
-              errorText: 'Please enter a company address',
-            ),
-                (value) => value?.isEmpty ?? false
-                ? 'Please enter a company address'
-                : null,
+            // FormBuilderValidators.required(
+            //   errorText: 'Please enter a company address',
+            // ),
+            //     (value) => value?.isEmpty ?? false
+            //     ? 'Please enter a company address'
+            //     : null,
           ]),
         )
       ],
@@ -1227,12 +1227,12 @@ Widget _buildLargeScreenBeneficiaryBlock({
                     keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                     validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(
-                        errorText: 'Please enter beneficiary name',
-                      ),
-                          (value) => value?.isEmpty ?? false
-                          ? 'Please enter beneficiary name'
-                          : null,
+                      // FormBuilderValidators.required(
+                      //   errorText: 'Please enter beneficiary name',
+                      // ),
+                      //     (value) => value?.isEmpty ?? false
+                      //     ? 'Please enter beneficiary name'
+                      //     : null,
                     ]),
                   ),
                 ),
@@ -1249,9 +1249,9 @@ Widget _buildLargeScreenBeneficiaryBlock({
                       border: OutlineInputBorder(),
                     ),
                     validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(
-                        errorText: 'Please select beneficiary birth date',
-                      ),
+                      // FormBuilderValidators.required(
+                      //   errorText: 'Please select beneficiary birth date',
+                      // ),
                     ]),
                   ),
                 ),
@@ -1280,9 +1280,9 @@ Widget _buildLargeScreenBeneficiaryBlock({
                           );
                         }).toList(),
                         validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(
-                            errorText: 'Please select beneficiary gender',
-                          ),
+                          // FormBuilderValidators.required(
+                          //   errorText: 'Please select beneficiary gender',
+                          // ),
                         ]),
                       ),
                     ],
@@ -1301,12 +1301,12 @@ Widget _buildLargeScreenBeneficiaryBlock({
                     keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                     validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(
-                        errorText: 'Please enter a beneficiary relationship',
-                      ),
-                          (value) => value?.isEmpty ?? false
-                          ? 'Please enter a beneficiary relationship'
-                          : null,
+                      // FormBuilderValidators.required(
+                      //   errorText: 'Please enter a beneficiary relationship',
+                      // ),
+                      //     (value) => value?.isEmpty ?? false
+                      //     ? 'Please enter a beneficiary relationship'
+                      //     : null,
                     ]),
                   ),
                 ),
