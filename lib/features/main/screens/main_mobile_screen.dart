@@ -204,50 +204,53 @@ class MainSmallScreen extends StatelessWidget {
                           menuSelection.select(page: i);
                           GoRouter.of(context).go(item.goPath);
                         },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: bottomBarSelectedBorderRadius,
-                            color: page == i ? bottomMenuSelectedColor : null,
-                          ),
-                          width: 68,
-                          height: 68,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                  child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (item.iconSvgAssetPath != null)
-                                    SvgPicture.asset(
-                                      item.iconSvgAssetPath!,
-                                      width: 20,
-                                      height: 20,
-                                      color: page == i
-                                          ? bottomMenuUnselectedColor
-                                          : bottomMenuSelectedColor,
-                                    )
-                                  else
-                                    SvgPicture.asset(
-                                      'assets/icons/mortgage-loan.svg',
-                                      width: 24,
-                                      height: 24,
-                                      color: page == i
-                                          ? bottomMenuUnselectedColor
-                                          : bottomMenuSelectedColor,
-                                    ),
-                                  Text(
-                                    item.computedShortName,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: page == i
-                                          ? bottomMenuUnselectedColor
-                                          : bottomMenuSelectedColor,
-                                    ),
-                                  )
-                                ],
-                              ))
-                            ],
+                        child: Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: bottomBarSelectedBorderRadius,
+                              color: page == i ? bottomMenuSelectedColor : null,
+                            ),
+                            // padding: EdgeInsets.all(8),
+                            width: 62,
+                            height: 68,
+                            child: Column(
+                              children: [
+                                Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        if (item.iconSvgAssetPath != null)
+                                          SvgPicture.asset(
+                                            item.iconSvgAssetPath!,
+                                            width: 20,
+                                            height: 20,
+                                            color: page == i
+                                                ? bottomMenuUnselectedColor
+                                                : bottomMenuSelectedColor,
+                                          )
+                                        else
+                                          SvgPicture.asset(
+                                            'assets/icons/mortgage-loan.svg',
+                                            width: 24,
+                                            height: 24,
+                                            color: page == i
+                                                ? bottomMenuUnselectedColor
+                                                : bottomMenuSelectedColor,
+                                          ),
+                                        Text(
+                                          item.computedShortName,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: page == i
+                                                ? bottomMenuUnselectedColor
+                                                : bottomMenuSelectedColor,
+                                          ),
+                                        )
+                                      ],
+                                    ))
+                              ],
+                            ),
                           ),
                         ),
                       ),

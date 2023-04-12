@@ -148,10 +148,10 @@ class UserListScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.search_rounded),
+                              const Icon(Icons.search_rounded, size: 18,),
                               Text(
                                 'Search',
-                                style: Theme.of(context).textTheme.titleMedium,
+                                // style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ],
                           ),
