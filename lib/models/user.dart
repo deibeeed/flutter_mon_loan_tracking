@@ -80,7 +80,7 @@ class User extends Equatable {
   Gender? gender;
   String? birthPlace;
   String? nationality;
-  num? height;
+  String? height;
   num? weight;
   num? childrenCount;
   String? tinNo;

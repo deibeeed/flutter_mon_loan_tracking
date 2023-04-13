@@ -451,21 +451,21 @@ Widget _buildLargeScreenUserBlock({
             child: FormBuilderTextField(
               name: !isSpouse ? 'height' : 'spouse_height',
               decoration: const InputDecoration(
-                label: Text('Height (cm)'),
-                suffixText: 'cm',
+                label: Text('Height (ft)'),
+                suffixText: 'ft',
                 border: OutlineInputBorder(),
               ),
               keyboardType:
               const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                FilteringTextInputFormatter.allow(RegExp('[0-9.,\'"]'))
               ],
               onChanged: (value) {
                 if (value == null || value.isEmpty) {
                   return;
                 }
 
-                user.height = num.parse(value);
+                user.height = value;
               },
             ),
           ),

@@ -20,7 +20,7 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       gender: $enumDecodeNullable(_$GenderEnumMap, json['gender']),
       birthPlace: json['birthPlace'] as String?,
       nationality: json['nationality'] as String?,
-      height: json['height'] as num?,
+      height: json['height'] as String?,
       weight: json['weight'] as num?,
       childrenCount: json['childrenCount'] as num?,
       tinNo: json['tinNo'] as String?,
