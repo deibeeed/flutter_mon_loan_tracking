@@ -339,10 +339,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
     var tcp = computeTCP();
 
-    if (tcp >= settings!.vattableTCP) {
-      tcp += getVatAmount() ?? 0;
-    }
-
     num? customIncidentalFeeRate;
 
     try {
@@ -440,6 +436,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   void _calculateLoan(
       {required num totalContractPrice,
       required num downPayment,
+        required num incidentalFee,
       required num yearsToPay,
       required String lotCategoryKey,
       required DateTime date,
@@ -460,11 +457,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
     outstandingBalance -= totalDiscount;
     _outstandingBalance = outstandingBalance;
-    // var incidentalFeeRate = _settings!.incidentalFeeRate / 100;
-    var computedIncidentalFeeRate = incidentalFeeRate / 100;
     var monthsToPay = yearsToPay * 12;
-    final incidentalFee =
-        (totalContractPrice * computedIncidentalFeeRate) + serviceFee;
     final monthlyIncidentalFee = incidentalFee / monthsToPay;
     // final monthlyIncidentalFee = incidentalFee / monthsToPay;
     // printd('incidentalFee + serviceFee = ${incidentalFee + serviceFee}');
@@ -585,7 +578,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         throw Exception('Lot category not found');
       }
 
-      var totalContractPrice = computeTCP(throwError: true);
+      final totalContractPrice = computeTCP(throwError: true);
       num vatValue = 0;
 
       if (totalContractPrice >= settings!.vattableTCP) {
@@ -593,7 +586,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         vatValue = totalContractPrice * vatRatePercent;
       }
 
-      totalContractPrice += vatValue;
+      final totalContractPriceWithVat = totalContractPrice + vatValue;
 
       num serviceFee = 0;
       if (event.includeServiceFee) {
@@ -612,9 +605,14 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       final loanInterestRate =
           event.loanInterestRate ?? settings!.loanInterestRate;
 
+      var computedIncidentalFeeRate = incidentalFeeRate / 100;
+      final incidentalFee =
+          (totalContractPrice * computedIncidentalFeeRate) + serviceFee;
+
       _calculateLoan(
-        totalContractPrice: totalContractPrice,
+        totalContractPrice: totalContractPriceWithVat,
         downPayment: event.downPayment,
+        incidentalFee: incidentalFee,
         yearsToPay: event.yearsToPay,
         lotCategoryKey: _selectedLot!.lotCategoryKey,
         date: Constants.defaultDateFormat.parse(event.date),
@@ -624,9 +622,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         serviceFee: serviceFee,
       );
 
-      var computedIncidentalFeeRate = incidentalFeeRate / 100;
-      final incidentalFee =
-          (totalContractPrice * computedIncidentalFeeRate) + serviceFee;
       final loan = Loan.create(
         clientId: clientId,
         preparedBy: authenticationService.loggedInUser!.uid,
@@ -636,7 +631,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         serviceFee: serviceFee,
         perSquareMeterRate: lotCategory.ratePerSquareMeter,
         outstandingBalance: outstandingBalance,
-        totalContractPrice: totalContractPrice,
+        totalContractPrice: totalContractPriceWithVat,
         incidentalFees: incidentalFee,
         downPayment: event.downPayment,
         yearsToPay: event.yearsToPay,
