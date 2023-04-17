@@ -551,6 +551,13 @@ Widget buildSmallScreenBody({
                       const Text('Monthly due:'),
                       Text(
                         loanBloc.monthlyAmortization.toCurrency(),
+                        style: Theme.of(context).textTheme.titleLarge?.apply(
+                          fontWeightDelta: 2,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .tertiary
+                              .withOpacity(0.8),
+                        ),
                       ),
                     ],
                   ),

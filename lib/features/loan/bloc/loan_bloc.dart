@@ -730,26 +730,28 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           _loans.addAll({for (var loan in loans) loan.id: loan});
         }
 
-        final schedules =
-            await loanScheduleRepository.next(reset: event.clearList);
-        _nextPageCalled = _nextPageCalled == null ? 0 : _nextPageCalled! + 1;
+        if (_loans.isNotEmpty) {
+          final schedules =
+          await loanScheduleRepository.next(reset: event.clearList);
+          _nextPageCalled = _nextPageCalled == null ? 0 : _nextPageCalled! + 1;
 
-        if (schedules.length < Constants.loanScheduleQueryResultLimit) {
-          _nextPageCalled = null;
-        }
-
-        for (final schedule in schedules) {
-          var loan = _loans[schedule.loanId];
-
-          if (loan == null) {
-            loan = await loanRepository.get(id: schedule.loanId);
-            _loans[loan.id] = loan;
+          if (schedules.length < Constants.loanScheduleQueryResultLimit) {
+            _nextPageCalled = null;
           }
 
-          final display = LoanDisplay(
-              loan: loan, schedule: schedule, lot: _mappedLots[loan.lotId]!);
-          _allLoans.add(display);
-          _filteredLoans.add(display);
+          for (final schedule in schedules) {
+            var loan = _loans[schedule.loanId];
+
+            if (loan == null) {
+              loan = await loanRepository.get(id: schedule.loanId);
+              _loans[loan.id] = loan;
+            }
+
+            final display = LoanDisplay(
+                loan: loan, schedule: schedule, lot: _mappedLots[loan.lotId]!);
+            _allLoans.add(display);
+            _filteredLoans.add(display);
+          }
         }
       }
 

@@ -80,6 +80,9 @@ class User extends Equatable {
   Gender? gender;
   String? birthPlace;
   String? nationality;
+  @JsonKey(
+    fromJson: _heightFromJson,
+  )
   String? height;
   num? weight;
   num? childrenCount;
@@ -119,4 +122,12 @@ class User extends Equatable {
         telNo,
         createdAt,
       ];
+
+  static String? _heightFromJson(dynamic height) {
+    if (height ==  null) {
+      return null;
+    }
+
+    return height.toString();
+  }
 }

@@ -58,7 +58,7 @@ Widget buildSmallScreenBody({
         height: 16,
       ),
       Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             buildSmallScreenUserForm(
@@ -94,7 +94,7 @@ Widget buildSmallScreenBody({
                       child: Expanded(
                         child: Row(
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               width: 32,
                             ),
                             Expanded(
@@ -175,12 +175,12 @@ Widget buildSmallScreenBody({
         thickness: 1.5,
       ),
       Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Loan schedule',
+              'Loan summary',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             Row(
@@ -194,7 +194,7 @@ Widget buildSmallScreenBody({
                         backgroundColor:
                         Theme.of(context).colorScheme.errorContainer),
                     child: Text(
-                      'Delete',
+                      'Remove',
                       style: Theme.of(context).textTheme.titleMedium?.apply(
                         color: Theme.of(context).colorScheme.error,
                       ),
@@ -227,6 +227,196 @@ Widget buildSmallScreenBody({
                     )),
               ],
             )
+          ],
+        ),
+      ),
+      BlocBuilder<LoanBloc, LoanState>(buildWhen: (previous, current) {
+        return current is LoanDisplaySummaryState ||
+            current is LoanSuccessState;
+      }, builder: (context, state) {
+        if (loanBloc.selectedLoan == null) {
+          return Container();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Lot area:'),
+                  Text(loanBloc.selectedLot?.area.withUnit() ?? ''),
+                ],
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Price per sqm:'),
+                  Builder(
+                    builder: (context) {
+                      if (loanBloc.selectedLot == null ||
+                          loanBloc.settings == null) {
+                        return Container();
+                      }
+
+                      final loan = loanBloc.selectedLoan;
+
+                      return Text(
+                          '${loan?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm');
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Total contract price:'),
+                  Text(loanBloc.computeTCP().toCurrency()),
+                ],
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Loan duration:'),
+                  Text(
+                      '${loanBloc.selectedLoan!.yearsToPay} years to pay (${loanBloc.yearsToMonths(years: loanBloc.selectedLoan!.yearsToPay.toString())} mos.)'),
+                ],
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              ...loanBloc.selectedLoan!.deductions
+                  .map(
+                    (discount) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Less: ${discount.description}:'),
+                            Text(
+                              discount.discount.toCurrency(isDeduction: true),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                      ],
+                    ),
+              )
+                  .toList(),
+              const SizedBox(
+                height: 8,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Add: Incidental fee:'),
+                  Text(
+                      loanBloc.selectedLoan!.incidentalFees.toCurrency()),
+                ],
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              if (loanBloc.selectedLoan!.serviceFee != 0)
+                ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Add: Service fee:'),
+                      Text(loanBloc.selectedLoan!.serviceFee.toCurrency()),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                ],
+              if (loanBloc.selectedLoan!.vatValue != null)
+                ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Add: VAT:'),
+                      Text(
+                        loanBloc.selectedLoan!.vatValue!.toCurrency(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Outstanding balance:'),
+                  Text(loanBloc.selectedLoan!.outstandingBalance
+                      .toCurrency()),
+                ],
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              const Divider(),
+              const SizedBox(
+                height: 8,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Monthly due:',
+                    style: Theme.of(context).textTheme.titleLarge?.apply(
+                      fontWeightDelta: 2,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .tertiary
+                          .withOpacity(0.8),
+                    ),
+                  ),
+                  Text(
+                    loanBloc.clientLoanSchedules.firstOrNull
+                        ?.monthlyAmortization
+                        .toCurrency() ??
+                        '',
+                    style: Theme.of(context).textTheme.titleLarge?.apply(
+                      fontWeightDelta: 2,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .tertiary
+                          .withOpacity(0.8),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      }),
+      const SizedBox(
+        height: 16,
+      ),
+      Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Loan schedule',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
           ],
         ),
       ),

@@ -11,6 +11,7 @@ dependencies:
   bloc: ^8.1.0
   cloud_firestore: ^4.3.1
   collection: ^1.16.0
+  device_info_plus: ^8.2.0
   dotted_border: ^2.0.0+3
   drop_shadow: ^0.1.0
   equatable: ^2.0.5
@@ -34,6 +35,7 @@ dependencies:
   pdf: ^3.9.0
   printing: ^5.10.1
   shared_preferences: ^2.0.18
+  url_launcher: ^6.1.10
 
 dev_dependencies:
   bloc_test: ^9.1.0
