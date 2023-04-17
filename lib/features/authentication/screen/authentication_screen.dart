@@ -79,8 +79,8 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                     'Baybay Property Ventures Corp.\nLoan Monitoring System',
                     style: Theme.of(context)
                         .textTheme
-                        .titleLarge
-                        ?.apply(fontSizeFactor: 2.2),
+                        .titleSmall
+                        ?.apply(fontSizeFactor: 2.0),
                     textAlign: TextAlign.center),
               ),
             ),
@@ -290,6 +290,11 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                         child: RichText(
                                           text: TextSpan(
                                               text: 'Having trouble? ',
+                                              style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface
+                                              ),
                                               children: [
                                                 TextSpan(
                                                   text: 'Contact support',

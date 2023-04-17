@@ -45,7 +45,7 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
     Constants.isWebOrLargeScreen =
         smallestSideSize >= Constants.largeScreenShortestSideStartBreakPoint;
   } else if (deviceInfo is IosDeviceInfo) {
-    // TODO: put something here
+    Constants.isWebOrLargeScreen = deviceInfo.model != 'iPhone';
   }
 
   await runZonedGuarded(
