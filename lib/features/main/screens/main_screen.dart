@@ -20,6 +20,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    printd('screenSize: $screenSize');
     final shortestSide = screenSize.shortestSide;
     Widget child = MainLargeScreen(content: content);
 

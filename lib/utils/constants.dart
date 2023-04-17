@@ -8,8 +8,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 class Constants {
+  static bool isWebOrLargeScreen = true;
   static String? appBarTitle;
   static const maxAppBarHeight = 220.0;
+  static const largeScreenShortestSideStartBreakPoint = 700;
   static const largeScreenShortestSideBreakPoint = 800;
   static const smallScreenShortestSideBreakPoint = 480;
   static const loanScheduleQueryResultLimit = 10;

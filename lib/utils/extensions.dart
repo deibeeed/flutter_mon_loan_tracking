@@ -34,22 +34,13 @@ extension FormattingExtension on num {
   }
 }
 
-extension MobileChecking on StatelessWidget {
+extension MobileChecking on Widget {
   bool isMobile() {
-    final mobilePlatforms = [
-      TargetPlatform.android,
-      TargetPlatform.iOS,
-    ];
-    return mobilePlatforms.contains(defaultTargetPlatform);
-  }
-}
-
-extension MobileChecking2 on Widget {
-  bool isMobile() {
-    final mobilePlatforms = [
-      TargetPlatform.android,
-      TargetPlatform.iOS,
-    ];
-    return mobilePlatforms.contains(defaultTargetPlatform);
+    // final mobilePlatforms = [
+    //   TargetPlatform.android,
+    //   TargetPlatform.iOS,
+    // ];
+    // return mobilePlatforms.contains(defaultTargetPlatform);
+    return !Constants.isWebOrLargeScreen;
   }
 }
