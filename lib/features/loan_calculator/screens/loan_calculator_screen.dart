@@ -571,7 +571,6 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                     incidentalFeeRate: incidentalFeeRateController.text,
                     loanInterestRate: interestRateController.text,
                     serviceFeeRate: serviceFeeController.text,
-                    includeServiceFee: true,
                   ),
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,

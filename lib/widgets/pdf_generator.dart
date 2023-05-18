@@ -147,7 +147,7 @@ class PdfGenerator {
                           loan.serviceFee.toCurrency()),
                     ],
                   ),
-                if (loan.vatValue != null)
+                if (loan.vatValue != null && loan.vatValue! > 0)
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [

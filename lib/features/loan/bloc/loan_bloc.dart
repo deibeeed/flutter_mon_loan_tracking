@@ -197,7 +197,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     String? incidentalFeeRate,
     String? loanInterestRate,
     String? serviceFeeRate,
-    bool includeServiceFee = false,
   }) {
     printd('incidentalFeeRate: ${incidentalFeeRate}');
 
@@ -217,7 +216,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             assistingAgent: 'None',
             storeInDb: false,
             withUser: false,
-            includeServiceFee: includeServiceFee,
             serviceFeeRate: num.parse(serviceFeeRate),
           ),
         );
@@ -230,7 +228,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             assistingAgent: 'None',
             storeInDb: false,
             withUser: false,
-            includeServiceFee: includeServiceFee,
           ),
         );
       }
@@ -359,9 +356,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
     var tcp = computeTCP();
 
-    if (tcp >= settings!.vattableTCP) {
-      tcp += getVatAmount() ?? 0;
-    }
+    // TODO: uncomment if we're vattable
+    // if (tcp >= settings!.vattableTCP) {
+    //   tcp += getVatAmount() ?? 0;
+    // }
 
     num? customDownpaymenRate;
 
@@ -394,11 +392,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
     var tcp = computeTCP();
 
-    if (tcp >= settings!.vattableTCP) {
-      final vatRatePercent = settings!.vatRate / 100;
-
-      return tcp * vatRatePercent;
-    }
+    // TODO: uncomment if we're vattable
+    // if (tcp >= settings!.vattableTCP) {
+    //   final vatRatePercent = settings!.vatRate / 100;
+    //
+    //   return tcp * vatRatePercent;
+    // }
 
     return null;
   }
@@ -581,20 +580,18 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       final totalContractPrice = computeTCP(throwError: true);
       num vatValue = 0;
 
-      if (totalContractPrice >= settings!.vattableTCP) {
-        final vatRatePercent = settings!.vatRate / 100;
-        vatValue = totalContractPrice * vatRatePercent;
-      }
+      // TODO: uncomment if we're vattable
+      // if (totalContractPrice >= settings!.vattableTCP) {
+      //   final vatRatePercent = settings!.vatRate / 100;
+      //   vatValue = totalContractPrice * vatRatePercent;
+      // }
 
       final totalContractPriceWithVat = totalContractPrice + vatValue;
 
-      num serviceFee = 0;
-      if (event.includeServiceFee) {
-        serviceFee = settings!.serviceFee;
+      var serviceFee = settings!.serviceFee;
 
-        if (event.serviceFeeRate != null) {
-          serviceFee = event.serviceFeeRate!;
-        }
+      if (event.serviceFeeRate != null) {
+        serviceFee = event.serviceFeeRate!;
       }
       final incidentalFeeRate =
           event.incidentalFeeRate ?? settings!.incidentalFeeRate;

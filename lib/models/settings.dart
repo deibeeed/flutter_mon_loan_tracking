@@ -24,18 +24,19 @@ class Settings extends Equatable {
 
   factory Settings.updateId({required String id, required Settings settings}) =>
       Settings(
-        loanInterestRate: settings.loanInterestRate,
-        incidentalFeeRate: settings.incidentalFeeRate,
-        serviceFee: settings.serviceFee,
-        lotCategories: settings.lotCategories,
-        id: id,
-        createdAt: settings.createdAt,
-        downPaymentRate: settings.downPaymentRate,
-        vatRate: settings.vatRate,
-        vattableTCP: settings.vattableTCP
+          loanInterestRate: settings.loanInterestRate,
+          incidentalFeeRate: settings.incidentalFeeRate,
+          serviceFee: settings.serviceFee,
+          lotCategories: settings.lotCategories,
+          id: id,
+          createdAt: settings.createdAt,
+          downPaymentRate: settings.downPaymentRate,
+          vatRate: settings.vatRate,
+          vattableTCP: settings.vattableTCP
       );
 
-  factory Settings.defaultSettings() => Settings(
+  factory Settings.defaultSettings() =>
+      Settings(
         loanInterestRate: 7,
         incidentalFeeRate: 10,
         lotCategories: [
@@ -44,7 +45,9 @@ class Settings extends Equatable {
           LotCategory(name: 'Commercial Lot', ratePerSquareMeter: 11000),
         ],
         serviceFee: 30000,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
+        createdAt: DateTime
+            .now()
+            .millisecondsSinceEpoch,
         downPaymentRate: 20,
         vatRate: 12,
         vattableTCP: 1500000,
@@ -54,6 +57,7 @@ class Settings extends Equatable {
   num incidentalFeeRate;
   @JsonKey(defaultValue: 30000)
   num serviceFee;
+  @JsonKey(toJson: _handleLotCategoriesToJson)
   List<LotCategory> lotCategories;
   final String id;
   num createdAt;
@@ -67,7 +71,8 @@ class Settings extends Equatable {
   Map<String, dynamic> toJson() => _$SettingsToJson(this);
 
   @override
-  List<Object?> get props => [
+  List<Object?> get props =>
+      [
         loanInterestRate,
         incidentalFeeRate,
         serviceFee,
@@ -78,4 +83,9 @@ class Settings extends Equatable {
         vatRate,
         vattableTCP,
       ];
+
+  static List<Map<String, dynamic>> _handleLotCategoriesToJson(
+      List<LotCategory> categories) {
+    return categories.map((e) => e.toJson()).toList();
+  }
 }

@@ -159,22 +159,22 @@ Widget buildSmallScreenBody({
           const SizedBox(
             height: 16,
           ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     const Text('Service fee'),
-          //     BlocBuilder<SettingsBloc, SettingsState>(
-          //       buildWhen: (previousState, currentState) {
-          //         return currentState is SettingsSuccessState;
-          //       },
-          //       builder: (context, state) {
-          //         return Text(
-          //           settingsBloc.settings.serviceFee.toCurrency(),
-          //         );
-          //       },
-          //     ),
-          //   ],
-          // ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Service fee'),
+              BlocBuilder<SettingsBloc, SettingsState>(
+                buildWhen: (previousState, currentState) {
+                  return currentState is SettingsSuccessState;
+                },
+                builder: (context, state) {
+                  return Text(
+                    settingsBloc.settings.serviceFee.toCurrency(),
+                  );
+                },
+              ),
+            ],
+          ),
           // const SizedBox(
           //   height: 16,
           // ),
@@ -298,25 +298,25 @@ Widget buildSmallScreenBody({
           const SizedBox(
             height: 32,
           ),
-          // TextFormField(
-          //   controller: serviceFeeController,
-          //   decoration: const InputDecoration(
-          //     label: Text('Service fee'),
-          //     border: OutlineInputBorder(),
-          //   ),
-          //   keyboardType:
-          //       const TextInputType.numberWithOptions(decimal: true),
-          //   inputFormatters: [
-          //     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-          //   ],
-          //   onChanged: (value) => settingsBloc.updateSettings(
-          //     field: SettingField.serviceFee,
-          //     value: value,
-          //   ),
-          // ),
-          // const SizedBox(
-          //   height: 32,
-          // ),
+          TextFormField(
+            controller: serviceFeeController,
+            decoration: const InputDecoration(
+              label: Text('Service fee'),
+              border: OutlineInputBorder(),
+            ),
+            keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+            ],
+            onChanged: (value) => settingsBloc.updateSettings(
+              field: SettingField.serviceFee,
+              value: value,
+            ),
+          ),
+          const SizedBox(
+            height: 32,
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
