@@ -466,7 +466,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     //   annualInterestRate: annualInterestRate,
     //   yearsToPay: yearsToPay,
     // );
-    final loanMonthlyAmortization = _calculateMonthlyPaymentStraight(
+    final loanMonthlyAmortization = _calculateMonthlyPaymentSimple(
       outstandingBalance: outstandingBalance,
       annualInterestRate: annualInterestRate,
       yearsToPay: yearsToPay,
@@ -981,7 +981,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     return monthly;
   }
 
-  num _calculateMonthlyPaymentStraight({
+  num _calculateMonthlyPaymentSimple({
     required num outstandingBalance,
     required num annualInterestRate,
     required num yearsToPay,
