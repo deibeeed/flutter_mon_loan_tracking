@@ -54,7 +54,7 @@ flutter_*.png
 linked_*.ds
 unlinked.ds
 unlinked_spec.ds
-.fvm/
+.fvm/flutter_sdk
 
 # Android related
 **/android/**/gradle-wrapper.jar
@@ -64,7 +64,8 @@ unlinked_spec.ds
 **/android/gradlew.bat
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
-**/android/key.properties
+#**/android/key.properties
+**/android/keystore
 **/android/.idea/
 *.jks
 
@@ -105,7 +106,6 @@ coverage/
 packages/**/pubspec.lock
 
 # Web related
-lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols

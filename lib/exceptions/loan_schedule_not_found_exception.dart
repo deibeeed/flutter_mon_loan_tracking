@@ -1,0 +1,1 @@
+class LoanScheduleNotFoundException implements Exception { }
