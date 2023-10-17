@@ -130,14 +130,14 @@ class PdfGenerator {
                         loan.downPayment.toCurrency(isDeduction: true)),
                   ],
                 ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Add: Incidental fees'),
-                    pw.Text(
-                        (loan.incidentalFees - loan.serviceFee).toCurrency()),
-                  ],
-                ),
+                // pw.Row(
+                //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     pw.Text('Add: Incidental fees'),
+                //     pw.Text(
+                //         (loan.incidentalFees - loan.serviceFee).toCurrency()),
+                //   ],
+                // ),
                 if (showServiceFee)
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -163,13 +163,13 @@ class PdfGenerator {
                     pw.Text(loan.outstandingBalance.toCurrency()),
                   ],
                 ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Transfer fees'),
-                    pw.Text(loan.incidentalFees.toCurrency()),
-                  ],
-                ),
+                // pw.Row(
+                //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     pw.Text('Transfer fees'),
+                //     pw.Text(loan.incidentalFees.toCurrency()),
+                //   ],
+                // ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
@@ -222,7 +222,7 @@ class PdfGenerator {
                 pw.Text(schedule.monthlyAmortization.toCurrency()),
                 pw.Text(schedule.principalPayment.toCurrency()),
                 pw.Text(schedule.interestPayment.toCurrency()),
-                pw.Text(schedule.incidentalFee.toCurrency()),
+                // pw.Text(schedule.incidentalFee.toCurrency()),
               ])).toList(),
             ])
           ];

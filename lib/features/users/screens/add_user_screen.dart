@@ -123,7 +123,6 @@ class _AddUserScreenState extends State<AddUserScreen> {
               for (final name in fieldKeys) {
                 _formKey.currentState?.removeInternalFieldValue(
                   name,
-                  isSetState: true,
                 );
               }
             }

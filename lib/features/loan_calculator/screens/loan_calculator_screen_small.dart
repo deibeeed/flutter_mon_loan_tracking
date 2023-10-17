@@ -201,32 +201,32 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                 const SizedBox(
                   height: 32,
                 ),
-                TextFormField(
-                  controller: incidentalFeeRateController,
-                  decoration: const InputDecoration(
-                    label: Text('Incidental fee rate'),
-                    suffixText: '%',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-                  ],
-                  onChanged: (value) {
-                    if (blockNoController.text.isNotEmpty &&
-                        lotNoController.text.isNotEmpty) {
-                      loanBloc.setBlockAndLotNo(
-                        type: 'blockNo',
-                        no: blockNoController.text,
-                      );
-                      loanBloc.setBlockAndLotNo(
-                        type: 'lotNo',
-                        no: lotNoController.text,
-                      );
-                    }
-                  },
-                ),
+                // TextFormField(
+                //   controller: incidentalFeeRateController,
+                //   decoration: const InputDecoration(
+                //     label: Text('Incidental fee rate'),
+                //     suffixText: '%',
+                //     border: OutlineInputBorder(),
+                //   ),
+                //   keyboardType: const TextInputType.numberWithOptions(
+                //       decimal: true),
+                //   inputFormatters: [
+                //     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                //   ],
+                //   onChanged: (value) {
+                //     if (blockNoController.text.isNotEmpty &&
+                //         lotNoController.text.isNotEmpty) {
+                //       loanBloc.setBlockAndLotNo(
+                //         type: 'blockNo',
+                //         no: blockNoController.text,
+                //       );
+                //       loanBloc.setBlockAndLotNo(
+                //         type: 'lotNo',
+                //         no: lotNoController.text,
+                //       );
+                //     }
+                //   },
+                // ),
                 const SizedBox(
                   height: 32,
                 ),
@@ -541,17 +541,17 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                       ),
                     )
                     .toList(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Add: Incidental fee:'),
-                    Text(loanBloc
-                        .computeIncidentalFee(
-                        customIncidentalFeeRateStr:
-                        incidentalFeeRateController.text)
-                        .toCurrency()),
-                  ],
-                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     const Text('Add: Incidental fee:'),
+                //     Text(loanBloc
+                //         .computeIncidentalFee(
+                //         customIncidentalFeeRateStr:
+                //         incidentalFeeRateController.text)
+                //         .toCurrency()),
+                //   ],
+                // ),
                 if (serviceFeeController.text.isNotEmpty ||
                     serviceFeeController.text == '0')
                   Row(

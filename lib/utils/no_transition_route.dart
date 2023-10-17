@@ -15,14 +15,14 @@ class RouteUtils {
       parentNavigatorKey: parentNavigatorKey,
       pageBuilder: (context, state) {
         if (child is UserDetailsScreen) {
-          final userId = state.params['userId'];
+          final userId = state.pathParameters['userId'];
 
           if (userId != null) {
             child.userId = userId;
           }
           child.isProfile = state.path?.contains('profile') ?? false;
         } else if (child is LotDetailsScreen) {
-          final lotId = state.params['lotId'];
+          final lotId = state.pathParameters['lotId'];
 
           if (lotId != null) {
             child.lotId = lotId;

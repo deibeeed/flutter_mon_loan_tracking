@@ -175,14 +175,14 @@ Widget buildDashboardTable({
                 context: context,
                 name: Constants.loan_schedule_table_columns[5],
               ),
-              gridHeaderItem(
-                context: context,
-                name: Constants.loan_schedule_table_columns[6],
-              ),
+              // gridHeaderItem(
+              //   context: context,
+              //   name: Constants.loan_schedule_table_columns[6],
+              // ),
               if (withStatus)
                 gridHeaderItem(
                   context: context,
-                  name: Constants.loan_schedule_table_columns[7],
+                  name: Constants.loan_schedule_table_columns[6],
                 ),
             ],
           ),
@@ -250,13 +250,13 @@ Widget buildDashboardTable({
                           ),
                         ),
                       ),
-                      gridItem(
-                        child: Center(
-                          child: defaultCellText(
-                            text: schedule.incidentalFee.toCurrency(),
-                          ),
-                        ),
-                      ),
+                      // gridItem(
+                      //   child: Center(
+                      //     child: defaultCellText(
+                      //       text: schedule.incidentalFee.toCurrency(),
+                      //     ),
+                      //   ),
+                      // ),
                       if (withStatus)
                         gridItem(
                           width: 180,

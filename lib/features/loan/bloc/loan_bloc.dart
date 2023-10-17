@@ -461,17 +461,23 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     // final monthlyIncidentalFee = incidentalFee / monthsToPay;
     // printd('incidentalFee + serviceFee = ${incidentalFee + serviceFee}');
 
-    final loanMonthlyAmortization = _calculateMonthlyPayment(
+    // final loanMonthlyAmortization = _calculateMonthlyPaymentDiminishing(
+    //   outstandingBalance: outstandingBalance,
+    //   annualInterestRate: annualInterestRate,
+    //   yearsToPay: yearsToPay,
+    // );
+    final loanMonthlyAmortization = _calculateMonthlyPaymentStraight(
       outstandingBalance: outstandingBalance,
       annualInterestRate: annualInterestRate,
       yearsToPay: yearsToPay,
     );
-    _monthlyAmortization = loanMonthlyAmortization + monthlyIncidentalFee;
+    // _monthlyAmortization = loanMonthlyAmortization + monthlyIncidentalFee;
+    _monthlyAmortization = loanMonthlyAmortization;
     var monthlyInterestRate = annualInterestRate / 12;
     printd('starting outstanding balance: $outstandingBalance');
     // var nextMonthDate = date.add(const Duration(days: 30));
     var nextMonthDate =
-        Jiffy.unixFromMillisecondsSinceEpoch(date.millisecondsSinceEpoch)
+        Jiffy.parseFromMillisecondsSinceEpoch(date.millisecondsSinceEpoch)
             .add(months: 1);
     printd('---------------------------------------------------');
     for (var i = 1; i <= monthsToPay; i++) {
@@ -486,9 +492,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       printd('outstandingBalance: $outstandingBalance');
       printd('---------------------------------------------------');
       final schedule = LoanSchedule.create(
-        date: nextMonthDate.valueOf(),
+        date: nextMonthDate.millisecondsSinceEpoch,
         outstandingBalance: outstandingBalance,
-        monthlyAmortization: loanMonthlyAmortization + monthlyIncidentalFee,
+        // monthlyAmortization: loanMonthlyAmortization + monthlyIncidentalFee,
+        monthlyAmortization: loanMonthlyAmortization,
         principalPayment: principalPayment,
         interestPayment: interestPayment,
         incidentalFee: monthlyIncidentalFee,
@@ -940,6 +947,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   }
 
   /// M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1].
+  /// this is original
   //
   // Here’s a breakdown of each of the variables:
   //
@@ -948,7 +956,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   //     I = Your interest rate, as a monthly percentage
   //     N = The total amount of months in your timeline for paying
   //     off your mortgage
-  num _calculateMonthlyPayment({
+  num _calculateMonthlyPaymentDiminishing({
     required num outstandingBalance,
     required num annualInterestRate,
     required num yearsToPay,
@@ -969,6 +977,20 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     var divided = innerFirst / outerSecond;
     printd('divided: $divided');
     var monthly = outstandingBalance * divided;
+
+    return monthly;
+  }
+
+  num _calculateMonthlyPaymentStraight({
+    required num outstandingBalance,
+    required num annualInterestRate,
+    required num yearsToPay,
+  }) {
+    /// in 1 year, there are 12 months
+    final monthsToPay = yearsToPay * 12;
+    final interestPayable = outstandingBalance * annualInterestRate *  yearsToPay;
+    final loanPayable = outstandingBalance + interestPayable;
+    final monthly = loanPayable / monthsToPay;
 
     return monthly;
   }

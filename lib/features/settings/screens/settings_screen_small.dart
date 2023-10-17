@@ -99,25 +99,25 @@ Widget buildSmallScreenBody({
               ),
             ],
           ),
-          const SizedBox(
-            height: 16,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Incidental fee rate'),
-              BlocBuilder<SettingsBloc, SettingsState>(
-                buildWhen: (previousState, currentState) {
-                  return currentState is SettingsSuccessState;
-                },
-                builder: (context, state) {
-                  return Text(
-                    '${settingsBloc.settings.incidentalFeeRate}%',
-                  );
-                },
-              ),
-            ],
-          ),
+          // const SizedBox(
+          //   height: 16,
+          // ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     const Text('Incidental fee rate'),
+          //     BlocBuilder<SettingsBloc, SettingsState>(
+          //       buildWhen: (previousState, currentState) {
+          //         return currentState is SettingsSuccessState;
+          //       },
+          //       builder: (context, state) {
+          //         return Text(
+          //           '${settingsBloc.settings.incidentalFeeRate}%',
+          //         );
+          //       },
+          //     ),
+          //   ],
+          // ),
           const SizedBox(
             height: 16,
           ),
@@ -235,26 +235,26 @@ Widget buildSmallScreenBody({
               );
             },
           ),
-          const SizedBox(
-            height: 32,
-          ),
-          TextFormField(
-            controller: incidentalFeesRateController,
-            decoration: const InputDecoration(
-              label: Text('Incidental fee rate'),
-              suffixText: '%',
-              border: OutlineInputBorder(),
-            ),
-            keyboardType:
-            const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-            ],
-            onChanged: (value) => settingsBloc.updateSettings(
-              field: SettingField.incidentalFeeRate,
-              value: value,
-            ),
-          ),
+          // const SizedBox(
+          //   height: 32,
+          // ),
+          // TextFormField(
+          //   controller: incidentalFeesRateController,
+          //   decoration: const InputDecoration(
+          //     label: Text('Incidental fee rate'),
+          //     suffixText: '%',
+          //     border: OutlineInputBorder(),
+          //   ),
+          //   keyboardType:
+          //   const TextInputType.numberWithOptions(decimal: true),
+          //   inputFormatters: [
+          //     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+          //   ],
+          //   onChanged: (value) => settingsBloc.updateSettings(
+          //     field: SettingField.incidentalFeeRate,
+          //     value: value,
+          //   ),
+          // ),
           const SizedBox(
             height: 32,
           ),

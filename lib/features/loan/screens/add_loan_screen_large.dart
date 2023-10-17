@@ -536,13 +536,13 @@ Widget buildLargeScreenBody({
                               ),
                             )
                             .toList(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Add: Incidental fee:'),
-                            Text(loanBloc.computeIncidentalFee().toCurrency()),
-                          ],
-                        ),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: [
+                        //     const Text('Add: Incidental fee:'),
+                        //     Text(loanBloc.computeIncidentalFee().toCurrency()),
+                        //   ],
+                        // ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

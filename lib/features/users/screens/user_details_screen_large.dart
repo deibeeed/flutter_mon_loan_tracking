@@ -287,14 +287,14 @@ Widget buildLargeScreenBody({
                           ),
                         )
                         .toList(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Add: Incidental fee:'),
-                        Text(
-                            loanBloc.selectedLoan!.incidentalFees.toCurrency()),
-                      ],
-                    ),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //   children: [
+                    //     const Text('Add: Incidental fee:'),
+                    //     Text(
+                    //         loanBloc.selectedLoan!.incidentalFees.toCurrency()),
+                    //   ],
+                    // ),
                     if (loanBloc.selectedLoan!.serviceFee != 0)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

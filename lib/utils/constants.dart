@@ -90,7 +90,7 @@ class Constants {
     'Monthly amortization',
     'Principal payment',
     'Interest payment',
-    'Incidental    fees', // space needed for text wrapping
+    // 'Incidental    fees', // space needed for text wrapping
     'Status'
   ];
 
