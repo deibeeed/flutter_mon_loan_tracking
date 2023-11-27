@@ -86,7 +86,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
             if (!_downpaymentPopulated) {
               downpaymentController.text = loanBloc
                   .computeDownPaymentRate(
-                  customDownpaymentRateStr: downpaymentRateController.text)
+                  customDownpaymentRateStr: downpaymentRateController.text, withCustomTCP: num.tryParse(tcpController.text),)
                   .toString();
               _downpaymentPopulated = true;
             }
@@ -310,7 +310,6 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                 ),
                 TextFormField(
                   controller: tcpController,
-                  enabled: false,
                   decoration: const InputDecoration(
                     label: Text('Total contract price'),
                     border: OutlineInputBorder(),
@@ -458,6 +457,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     incidentalFeeRate: incidentalFeeRateController.text,
                     loanInterestRate: interestRateController.text,
                     serviceFeeRate: serviceFeeController.text,
+                    totalContractPrice: tcpController.text,
                   ),
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,
@@ -517,7 +517,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Total contract price:'),
-                    Text(loanBloc.computeTCP().toCurrency()),
+                    Text(loanBloc.computeTCP(withCustomTCP: num.tryParse(tcpController.text),).toCurrency()),
                   ],
                 ),
                 Row(
@@ -548,7 +548,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     Text(loanBloc
                         .computeIncidentalFee(
                         customIncidentalFeeRateStr:
-                        incidentalFeeRateController.text)
+                        incidentalFeeRateController.text, withCustomTCP: num.tryParse(tcpController.text),)
                         .toCurrency()),
                   ],
                 ),

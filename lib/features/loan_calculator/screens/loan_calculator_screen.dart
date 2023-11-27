@@ -93,20 +93,24 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
             if (!_downpaymentPopulated) {
               downpaymentController.text = loanBloc
                   .computeDownPaymentRate(
-                      customDownpaymentRateStr: downpaymentRateController.text)
+                    customDownpaymentRateStr: downpaymentRateController.text,
+                    withCustomTCP: num.tryParse(tcpController.text),
+                  )
                   .toString();
               _downpaymentPopulated = true;
             }
 
-            final lotCategory = settings.lotCategories.firstWhereOrNull(
-                (category) => category.key == lot.lotCategoryKey);
+            if (!loanBloc.withCustomTCP) {
+              final lotCategory = settings.lotCategories.firstWhereOrNull(
+                      (category) => category.key == lot.lotCategoryKey);
 
-            if (lotCategory != null) {
-              lotCategoryController.text = lotCategory.name;
-              pricePerSqmController.text =
-                  lotCategory.ratePerSquareMeter.toCurrency();
-              tcpController.text =
-                  (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
+              if (lotCategory != null) {
+                lotCategoryController.text = lotCategory.name;
+                pricePerSqmController.text =
+                    lotCategory.ratePerSquareMeter.toCurrency();
+                tcpController.text =
+                    (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
+              }
             }
           }
 
@@ -381,7 +385,6 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                 Expanded(
                   child: TextFormField(
                     controller: tcpController,
-                    enabled: false,
                     decoration: const InputDecoration(
                       label: Text('Total contract price'),
                       border: OutlineInputBorder(),
@@ -571,6 +574,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                     incidentalFeeRate: incidentalFeeRateController.text,
                     loanInterestRate: interestRateController.text,
                     serviceFeeRate: serviceFeeController.text,
+                    totalContractPrice: tcpController.text,
                   ),
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,
@@ -657,7 +661,12 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text('Total contract price:'),
-                                  Text(loanBloc.computeTCP().toCurrency()),
+                                  Text(loanBloc
+                                      .computeTCP(
+                                        withCustomTCP:
+                                            num.tryParse(tcpController.text),
+                                      )
+                                      .toCurrency()),
                                 ],
                               ),
                               Row(
@@ -698,8 +707,11 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                   const Text('Add: Incidental fee:'),
                                   Text(loanBloc
                                       .computeIncidentalFee(
-                                          customIncidentalFeeRateStr:
-                                              incidentalFeeRateController.text)
+                                        customIncidentalFeeRateStr:
+                                            incidentalFeeRateController.text,
+                                        withCustomTCP:
+                                            num.tryParse(tcpController.text),
+                                      )
                                       .toCurrency()),
                                 ],
                               ),

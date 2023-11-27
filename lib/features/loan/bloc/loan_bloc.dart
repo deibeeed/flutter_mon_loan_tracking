@@ -117,6 +117,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   int? _nextPageCalled;
 
+  bool withCustomTCP = false;
+
   void reset({bool isLogout = false}) {
     if (isLogout) {
       loanScheduleRepository.reset();
@@ -134,6 +136,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _selectedUser = null;
     _monthlyAmortization = 0;
     _nextPageCalled = null;
+    withCustomTCP = false;
     emit(LoanSuccessState(message: 'successfully reset values'));
   }
 
@@ -197,11 +200,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     String? incidentalFeeRate,
     String? loanInterestRate,
     String? serviceFeeRate,
+    String? totalContractPrice,
   }) {
-    printd('incidentalFeeRate: ${incidentalFeeRate}');
+    printd('incidentalFeeRate: $incidentalFeeRate');
 
-    printd('loanInterestRate: ${loanInterestRate}');
-    printd('serviceFeeRate: ${serviceFeeRate}');
+    printd('loanInterestRate: $loanInterestRate');
+    printd('serviceFeeRate: $serviceFeeRate');
+    printd('TCP: $totalContractPrice');
     try {
       if (incidentalFeeRate != null &&
           loanInterestRate != null &&
@@ -217,6 +222,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             storeInDb: false,
             withUser: false,
             serviceFeeRate: num.parse(serviceFeeRate),
+            totalContractPrice: totalContractPrice != null
+                ? num.parse(totalContractPrice)
+                : null,
           ),
         );
       } else {
@@ -228,6 +236,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             assistingAgent: 'None',
             storeInDb: false,
             withUser: false,
+            totalContractPrice: totalContractPrice != null
+                ? num.parse(totalContractPrice)
+                : null,
           ),
         );
       }
@@ -298,9 +309,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     emit(LoanSuccessState(message: 'Successfully selected date'));
   }
 
-  num computeTCP({bool throwError = false}) {
+  num computeTCP({bool throwError = false, num? withCustomTCP}) {
     if (selectedLot == null || settings == null) {
       return 0;
+    }
+
+    if (withCustomTCP != null) {
+      return withCustomTCP;
     }
 
     final lotCategory = settings!.lotCategories.firstWhereOrNull(
@@ -320,7 +335,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     return selectedLot!.area * lotCategory.ratePerSquareMeter;
   }
 
-  num computeIncidentalFee({String? customIncidentalFeeRateStr}) {
+  num computeIncidentalFee({
+    String? customIncidentalFeeRateStr,
+    num? withCustomTCP,
+  }) {
     if (selectedLot == null || settings == null) {
       return 0;
     }
@@ -334,7 +352,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       return 0;
     }
 
-    var tcp = computeTCP();
+    var tcp = computeTCP(
+      withCustomTCP: withCustomTCP,
+    );
 
     num? customIncidentalFeeRate;
 
@@ -350,11 +370,16 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     return tcp * (incidentalFeeRate / 100);
   }
 
-  num computeDownPaymentRate({String? customDownpaymentRateStr}) {
+  num computeDownPaymentRate({
+    String? customDownpaymentRateStr,
+    num? withCustomTCP,
+  }) {
     if (selectedLot == null || settings == null) {
       return 0;
     }
-    var tcp = computeTCP();
+    var tcp = computeTCP(
+      withCustomTCP: withCustomTCP,
+    );
 
     // TODO: uncomment if we're vattable
     // if (tcp >= settings!.vattableTCP) {
@@ -385,12 +410,16 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     return settings!.serviceFee;
   }
 
-  num? getVatAmount() {
+  num? getVatAmount({
+    num? withCustomTCP,
+  }) {
     if (settings == null) {
       return null;
     }
 
-    var tcp = computeTCP();
+    var tcp = computeTCP(
+      withCustomTCP: withCustomTCP,
+    );
 
     // TODO: uncomment if we're vattable
     // if (tcp >= settings!.vattableTCP) {
@@ -435,7 +464,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   void _calculateLoan(
       {required num totalContractPrice,
       required num downPayment,
-        required num incidentalFee,
+      required num incidentalFee,
       required num yearsToPay,
       required String lotCategoryKey,
       required DateTime date,
@@ -577,7 +606,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         throw Exception('Lot category not found');
       }
 
-      final totalContractPrice = computeTCP(throwError: true);
+      withCustomTCP = event.totalContractPrice != null;
+
+      final totalContractPrice = computeTCP(
+        throwError: true,
+        withCustomTCP: event.totalContractPrice,
+      );
       num vatValue = 0;
 
       // TODO: uncomment if we're vattable
@@ -597,7 +631,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           event.incidentalFeeRate ?? settings!.incidentalFeeRate;
 
       printd('event.incidentalFeeRate: ${event.incidentalFeeRate}');
-      printd('incidentalFeeRate: ${incidentalFeeRate}');
+      printd('incidentalFeeRate: $incidentalFeeRate');
 
       final loanInterestRate =
           event.loanInterestRate ?? settings!.loanInterestRate;
@@ -729,7 +763,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
         if (_loans.isNotEmpty) {
           final schedules =
-          await loanScheduleRepository.next(reset: event.clearList);
+              await loanScheduleRepository.next(reset: event.clearList);
           _nextPageCalled = _nextPageCalled == null ? 0 : _nextPageCalled! + 1;
 
           if (schedules.length < Constants.loanScheduleQueryResultLimit) {

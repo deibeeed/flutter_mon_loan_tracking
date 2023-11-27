@@ -25,6 +25,7 @@ class AddLoanEvent extends LoanEvent {
   final num? incidentalFeeRate;
   final bool withUser;
   final num? serviceFeeRate;
+  final num? totalContractPrice;
 
   AddLoanEvent({
     required this.downPayment,
@@ -36,6 +37,7 @@ class AddLoanEvent extends LoanEvent {
     this.loanInterestRate,
     this.incidentalFeeRate,
     this.serviceFeeRate,
+    this.totalContractPrice,
   });
 }
 
