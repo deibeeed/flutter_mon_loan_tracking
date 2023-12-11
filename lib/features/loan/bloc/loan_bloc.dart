@@ -207,6 +207,14 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     printd('loanInterestRate: $loanInterestRate');
     printd('serviceFeeRate: $serviceFeeRate');
     printd('TCP: $totalContractPrice');
+    num? finalTcp;
+
+    if (totalContractPrice?.contains(Constants.currency) ?? false) {
+      finalTcp = Constants.defaultCurrencyFormat.parse(totalContractPrice!);
+    } else if (totalContractPrice != null) {
+      finalTcp = num.parse(totalContractPrice);
+    }
+
     try {
       if (incidentalFeeRate != null &&
           loanInterestRate != null &&
@@ -222,9 +230,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             storeInDb: false,
             withUser: false,
             serviceFeeRate: num.parse(serviceFeeRate),
-            totalContractPrice: totalContractPrice != null
-                ? num.parse(totalContractPrice)
-                : null,
+            totalContractPrice: finalTcp,
           ),
         );
       } else {
@@ -236,9 +242,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             assistingAgent: 'None',
             storeInDb: false,
             withUser: false,
-            totalContractPrice: totalContractPrice != null
-                ? num.parse(totalContractPrice)
-                : null,
+            totalContractPrice: finalTcp,
           ),
         );
       }
@@ -606,7 +610,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         throw Exception('Lot category not found');
       }
 
-      withCustomTCP = event.totalContractPrice != null;
+      final expectedTcp = _selectedLot!.area * lotCategory.ratePerSquareMeter;
+
+      withCustomTCP = (event.totalContractPrice ?? 0) > expectedTcp;
 
       final totalContractPrice = computeTCP(
         throwError: true,
