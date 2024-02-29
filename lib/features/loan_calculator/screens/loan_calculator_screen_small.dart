@@ -83,13 +83,15 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
             final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
 
+            final dpRate = downpaymentRateController.text;
             downpaymentController.text = loanBloc
                 .computeDownPaymentRate(
-              withCustomTCP: tcpController.text.isNotEmpty
-                  ? Constants.defaultCurrencyFormat
-                  .parse(tcpController.text)
-                  : null,
-            )
+                  customDownpaymentRateStr: dpRate.isNotEmpty ? dpRate : null,
+                  withCustomTCP: tcpController.text.isNotEmpty
+                      ? Constants.defaultCurrencyFormat
+                          .parse(tcpController.text)
+                      : null,
+                )
                 .toCurrency();
 
             final lotCategory = settings.lotCategories.firstWhereOrNull(
@@ -216,8 +218,8 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     suffixText: '%',
                     border: OutlineInputBorder(),
                   ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
                   ],
@@ -332,11 +334,11 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                   onChanged: (val) {
                     downpaymentController.text = loanBloc
                         .computeDownPaymentRate(
-                      withCustomTCP: val.isNotEmpty
-                          ? Constants.defaultCurrencyFormat
-                          .parse(tcpController.text)
-                          : null,
-                    )
+                          withCustomTCP: val.isNotEmpty
+                              ? Constants.defaultCurrencyFormat
+                                  .parse(tcpController.text)
+                              : null,
+                        )
                         .toCurrency();
                   },
                 ),
@@ -539,12 +541,11 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     const Text('Total contract price:'),
                     Text(loanBloc
                         .computeTCP(
-                      withCustomTCP: tcpController
-                          .text.isNotEmpty
-                          ? Constants.defaultCurrencyFormat
-                          .parse(tcpController.text)
-                          : null,
-                    )
+                          withCustomTCP: tcpController.text.isNotEmpty
+                              ? Constants.defaultCurrencyFormat
+                                  .parse(tcpController.text)
+                              : null,
+                        )
                         .toCurrency()),
                   ],
                 ),
@@ -575,32 +576,28 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     const Text('Add: Incidental fee:'),
                     Text(loanBloc
                         .computeIncidentalFee(
-                      customIncidentalFeeRateStr:
-                      incidentalFeeRateController.text,
-                      withCustomTCP: tcpController
-                          .text.isNotEmpty
-                          ? Constants.defaultCurrencyFormat
-                          .parse(tcpController.text)
-                          : null,
-                    )
+                          customIncidentalFeeRateStr:
+                              incidentalFeeRateController.text,
+                          withCustomTCP: tcpController.text.isNotEmpty
+                              ? Constants.defaultCurrencyFormat
+                                  .parse(tcpController.text)
+                              : null,
+                        )
                         .toCurrency()),
                   ],
                 ),
                 if (serviceFeeController.text.isNotEmpty ||
                     serviceFeeController.text == '0')
                   Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Add: Service fee:'),
-                      Text(num.parse(serviceFeeController.text)
-                          .toCurrency()),
+                      Text(num.parse(serviceFeeController.text).toCurrency()),
                     ],
                   ),
                 if (loanBloc.getVatAmount() != null)
                   Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Add: VAT:'),
                       Text(
@@ -704,8 +701,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                           context: context,
                           loanBloc: loanBloc,
                           pagingController: pagingController,
-                          isSmallScreen: true
-                      ),
+                          isSmallScreen: true),
                     );
                   },
                 ),

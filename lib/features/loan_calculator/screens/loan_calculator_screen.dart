@@ -90,8 +90,10 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
             final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
 
+            final dpRate = downpaymentRateController.text;
             downpaymentController.text = loanBloc
                 .computeDownPaymentRate(
+                  customDownpaymentRateStr: dpRate.isNotEmpty ? dpRate : null,
                   withCustomTCP: tcpController.text.isNotEmpty
                       ? Constants.defaultCurrencyFormat
                           .parse(tcpController.text)
