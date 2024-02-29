@@ -209,10 +209,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     printd('TCP: $totalContractPrice');
     num? finalTcp;
 
-    if (totalContractPrice?.contains(Constants.currency) ?? false) {
-      finalTcp = Constants.defaultCurrencyFormat.parse(totalContractPrice!);
-    } else if (totalContractPrice != null) {
-      finalTcp = num.parse(totalContractPrice);
+    if (totalContractPrice != null) {
+      finalTcp = Constants.defaultCurrencyFormat.parse(totalContractPrice);
     }
 
     try {
@@ -221,8 +219,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           serviceFeeRate != null) {
         add(
           AddLoanEvent(
-            downPayment: num.parse(downPayment),
-            yearsToPay: num.parse(yearsToPay),
+            downPayment: Constants.defaultCurrencyFormat.parse(downPayment),
+            yearsToPay: Constants.defaultCurrencyFormat.parse(yearsToPay),
             date: date,
             incidentalFeeRate: num.parse(incidentalFeeRate),
             loanInterestRate: num.parse(loanInterestRate),
@@ -236,8 +234,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       } else {
         add(
           AddLoanEvent(
-            downPayment: num.parse(downPayment),
-            yearsToPay: num.parse(yearsToPay),
+            downPayment: Constants.defaultCurrencyFormat.parse(downPayment),
+            yearsToPay: Constants.defaultCurrencyFormat.parse(yearsToPay),
             date: date,
             assistingAgent: 'None',
             storeInDb: false,
@@ -251,17 +249,21 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
   }
 
-  void addLoan(
-      {required String yearsToPay,
-      required String downPayment,
-      required String agentAssisted,
-      required String date}) {
+  void addLoan({
+    required String yearsToPay,
+    required String downPayment,
+    required String agentAssisted,
+    required String date,
+    required String totalContractPrice,
+  }) {
     try {
       add(
         AddLoanEvent(
-          downPayment: num.parse(downPayment),
+          downPayment: Constants.defaultCurrencyFormat.parse(downPayment),
           yearsToPay: num.parse(yearsToPay),
           assistingAgent: agentAssisted,
+          totalContractPrice:
+              Constants.defaultCurrencyFormat.parse(totalContractPrice),
           date: date,
         ),
       );
@@ -365,7 +367,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     try {
       customIncidentalFeeRate = num.parse(customIncidentalFeeRateStr ?? '');
     } catch (err) {
-      printd('customIncidentalFeeRateStr parse exception: $err');
+      printd('WARN: customIncidentalFeeRateStr parse exception: $err');
     }
 
     final incidentalFeeRate =
@@ -489,6 +491,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
     outstandingBalance -= totalDiscount;
     _outstandingBalance = outstandingBalance;
+    print('_outstandingBalance: $_outstandingBalance');
     var monthsToPay = yearsToPay * 12;
     final monthlyIncidentalFee = incidentalFee / monthsToPay;
     // final monthlyIncidentalFee = incidentalFee / monthsToPay;

@@ -346,7 +346,9 @@ Widget buildLargeScreenBody({
                   keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'^[0-9]*[.]?[0-9]*'),
+                    ),
                   ],
                   onChanged: (value) => settingsBloc.updateSettings(
                     field: SettingField.vattableTCP,

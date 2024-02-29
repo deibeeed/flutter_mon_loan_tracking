@@ -241,7 +241,9 @@ Widget buildSmallScreenBody({
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^[0-9]*[.]?[0-9]*'),
+                          ),
                         ],
                       ),
                       const SizedBox(
@@ -255,7 +257,9 @@ Widget buildSmallScreenBody({
                         ),
                         keyboardType: TextInputType.number,
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^[0-9]*[.]?[0-9]*'),
+                          ),
                         ],
                       ),
                       const SizedBox(
@@ -270,7 +274,9 @@ Widget buildSmallScreenBody({
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^[0-9]*[.]?[0-9]*'),
+                          ),
                         ],
                       ),
                     ],
@@ -299,8 +305,8 @@ Widget buildSmallScreenBody({
                                       decimal: true),
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
-                                  RegExp('[0-9.,]'),
-                                )
+                                  RegExp(r'^[0-9]*[.]?[0-9]*'),
+                                ),
                               ],
                             ),
                           ),
@@ -411,9 +417,11 @@ Widget buildSmallScreenBody({
               children: [
                 ElevatedButton(
                   onPressed: () => loanBloc.calculateLoan(
-                      downPayment: downpaymentController.text,
-                      yearsToPay: loanDurationController.text,
-                      date: dateController.text),
+                    downPayment: downpaymentController.text,
+                    yearsToPay: loanDurationController.text,
+                    date: dateController.text,
+                    totalContractPrice: tcpController.text,
+                  ),
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,
                       backgroundColor: Theme.of(context).colorScheme.primary),
@@ -490,7 +498,14 @@ Widget buildSmallScreenBody({
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Total contract price:'),
-                      Text(loanBloc.computeTCP().toCurrency()),
+                      Text(loanBloc
+                          .computeTCP(
+                        withCustomTCP: tcpController.text.isNotEmpty
+                            ? Constants.defaultCurrencyFormat
+                            .parse(tcpController.text)
+                            : null,
+                      )
+                          .toCurrency()),
                     ],
                   ),
                   Row(
@@ -518,7 +533,14 @@ Widget buildSmallScreenBody({
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Add: Incidental fee:'),
-                      Text(loanBloc.computeIncidentalFee().toCurrency()),
+                      Text(loanBloc
+                          .computeIncidentalFee(
+                        withCustomTCP: tcpController.text.isNotEmpty
+                            ? Constants.defaultCurrencyFormat
+                            .parse(tcpController.text)
+                            : null,
+                      )
+                          .toCurrency()),
                     ],
                   ),
                   Row(
@@ -551,12 +573,12 @@ Widget buildSmallScreenBody({
                       Text(
                         loanBloc.monthlyAmortization.toCurrency(),
                         style: Theme.of(context).textTheme.titleLarge?.apply(
-                          fontWeightDelta: 2,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .tertiary
-                              .withOpacity(0.8),
-                        ),
+                              fontWeightDelta: 2,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.8),
+                            ),
                       ),
                     ],
                   ),
@@ -623,11 +645,10 @@ Widget buildSmallScreenBody({
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: buildDashboardTable(
-              context: context,
-              loanBloc: loanBloc,
-              pagingController: pagingController,
-              isSmallScreen: true
-            ),
+                context: context,
+                loanBloc: loanBloc,
+                pagingController: pagingController,
+                isSmallScreen: true),
           );
         },
       ),
@@ -641,6 +662,7 @@ Widget buildSmallScreenBody({
             yearsToPay: loanDurationController.text,
             downPayment: downpaymentController.text,
             agentAssisted: agentAssistedController.text,
+            totalContractPrice: tcpController.text,
             date: dateController.text,
           ),
           style: ElevatedButton.styleFrom(

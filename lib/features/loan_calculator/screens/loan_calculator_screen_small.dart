@@ -83,13 +83,14 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
             final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
 
-            if (!_downpaymentPopulated) {
-              downpaymentController.text = loanBloc
-                  .computeDownPaymentRate(
-                  customDownpaymentRateStr: downpaymentRateController.text, withCustomTCP: num.tryParse(tcpController.text),)
-                  .toString();
-              _downpaymentPopulated = true;
-            }
+            downpaymentController.text = loanBloc
+                .computeDownPaymentRate(
+              withCustomTCP: tcpController.text.isNotEmpty
+                  ? Constants.defaultCurrencyFormat
+                  .parse(tcpController.text)
+                  : null,
+            )
+                .toCurrency();
 
             final lotCategory = settings.lotCategories.firstWhereOrNull(
                 (category) => category.key == lot.lotCategoryKey);
@@ -98,8 +99,15 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
               lotCategoryController.text = lotCategory.name;
               pricePerSqmController.text =
                   lotCategory.ratePerSquareMeter.toCurrency();
-              tcpController.text =
-                  (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
+
+              if (!loanBloc.withCustomTCP) {
+                tcpController.text =
+                    (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
+              } else {
+                tcpController.text = Constants.defaultCurrencyFormat
+                    .parse(tcpController.text)
+                    .toCurrency();
+              }
             }
           }
 
@@ -317,8 +325,20 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'^[0-9]*[.]?[0-9]*'),
+                    ),
                   ],
+                  onChanged: (val) {
+                    downpaymentController.text = loanBloc
+                        .computeDownPaymentRate(
+                      withCustomTCP: val.isNotEmpty
+                          ? Constants.defaultCurrencyFormat
+                          .parse(tcpController.text)
+                          : null,
+                    )
+                        .toCurrency();
+                  },
                 ),
                 const SizedBox(
                   height: 32,
@@ -517,7 +537,15 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text('Total contract price:'),
-                    Text(loanBloc.computeTCP(withCustomTCP: num.tryParse(tcpController.text),).toCurrency()),
+                    Text(loanBloc
+                        .computeTCP(
+                      withCustomTCP: tcpController
+                          .text.isNotEmpty
+                          ? Constants.defaultCurrencyFormat
+                          .parse(tcpController.text)
+                          : null,
+                    )
+                        .toCurrency()),
                   ],
                 ),
                 Row(
@@ -547,8 +575,14 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                     const Text('Add: Incidental fee:'),
                     Text(loanBloc
                         .computeIncidentalFee(
-                        customIncidentalFeeRateStr:
-                        incidentalFeeRateController.text, withCustomTCP: num.tryParse(tcpController.text),)
+                      customIncidentalFeeRateStr:
+                      incidentalFeeRateController.text,
+                      withCustomTCP: tcpController
+                          .text.isNotEmpty
+                          ? Constants.defaultCurrencyFormat
+                          .parse(tcpController.text)
+                          : null,
+                    )
                         .toCurrency()),
                   ],
                 ),

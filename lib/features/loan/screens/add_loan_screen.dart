@@ -107,11 +107,14 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
             final lot = loanBloc.selectedLot!;
             final settings = loanBloc.settings!;
             lotAreaController.text = lot.area.toString();
-            if (!_downpaymentPopulated) {
-              downpaymentController.text =
-                  loanBloc.computeDownPaymentRate().toString();
-              _downpaymentPopulated = true;
-            }
+            downpaymentController.text = loanBloc
+                .computeDownPaymentRate(
+              withCustomTCP: tcpController.text.isNotEmpty
+                  ? Constants.defaultCurrencyFormat
+                  .parse(tcpController.text)
+                  : null,
+            )
+                .toCurrency();
 
             final lotCategory = settings.lotCategories.firstWhereOrNull(
               (category) => category.key == lot.lotCategoryKey,
@@ -121,8 +124,15 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
               lotCategoryController.text = lotCategory.name;
               pricePerSqmController.text =
                   lotCategory.ratePerSquareMeter.toCurrency();
-              tcpController.text =
-                  (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
+
+              if (!loanBloc.withCustomTCP) {
+                tcpController.text =
+                    (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
+              } else {
+                tcpController.text = Constants.defaultCurrencyFormat
+                    .parse(tcpController.text)
+                    .toCurrency();
+              }
             }
 
             pagingController.value = PagingState(

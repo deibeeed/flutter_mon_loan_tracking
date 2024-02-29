@@ -135,7 +135,7 @@ class PdfGenerator {
                   children: [
                     pw.Text('Add: Incidental fees'),
                     pw.Text(
-                        (loan.incidentalFees - loan.serviceFee).toCurrency()),
+                        (loan.incidentalFees /*- loan.serviceFee*/).toCurrency()),
                   ],
                 ),
                 if (showServiceFee)
@@ -163,13 +163,13 @@ class PdfGenerator {
                     pw.Text(loan.outstandingBalance.toCurrency()),
                   ],
                 ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Transfer fees'),
-                    pw.Text(loan.incidentalFees.toCurrency()),
-                  ],
-                ),
+                // pw.Row(
+                //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     pw.Text('Transfer fees'),
+                //     pw.Text(loan.incidentalFees.toCurrency()),
+                //   ],
+                // ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
