@@ -617,6 +617,7 @@ Widget buildSmallScreenBody({
                     schedules: loanBloc.clientLoanSchedules,
                     loan: loan,
                     lot: lot,
+                    showServiceFee: true
                   );
                 },
                 child: Text(

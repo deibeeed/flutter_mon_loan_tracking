@@ -134,8 +134,12 @@ class PdfGenerator {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text('Add: Incidental fees'),
-                    pw.Text(
-                        (loan.incidentalFees /*- loan.serviceFee*/).toCurrency()),
+                    if (showServiceFee)
+                      pw.Text(
+                        (loan.incidentalFees - loan.serviceFee).toCurrency())
+                    else
+                      pw.Text(
+                          (loan.incidentalFees).toCurrency())
                   ],
                 ),
                 if (showServiceFee)
