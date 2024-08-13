@@ -351,9 +351,11 @@ Widget buildSmallScreenBody({
             onPressed: () {
               if (formKey.currentState?.saveAndValidate() ?? false) {
                 loanBloc.addLoan(
-                  monthsToPay: formKey.currentState!.value['term'] as int,
+                  monthsToPay: int.parse(
+                      formKey.currentState!.value['term'] as String),
                   date: formKey.currentState!.value['date'] as DateTime,
-                  amount: formKey.currentState!.value['amount'] as double,
+                  amount: double.parse(
+                      formKey.currentState!.value['amount'] as String),
                 );
               }
             },
