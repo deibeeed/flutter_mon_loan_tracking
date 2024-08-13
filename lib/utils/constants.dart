@@ -31,12 +31,6 @@ class Constants {
       iconSvgAssetPath: 'assets/icons/mortgage-loan.svg',
     ),
     const MenuItemModel(
-      name: 'Lot Dashboard',
-      goPath: '/lot-dashboard',
-      shortName: 'Lots',
-      iconSvgAssetPath: 'assets/icons/land.svg',
-    ),
-    const MenuItemModel(
       name: 'Users',
       goPath: '/users',
       iconSvgAssetPath: 'assets/icons/user.svg',
@@ -57,22 +51,14 @@ class Constants {
   static const loan_dashboard_table_columns = [
     'Date',
     'Name',
-    'Block No.  / Lot No.',
     'Payment Status',
     'Amount',
-    'Agent',
   ];
   static const loan_dashboard_general_filters = [
     'All',
     'Paid',
     // 'Unpaid',
     'Overdue'
-  ];
-
-  static const lot_dashbaord_general_filters = [
-    'All',
-    'Available',
-    'Unavailable',
   ];
 
   static const user_list_table_colums = [
@@ -84,13 +70,12 @@ class Constants {
   ];
 
   static const loan_schedule_table_columns = [
-    'Month',
+    'Period',
     'Date',
     'Outstanding balance',
     'Monthly amortization',
     'Principal payment',
     'Interest payment',
-    'Incidental    fees', // space needed for text wrapping
     'Status'
   ];
 
@@ -100,7 +85,6 @@ class Constants {
     'Monthly amortization',
     'Principal payment',
     'Interest payment',
-    'Incidental fees',
     'Status'
   ];
 

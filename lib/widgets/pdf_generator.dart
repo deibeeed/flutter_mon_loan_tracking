@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:collection/collection.dart';
 import 'package:flutter_mon_loan_tracking/models/loan.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
-import 'package:flutter_mon_loan_tracking/models/lot.dart';
 import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
@@ -17,8 +16,6 @@ class PdfGenerator {
     User? user,
     required List<LoanSchedule> schedules,
     required Loan loan,
-    required Lot lot,
-    bool showServiceFee = false,
   }) {
     Printing.layoutPdf(
       // [onLayout] will be called multiple times
@@ -30,8 +27,6 @@ class PdfGenerator {
           user: user,
           schedules: schedules,
           loan: loan,
-          lot: lot,
-          showServiceFee: showServiceFee,
         );
       },
     );
@@ -42,8 +37,6 @@ class PdfGenerator {
         User? user,
         required List<LoanSchedule> schedules,
         required Loan loan,
-        required Lot lot,
-        required bool showServiceFee,
       }) async {
     final pdfTheme = pw.ThemeData.withFont(
         base: await PdfGoogleFonts.robotoRegular(),
@@ -80,29 +73,8 @@ class PdfGenerator {
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text('Lot details'),
-                    pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.end,
-                        children: [
-                      pw.Text(lot.completeBlockLotNo),
-                      pw.Text(lot.area.withUnit()),
-                      pw.Text(loan.lotCategoryName),
-                      pw.Text(lot.description, textAlign: pw.TextAlign.right),
-                    ]),
-                  ],
-                ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Rate per sqm'),
-                    pw.Text(loan.ratePerSquareMeter.toCurrency()),
-                  ],
-                ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
                     pw.Text('Total contract price'),
-                    pw.Text(loan.totalContractPrice.toCurrency()),
+                    pw.Text(loan.amount.toCurrency()),
                   ],
                 ),
                 pw.Row(
@@ -112,73 +84,11 @@ class PdfGenerator {
                     pw.Text('${loan.loanInterestRate}%'),
                   ],
                 ),
-                for (var deduction in loan.deductions)
-                  pw.Row(
-                    mainAxisAlignment:
-                    pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.Text('Less: ${deduction.description}'),
-                      pw.Text(deduction.discount
-                          .toCurrency(isDeduction: true)),
-                    ],
-                  ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Less: Downpayment'),
-                    pw.Text(
-                        loan.downPayment.toCurrency(isDeduction: true)),
-                  ],
-                ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Add: Incidental fees'),
-                    if (showServiceFee)
-                      pw.Text(
-                        (loan.incidentalFees - loan.serviceFee).toCurrency())
-                    else
-                      pw.Text(
-                          (loan.incidentalFees).toCurrency())
-                  ],
-                ),
-                if (showServiceFee)
-                  pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.Text('Add: Service fee'),
-                      pw.Text(
-                          loan.serviceFee.toCurrency()),
-                    ],
-                  ),
-                if (loan.vatValue != null && loan.vatValue! > 0)
-                  pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.Text('Add: VAT'),
-                      pw.Text(
-                          loan.vatValue!.toCurrency()),
-                    ],
-                  ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Outstanding balance'),
-                    pw.Text(loan.outstandingBalance.toCurrency()),
-                  ],
-                ),
-                // pw.Row(
-                //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     pw.Text('Transfer fees'),
-                //     pw.Text(loan.incidentalFees.toCurrency()),
-                //   ],
-                // ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text('Type'),
-                    pw.Text('${loan.yearsToPay} years to pay'),
+                    pw.Text('${loan.monthsToPay} years to pay'),
                   ],
                 ),
               ]),
@@ -226,7 +136,6 @@ class PdfGenerator {
                 pw.Text(schedule.monthlyAmortization.toCurrency()),
                 pw.Text(schedule.principalPayment.toCurrency()),
                 pw.Text(schedule.interestPayment.toCurrency()),
-                pw.Text(schedule.incidentalFee.toCurrency()),
               ])).toList(),
             ])
           ];

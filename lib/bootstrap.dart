@@ -29,24 +29,24 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
   Bloc.observer = AppBlocObserver();
 
-  final plugin = DeviceInfoPlugin();
-  final deviceInfo = await plugin.deviceInfo;
-  printd('info: ${deviceInfo.data}.');
+  // final plugin = DeviceInfoPlugin();
+  // final deviceInfo = await plugin.deviceInfo;
+  // printd('info: ${deviceInfo.data}.');
 
-  if (deviceInfo is AndroidDeviceInfo) {
-    final smallestSide = Math.min(
-      deviceInfo.displayMetrics.widthPx,
-      deviceInfo.displayMetrics.heightPx,
-    );
-    final devicePixelRatio = deviceInfo.displayMetrics.xDpi / 160;
-    final smallestSideSize = smallestSide / devicePixelRatio;
-    printd('smallestSizeSize: $smallestSideSize');
-
-    Constants.isWebOrLargeScreen =
-        smallestSideSize >= Constants.largeScreenShortestSideStartBreakPoint;
-  } else if (deviceInfo is IosDeviceInfo) {
-    Constants.isWebOrLargeScreen = deviceInfo.model != 'iPhone';
-  }
+  // if (deviceInfo is AndroidDeviceInfo) {
+  //   final smallestSide = Math.min(
+  //     deviceInfo.displayMetrics.widthPx,
+  //     deviceInfo.displayMetrics.heightPx,
+  //   );
+  //   final devicePixelRatio = deviceInfo.displayMetrics.xDpi / 160;
+  //   final smallestSideSize = smallestSide / devicePixelRatio;
+  //   printd('smallestSizeSize: $smallestSideSize');
+  //
+  //   Constants.isWebOrLargeScreen =
+  //       smallestSideSize >= Constants.largeScreenShortestSideStartBreakPoint;
+  // } else if (deviceInfo is IosDeviceInfo) {
+  //   Constants.isWebOrLargeScreen = deviceInfo.model != 'iPhone';
+  // }
 
   await runZonedGuarded(
     () async => runApp(await builder()),

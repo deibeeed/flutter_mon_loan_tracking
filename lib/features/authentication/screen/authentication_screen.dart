@@ -162,45 +162,13 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Autocomplete(
-                                        optionsBuilder: (value) =>
-                                            authenticationBloc.emails.where(
-                                          (email) => email
-                                              .toLowerCase()
-                                              .contains(value.text),
+                                      TextFormField(
+                                        controller: emailController,
+                                        decoration: const InputDecoration(
+                                          label: Text('Email'),
+                                          border: OutlineInputBorder(),
                                         ),
-                                        displayStringForOption: (value) =>
-                                            value,
-                                        onSelected: (value) {
-                                          emailController.text = value;
-                                          authenticationBloc.selectEmail();
-                                        },
-                                        fieldViewBuilder: (context,
-                                            textEditingController,
-                                            focusNode,
-                                            onFieldSubmitted) {
-                                          return TextFormField(
-                                            controller: textEditingController,
-                                            focusNode: focusNode,
-                                            onFieldSubmitted: (value) =>
-                                                onFieldSubmitted(),
-                                            decoration: const InputDecoration(
-                                              label: Text('Email'),
-                                              border: OutlineInputBorder(),
-                                            ),
-                                            onChanged: (value) {
-                                              emailController.text = value;
-                                            },
-                                          );
-                                        },
                                       ),
-                                      // TextFormField(
-                                      //   controller: emailController,
-                                      //   decoration: const InputDecoration(
-                                      //     label: Text('Email'),
-                                      //     border: OutlineInputBorder(),
-                                      //   ),
-                                      // ),
                                       const SizedBox(
                                         height: 32,
                                       ),

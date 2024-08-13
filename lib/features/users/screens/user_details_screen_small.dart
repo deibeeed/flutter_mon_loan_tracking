@@ -208,9 +208,8 @@ Widget buildSmallScreenBody({
                     onPressed: () {
                       var user = userBloc.tempUser;
                       var loan = loanBloc.selectedLoan;
-                      var lot = loanBloc.selectedLot;
 
-                      if (user == null || loan == null || lot == null) {
+                      if (user == null || loan == null) {
                         return;
                       }
 
@@ -218,7 +217,6 @@ Widget buildSmallScreenBody({
                         user: user,
                         schedules: loanBloc.clientLoanSchedules,
                         loan: loan,
-                        lot: lot,
                       );
                     },
                     child: Text(
@@ -245,125 +243,9 @@ Widget buildSmallScreenBody({
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Lot area:'),
-                  Text(loanBloc.selectedLot?.area.withUnit() ?? ''),
-                ],
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Price per sqm:'),
-                  Builder(
-                    builder: (context) {
-                      if (loanBloc.selectedLot == null ||
-                          loanBloc.settings == null) {
-                        return Container();
-                      }
-
-                      final loan = loanBloc.selectedLoan;
-
-                      return Text(
-                          '${loan?.ratePerSquareMeter.toCurrency() ?? 0.toCurrency()} per sqm');
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Total contract price:'),
-                  Text(loanBloc.computeTCP().toCurrency()),
-                ],
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
                   const Text('Loan duration:'),
                   Text(
-                      '${loanBloc.selectedLoan!.yearsToPay} years to pay (${loanBloc.yearsToMonths(years: loanBloc.selectedLoan!.yearsToPay.toString())} mos.)'),
-                ],
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              ...loanBloc.selectedLoan!.deductions
-                  .map(
-                    (discount) => Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Less: ${discount.description}:'),
-                            Text(
-                              discount.discount.toCurrency(isDeduction: true),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                      ],
-                    ),
-              )
-                  .toList(),
-              const SizedBox(
-                height: 8,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Add: Incidental fee:'),
-                  Text(
-                      loanBloc.selectedLoan!.incidentalFees.toCurrency()),
-                ],
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              if (loanBloc.selectedLoan!.serviceFee != 0)
-                ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Add: Service fee:'),
-                      Text(loanBloc.selectedLoan!.serviceFee.toCurrency()),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                ],
-              if (loanBloc.selectedLoan!.vatValue != null)
-                ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Add: VAT:'),
-                      Text(
-                        loanBloc.selectedLoan!.vatValue!.toCurrency(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                ],
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Outstanding balance:'),
-                  Text(loanBloc.selectedLoan!.outstandingBalance
-                      .toCurrency()),
+                      '${loanBloc.selectedLoan!.monthsToPay} years to pay (${loanBloc.yearsToMonths(years: loanBloc.selectedLoan!.monthsToPay.toString())} mos.)'),
                 ],
               ),
               const SizedBox(

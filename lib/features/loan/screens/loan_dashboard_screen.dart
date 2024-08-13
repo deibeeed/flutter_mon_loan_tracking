@@ -35,7 +35,6 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
     }
 
     context.read<LoanBloc>()
-      ..getAllLots()
       ..getAllLoans(clearList: true, clientId: clientId);
 
     _pagingController.addPageRequestListener((pageKey) {
@@ -337,14 +336,6 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                     context: context,
                     name: Constants.loan_dashboard_table_columns[3],
                     width: 180),
-                gridHeaderItem(
-                  context: context,
-                  name: Constants.loan_dashboard_table_columns[4],
-                ),
-                gridHeaderItem(
-                  context: context,
-                  name: Constants.loan_dashboard_table_columns[5],
-                ),
               ],
             ),
           ),
@@ -379,12 +370,6 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                     ),
                   ),
                   gridItem(
-                    child: defaultCellText(
-                      text: loanBloc.mappedLots[loanDisplay.loan.lotId]!
-                          .completeBlockLotNo,
-                    ),
-                  ),
-                  gridItem(
                     width: 180,
                     child: paymentStatusWidget(
                       context: context,
@@ -399,11 +384,6 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                     child: defaultCellText(
                       text:
                           loanDisplay.schedule.monthlyAmortization.toCurrency(),
-                    ),
-                  ),
-                  gridItem(
-                    child: defaultCellText(
-                      text: loanDisplay.loan.assistingAgent ?? 'None',
                     ),
                   ),
                 ],

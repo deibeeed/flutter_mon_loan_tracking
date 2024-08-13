@@ -75,10 +75,6 @@ class MainWebScreenMenu extends StatelessWidget {
               addButtonPath = '/add-loan';
               break;
             case 1:
-              addButtonTitle = 'Add Lot';
-              addButtonPath = '/add-lot';
-              break;
-            case 2:
               addButtonTitle = 'Add User';
               addButtonPath = '/add-user';
               break;

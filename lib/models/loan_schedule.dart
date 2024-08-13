@@ -11,7 +11,6 @@ class LoanSchedule extends Equatable {
   final num monthlyAmortization;
   final num principalPayment;
   final num interestPayment;
-  final num incidentalFee;
   num? paidOn;
   final String loanId;
   final String id;
@@ -23,7 +22,6 @@ class LoanSchedule extends Equatable {
     required this.monthlyAmortization,
     required this.principalPayment,
     required this.interestPayment,
-    required this.incidentalFee,
     required this.loanId,
     required this.id,
     required this.createdAt,
@@ -35,7 +33,6 @@ class LoanSchedule extends Equatable {
     required num monthlyAmortization,
     required num principalPayment,
     required num interestPayment,
-    required num incidentalFee,
     required String loanId,
   }) =>
       LoanSchedule(
@@ -44,7 +41,6 @@ class LoanSchedule extends Equatable {
         monthlyAmortization: monthlyAmortization,
         principalPayment: principalPayment,
         interestPayment: interestPayment,
-        incidentalFee: incidentalFee,
         loanId: loanId,
         id: Constants.NO_ID,
         createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -60,7 +56,6 @@ class LoanSchedule extends Equatable {
         monthlyAmortization: loanSchedule.monthlyAmortization,
         principalPayment: loanSchedule.principalPayment,
         interestPayment: loanSchedule.interestPayment,
-        incidentalFee: loanSchedule.incidentalFee,
         loanId: loanSchedule.loanId,
         id: id,
         createdAt: loanSchedule.createdAt,
@@ -76,7 +71,6 @@ class LoanSchedule extends Equatable {
         monthlyAmortization: loanSchedule.monthlyAmortization,
         principalPayment: loanSchedule.principalPayment,
         interestPayment: loanSchedule.interestPayment,
-        incidentalFee: loanSchedule.incidentalFee,
         loanId: loanId,
         id: loanSchedule.id,
         createdAt: loanSchedule.createdAt,
@@ -94,7 +88,6 @@ class LoanSchedule extends Equatable {
         monthlyAmortization,
         principalPayment,
         interestPayment,
-        incidentalFee,
         paidOn,
         loanId,
         id,

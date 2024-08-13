@@ -58,12 +58,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     super.initState();
     context.read<UserBloc>().initializeAddUser(withId: widget.userId);
     context.read<LoanBloc>()
-      ..getAllLots()
       ..getAllLoans(clearList: true, clientId: widget.userId);
-
-    // _pagingController.addPageRequestListener((pageKey) {
-    //   context.read<LoanBloc>().getAllLoans();
-    // });
   }
 
   @override

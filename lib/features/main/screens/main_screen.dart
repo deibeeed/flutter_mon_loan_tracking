@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
-import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_mobile_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_web_screen.dart';
@@ -37,7 +36,6 @@ class MainScreen extends StatelessWidget {
             page: 0,
           );
           GoRouter.of(context).go('/login');
-          printd('goto login');
         } else if (state is LoginLoadingState) {
           if (state.isLoading) {
             showDialog(

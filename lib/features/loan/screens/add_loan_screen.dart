@@ -28,17 +28,8 @@ class AddLoanScreen extends StatefulWidget {
 class _AddLoanScreenState extends State<AddLoanScreen> {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
-  final blockNoController = TextEditingController();
-  final lotNoController = TextEditingController();
-  final lotAreaController = TextEditingController();
-  final lotCategoryController = TextEditingController();
-  final pricePerSqmController = TextEditingController();
   final tcpController = TextEditingController();
   final loanDurationController = TextEditingController();
-  final downpaymentController = TextEditingController();
-  final discountController = TextEditingController();
-  final discountDescriptionController = TextEditingController();
-  final agentAssistedController = TextEditingController();
   final dateController = TextEditingController(
       text: Constants.defaultDateFormat.format(DateTime.now()));
   final pagingController = PagingController<int, LoanSchedule>(firstPageKey: 0);
@@ -103,37 +94,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
             firstNameController.text = loanBloc.selectedUser!.firstName;
           }
 
-          if (loanBloc.selectedLot != null && loanBloc.settings != null) {
-            final lot = loanBloc.selectedLot!;
-            final settings = loanBloc.settings!;
-            lotAreaController.text = lot.area.toString();
-            downpaymentController.text = loanBloc
-                .computeDownPaymentRate(
-              withCustomTCP: tcpController.text.isNotEmpty
-                  ? Constants.defaultCurrencyFormat
-                  .parse(tcpController.text)
-                  : null,
-            )
-                .toCurrency();
-
-            final lotCategory = settings.lotCategories.firstWhereOrNull(
-              (category) => category.key == lot.lotCategoryKey,
-            );
-
-            if (lotCategory != null) {
-              lotCategoryController.text = lotCategory.name;
-              pricePerSqmController.text =
-                  lotCategory.ratePerSquareMeter.toCurrency();
-
-              if (!loanBloc.withCustomTCP) {
-                tcpController.text =
-                    (lot.area * lotCategory.ratePerSquareMeter).toCurrency();
-              } else {
-                tcpController.text = Constants.defaultCurrencyFormat
-                    .parse(tcpController.text)
-                    .toCurrency();
-              }
-            }
+          if (loanBloc.settings != null) {
 
             pagingController.value = PagingState(
               itemList: loanBloc.clientLoanSchedules,
@@ -246,17 +207,8 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                 loanBloc: loanBloc,
                 firstNameController: firstNameController,
                 lastNameController: lastNameController,
-                blockNoController: blockNoController,
-                lotNoController: lotNoController,
-                lotAreaController: lotAreaController,
-                lotCategoryController: lotCategoryController,
-                pricePerSqmController: pricePerSqmController,
                 tcpController: tcpController,
                 loanDurationController: loanDurationController,
-                downpaymentController: downpaymentController,
-                discountController: discountController,
-                discountDescriptionController: discountDescriptionController,
-                agentAssistedController: agentAssistedController,
                 dateController: dateController,
                 pagingController: pagingController,
               )
@@ -265,17 +217,8 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                 loanBloc: loanBloc,
                 firstNameController: firstNameController,
                 lastNameController: lastNameController,
-                blockNoController: blockNoController,
-                lotNoController: lotNoController,
-                lotAreaController: lotAreaController,
-                lotCategoryController: lotCategoryController,
-                pricePerSqmController: pricePerSqmController,
                 tcpController: tcpController,
                 loanDurationController: loanDurationController,
-                downpaymentController: downpaymentController,
-                discountController: discountController,
-                discountDescriptionController: discountDescriptionController,
-                agentAssistedController: agentAssistedController,
                 dateController: dateController,
                 pagingController: pagingController,
               ),
@@ -351,13 +294,6 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                     Center(
                       child: defaultCellText(
                         text: schedule.interestPayment.toCurrency(),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: defaultCellText(
-                        text: schedule.incidentalFee.toCurrency(),
                       ),
                     ),
                   ),

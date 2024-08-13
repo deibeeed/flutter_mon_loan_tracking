@@ -8,14 +8,11 @@ import 'package:flutter_mon_loan_tracking/models/discount.dart';
 import 'package:flutter_mon_loan_tracking/models/loan.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
-import 'package:flutter_mon_loan_tracking/models/lot.dart';
-import 'package:flutter_mon_loan_tracking/models/lot_category.dart';
 import 'package:flutter_mon_loan_tracking/models/payment_status.dart';
 import 'package:flutter_mon_loan_tracking/models/settings.dart';
 import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/repositories/loan_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/loan_schedule_repository.dart';
-import 'package:flutter_mon_loan_tracking/repositories/lot_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/authentication_service.dart';
@@ -32,31 +29,23 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   LoanBloc({
     required this.loanRepository,
     required this.loanScheduleRepository,
-    required this.lotRepository,
     required this.userRepository,
     required this.settingsRepository,
     required this.authenticationService,
   }) : super(LoanInitial()) {
-    // on<LoanEvent>((event, emit) {
-    //   // TODO: implement event handler
-    // });
-    on(_handleSearchLotEvent);
     on(_handleGetSettingsEvent);
     on(_handleAddLoanEvent);
     on(_handleGetAllLoansEvent);
-    on(_handleGetAllLotsEvent);
     on(_handleSearchLoanEvent);
     on(_handleFilterByStatusEvent);
     on(_handlePayLoanScheduleEvent);
     on(_handleRemoveLoanEvent);
-    getAllLots();
     getAllLoans();
     getSettings();
   }
 
   final LoanRepository loanRepository;
   final LoanScheduleRepository loanScheduleRepository;
-  final LotRepository lotRepository;
   final UserRepository userRepository;
   final SettingsRepository settingsRepository;
   final AuthenticationService authenticationService;
@@ -65,19 +54,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   List<LoanSchedule> get clientLoanSchedules => _clientLoanSchedules;
 
-  final List<Discount> _discounts = [];
-
-  List<Discount> get discounts => _discounts;
-
   Settings? _settings;
 
   Settings? get settings => _settings;
-
-  String? _blockNo;
-  String? _lotNo;
-  Lot? _selectedLot;
-
-  Lot? get selectedLot => _selectedLot;
 
   final num _yearsToPay = 0;
 
@@ -89,10 +68,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   User? get selectedUser => _selectedUser;
 
-  num _outstandingBalance = 0;
-
-  num get outstandingBalance => _outstandingBalance;
-
   final List<LoanDisplay> _allLoans = [];
 
   final List<LoanDisplay> _filteredLoans = [];
@@ -100,10 +75,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   List<LoanDisplay> get filteredLoans => _filteredLoans;
 
   final Map<String, Loan> _loans = {};
-
-  final Map<String, Lot> _mappedLots = {};
-
-  Map<String, Lot> get mappedLots => _mappedLots;
 
   bool _loansBottomReached = false;
 
@@ -126,10 +97,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       _filteredLoans.clear();
     }
 
-    _selectedLot = null;
-    _blockNo = null;
-    _lotNo = null;
-    _discounts.clear();
     _loans.clear();
     _selectedLoan = null;
     _clientLoanSchedules.clear();
@@ -166,7 +133,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   void initialize() {
     getSettings();
-    getAllLots();
     getAllLoans(clearList: true);
   }
 
@@ -184,63 +150,44 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     add(GetAllLoansEvent(clientId: clientId, clearList: clearList));
   }
 
-  void getAllLots() {
-    add(GetAllLotsEvent());
-  }
-
   void selectUser({required User user}) {
     _selectedUser = user;
     emit(LoanSuccessState(message: 'Successfully selected user'));
   }
 
   void calculateLoan({
-    required String yearsToPay,
-    required String downPayment,
+    required String monthsToPay,
     required String date,
-    String? incidentalFeeRate,
     String? loanInterestRate,
-    String? serviceFeeRate,
-    String? totalContractPrice,
+    String? amount,
   }) {
-    printd('incidentalFeeRate: $incidentalFeeRate');
-
     printd('loanInterestRate: $loanInterestRate');
-    printd('serviceFeeRate: $serviceFeeRate');
-    printd('TCP: $totalContractPrice');
+    printd('TCP: $amount');
     num? finalTcp;
 
-    if (totalContractPrice != null) {
-      finalTcp = Constants.defaultCurrencyFormat.parse(totalContractPrice);
+    if (amount != null) {
+      finalTcp = Constants.defaultCurrencyFormat.parse(amount);
     }
 
     try {
-      if (incidentalFeeRate != null &&
-          loanInterestRate != null &&
-          serviceFeeRate != null) {
+      if (loanInterestRate != null) {
         add(
           AddLoanEvent(
-            downPayment: Constants.defaultCurrencyFormat.parse(downPayment),
-            yearsToPay: Constants.defaultCurrencyFormat.parse(yearsToPay),
+            yearsToPay: Constants.defaultCurrencyFormat.parse(monthsToPay),
             date: date,
-            incidentalFeeRate: num.parse(incidentalFeeRate),
-            loanInterestRate: num.parse(loanInterestRate),
-            assistingAgent: 'None',
             storeInDb: false,
             withUser: false,
-            serviceFeeRate: num.parse(serviceFeeRate),
-            totalContractPrice: finalTcp,
+            amount: finalTcp,
           ),
         );
       } else {
         add(
           AddLoanEvent(
-            downPayment: Constants.defaultCurrencyFormat.parse(downPayment),
-            yearsToPay: Constants.defaultCurrencyFormat.parse(yearsToPay),
+            yearsToPay: Constants.defaultCurrencyFormat.parse(monthsToPay),
             date: date,
-            assistingAgent: 'None',
             storeInDb: false,
             withUser: false,
-            totalContractPrice: finalTcp,
+            amount: finalTcp,
           ),
         );
       }
@@ -251,59 +198,20 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   void addLoan({
     required String yearsToPay,
-    required String downPayment,
-    required String agentAssisted,
     required String date,
-    required String totalContractPrice,
+    required String amount,
   }) {
     try {
       add(
         AddLoanEvent(
-          downPayment: Constants.defaultCurrencyFormat.parse(downPayment),
           yearsToPay: num.parse(yearsToPay),
-          assistingAgent: agentAssisted,
-          totalContractPrice:
-              Constants.defaultCurrencyFormat.parse(totalContractPrice),
+          amount:
+              Constants.defaultCurrencyFormat.parse(amount),
           date: date,
         ),
       );
     } catch (err) {
       printd(err);
-    }
-  }
-
-  void addDiscount({required String discount, required String description}) {
-    printd('add discount');
-    if (discount.isEmpty || description.isEmpty) {
-      return;
-    }
-
-    _discounts.add(
-      Discount(
-        discount: num.parse(discount),
-        description: description,
-      ),
-    );
-    emit(LoanSuccessState(message: 'Successfully added discount'));
-  }
-
-  void removeDiscount({required int position}) {
-    _discounts.removeAt(position);
-    emit(LoanSuccessState(message: 'Successfully removed discount'));
-  }
-
-  void setBlockAndLotNo({required String type, required String no}) {
-    if (type == 'blockNo') {
-      _blockNo = no;
-    } else if (type == 'lotNo') {
-      _lotNo = no;
-    }
-
-    if (_blockNo != null &&
-        _lotNo != null &&
-        _blockNo!.isNotEmpty &&
-        _lotNo!.isNotEmpty) {
-      add(SearchLotEvent(blockNo: _blockNo!, lotNo: _lotNo!));
     }
   }
 
@@ -313,128 +221,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   void selectDate({required DateTime date}) {
     emit(LoanSuccessState(message: 'Successfully selected date'));
-  }
-
-  num computeTCP({bool throwError = false, num? withCustomTCP}) {
-    if (selectedLot == null || settings == null) {
-      return 0;
-    }
-
-    if (withCustomTCP != null) {
-      return withCustomTCP;
-    }
-
-    final lotCategory = settings!.lotCategories.firstWhereOrNull(
-      (category) => category.key == selectedLot!.lotCategoryKey,
-    );
-
-    if (lotCategory == null) {
-      printd('Lot category not found');
-
-      if (throwError) {
-        throw Exception('Lot category not found');
-      }
-
-      return 0;
-    }
-
-    return selectedLot!.area * lotCategory.ratePerSquareMeter;
-  }
-
-  num computeIncidentalFee({
-    String? customIncidentalFeeRateStr,
-    num? withCustomTCP,
-  }) {
-    if (selectedLot == null || settings == null) {
-      return 0;
-    }
-
-    final lotCategory = settings!.lotCategories.firstWhereOrNull(
-      (category) => category.key == selectedLot!.lotCategoryKey,
-    );
-
-    if (lotCategory == null) {
-      printd('Lot category not found');
-      return 0;
-    }
-
-    var tcp = computeTCP(
-      withCustomTCP: withCustomTCP,
-    );
-
-    num? customIncidentalFeeRate;
-
-    try {
-      customIncidentalFeeRate = num.parse(customIncidentalFeeRateStr ?? '');
-    } catch (err) {
-      printd('WARN: customIncidentalFeeRateStr parse exception: $err');
-    }
-
-    final incidentalFeeRate =
-        customIncidentalFeeRate ?? settings!.incidentalFeeRate;
-
-    return tcp * (incidentalFeeRate / 100);
-  }
-
-  num computeDownPaymentRate({
-    String? customDownpaymentRateStr,
-    num? withCustomTCP,
-  }) {
-    if (selectedLot == null || settings == null) {
-      return 0;
-    }
-    var tcp = computeTCP(
-      withCustomTCP: withCustomTCP,
-    );
-
-    // TODO: uncomment if we're vattable
-    // if (tcp >= settings!.vattableTCP) {
-    //   tcp += getVatAmount() ?? 0;
-    // }
-
-    num? customDownpaymenRate;
-
-    try {
-      if (customDownpaymentRateStr != null) {
-        customDownpaymenRate = num.parse(customDownpaymentRateStr);
-      }
-    } catch (err) {
-      printd('probably a parse exception');
-    }
-
-    final downpaymentRate = customDownpaymenRate ?? settings!.downPaymentRate;
-    final downPaymentRatePercentage = downpaymentRate / 100;
-
-    return tcp * downPaymentRatePercentage;
-  }
-
-  num getServiceFee() {
-    if (settings == null) {
-      return 0;
-    }
-
-    return settings!.serviceFee;
-  }
-
-  num? getVatAmount({
-    num? withCustomTCP,
-  }) {
-    if (settings == null) {
-      return null;
-    }
-
-    var tcp = computeTCP(
-      withCustomTCP: withCustomTCP,
-    );
-
-    // TODO: uncomment if we're vattable
-    // if (tcp >= settings!.vattableTCP) {
-    //   final vatRatePercent = settings!.vatRate / 100;
-    //
-    //   return tcp * vatRatePercent;
-    // }
-
-    return null;
   }
 
   num yearsToMonths({required String years}) {
@@ -464,97 +250,49 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   /// loan computation formula found here:
   /// https://www.mymove.com/mortgage/mortgage-calculation/#:~:text=These%20factors%20include%20the%20total
-  ///
-  /// if totalContractPrice is more than vattableTCP, it should contain
-  /// VAT
-  void _calculateLoan(
-      {required num totalContractPrice,
-      required num downPayment,
-      required num incidentalFee,
-      required num yearsToPay,
-      required String lotCategoryKey,
-      required DateTime date,
-      required num loanInterestRate,
-      required num incidentalFeeRate,
-      required LotCategory lotCategory,
-      required num serviceFee}) {
+  void _calculateLoan({
+    required num amount,
+    required num yearsToPay,
+    required DateTime date,
+    required num interestRate,
+  }) {
     _clientLoanSchedules.clear();
-
-    var outstandingBalance = totalContractPrice;
-    // var annualInterestRate = settings!.loanInterestRate / 100;
-    var annualInterestRate = loanInterestRate / 100;
-
-    var totalDiscount = downPayment;
-
-    for (final discount in discounts) {
-      totalDiscount += discount.discount;
-    }
-    outstandingBalance -= totalDiscount;
-    _outstandingBalance = outstandingBalance;
-    print('_outstandingBalance: $_outstandingBalance');
+    var annualInterestRate = interestRate / 100;
     var monthsToPay = yearsToPay * 12;
-    final monthlyIncidentalFee = incidentalFee / monthsToPay;
-    // final monthlyIncidentalFee = incidentalFee / monthsToPay;
-    // printd('incidentalFee + serviceFee = ${incidentalFee + serviceFee}');
+    var outstandingBalance = amount;
 
     final loanMonthlyAmortization = _calculateMonthlyPayment2(
-      outstandingBalance: outstandingBalance,
+      outstandingBalance: amount,
       annualInterestRate: annualInterestRate,
       yearsToPay: yearsToPay,
     );
-    _monthlyAmortization = loanMonthlyAmortization + monthlyIncidentalFee;
+    _monthlyAmortization = loanMonthlyAmortization;
     var monthlyInterestRate = annualInterestRate / 12;
-    printd('starting outstanding balance: $outstandingBalance');
     // var nextMonthDate = date.add(const Duration(days: 30));
     var nextMonthDate =
-        Jiffy.unixFromMillisecondsSinceEpoch(date.millisecondsSinceEpoch)
+        Jiffy.parseFromMillisecondsSinceEpoch(date.millisecondsSinceEpoch)
             .add(months: 1);
     printd('---------------------------------------------------');
     for (var i = 1; i <= monthsToPay; i++) {
-      final interestPayment = outstandingBalance * monthlyInterestRate;
+      final interestPayment = amount * monthlyInterestRate;
       final principalPayment = loanMonthlyAmortization - interestPayment;
       outstandingBalance -= principalPayment;
       printd('month: $i');
       printd('monthly: $loanMonthlyAmortization');
       printd('interestPayment: $interestPayment');
       printd('principalPayment: $principalPayment');
-      printd('monthlyIncidentalFee: $monthlyIncidentalFee');
       printd('outstandingBalance: $outstandingBalance');
       printd('---------------------------------------------------');
       final schedule = LoanSchedule.create(
-        date: nextMonthDate.valueOf(),
+        date: nextMonthDate.millisecondsSinceEpoch,
         outstandingBalance: outstandingBalance,
-        monthlyAmortization: loanMonthlyAmortization + monthlyIncidentalFee,
+        monthlyAmortization: loanMonthlyAmortization,
         principalPayment: principalPayment,
         interestPayment: interestPayment,
-        incidentalFee: monthlyIncidentalFee,
         loanId: 'loanId:$i',
       );
       _clientLoanSchedules.add(schedule);
       nextMonthDate = nextMonthDate.add(months: 1);
-    }
-  }
-
-  Future<void> _handleSearchLotEvent(
-      SearchLotEvent event, Emitter<LoanState> emit) async {
-    try {
-      var lot = _mappedLots.values.firstWhereOrNull(
-        (lot) => lot.blockNo == event.blockNo && lot.lotNo == event.lotNo,
-      );
-
-      lot ??= await lotRepository.searchLot(blockNo: _blockNo!, lotNo: _lotNo!);
-      _selectedLot = lot;
-
-      emit(
-        LoanSuccessState(
-          message: 'Successfully searched lot',
-          data: lot,
-        ),
-      );
-    } catch (err) {
-      emit(LoanErrorState(
-        message: 'Something went wrong while searching for lot',
-      ));
     }
   }
 
@@ -594,93 +332,21 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         clientId = _selectedUser!.id;
       }
 
-      if (_selectedLot == null) {
-        emit(LoanErrorState(message: 'Please select block and lot number'));
-        return;
-      }
-
-      if (_settings == null) {
-        emit(LoanErrorState(message: 'Please refresh page'));
-        return;
-      }
-      emit(LoanLoadingState(isLoading: true));
-
-      final lotCategory = settings!.lotCategories.firstWhereOrNull(
-        (category) => category.key == selectedLot!.lotCategoryKey,
-      );
-
-      if (lotCategory == null) {
-        throw Exception('Lot category not found');
-      }
-
-      final expectedTcp = _selectedLot!.area * lotCategory.ratePerSquareMeter;
-
-      withCustomTCP = (event.totalContractPrice ?? 0) > expectedTcp;
-
-      final totalContractPrice = computeTCP(
-        throwError: true,
-        withCustomTCP: event.totalContractPrice,
-      );
-      num vatValue = 0;
-
-      // TODO: uncomment if we're vattable
-      // if (totalContractPrice >= settings!.vattableTCP) {
-      //   final vatRatePercent = settings!.vatRate / 100;
-      //   vatValue = totalContractPrice * vatRatePercent;
-      // }
-
-      final totalContractPriceWithVat = totalContractPrice + vatValue;
-
-      var serviceFee = settings!.serviceFee;
-
-      if (event.serviceFeeRate != null) {
-        serviceFee = event.serviceFeeRate!;
-      }
-      final incidentalFeeRate =
-          event.incidentalFeeRate ?? settings!.incidentalFeeRate;
-
-      printd('event.incidentalFeeRate: ${event.incidentalFeeRate}');
-      printd('incidentalFeeRate: $incidentalFeeRate');
-
-      final loanInterestRate =
-          event.loanInterestRate ?? settings!.loanInterestRate;
-
-      var computedIncidentalFeeRate = incidentalFeeRate / 100;
-      final incidentalFee =
-          (totalContractPrice * computedIncidentalFeeRate) + serviceFee;
+      final loanInterestRate = settings!.loanInterestRate;
 
       _calculateLoan(
-        totalContractPrice: totalContractPriceWithVat,
-        downPayment: event.downPayment,
-        incidentalFee: incidentalFee,
+        amount: event.amount!,
         yearsToPay: event.yearsToPay,
-        lotCategoryKey: _selectedLot!.lotCategoryKey,
         date: Constants.defaultDateFormat.parse(event.date),
-        incidentalFeeRate: incidentalFeeRate,
-        loanInterestRate: loanInterestRate,
-        lotCategory: lotCategory,
-        serviceFee: serviceFee,
+        interestRate: loanInterestRate,
       );
 
       final loan = Loan.create(
         clientId: clientId,
         preparedBy: authenticationService.loggedInUser!.uid,
-        lotId: _selectedLot!.id,
-        loanInterestRate: loanInterestRate,
-        incidentalFeeRate: incidentalFeeRate,
-        serviceFee: serviceFee,
-        perSquareMeterRate: lotCategory.ratePerSquareMeter,
-        outstandingBalance: outstandingBalance,
-        totalContractPrice: totalContractPriceWithVat,
-        incidentalFees: incidentalFee,
-        downPayment: event.downPayment,
+        interestRate: loanInterestRate,
         yearsToPay: event.yearsToPay,
-        deductions: _discounts,
-        assistingAgent: event.assistingAgent,
-        lotCategoryName: lotCategory.name,
-        downPaymentRate: settings!.downPaymentRate,
-        vatRate: settings!.vatRate,
-        vatValue: vatValue,
+        amount: event.amount!,
       );
 
       if (event.storeInDb) {
@@ -694,15 +360,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         ).toList();
 
         await Future.wait(futureLoanSchedules);
-        _selectedLot!.reservedTo = _selectedUser!.id;
-
-        await lotRepository.update(data: _selectedLot!);
         emit(LoanLoadingState());
         emit(LoanSuccessState(message: 'Adding loan successfully'));
         await Future.delayed(const Duration(seconds: 3));
         emit(CloseAddLoanState());
-        // clear discounts once loan is been added
-        _discounts.clear();
       } else {
         _selectedLoan = loan;
         emit(LoanLoadingState());
@@ -733,10 +394,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         _loans.addAll({for (var loan in clientLoans) loan.id: loan});
         _selectedLoan = clientLoans.firstOrNull;
 
-        final lots = await lotRepository.all();
-        _selectedLot =
-            lots.firstWhereOrNull((lot) => lot.id == _selectedLoan!.lotId);
-
         final futureClientLoanSchedules = clientLoans.map(
           (loan) => loanScheduleRepository.allByLoanId(loanId: loan.id),
         );
@@ -746,19 +403,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         _clientLoanSchedules
           ..clear()
           ..addAll(schedules.sortedBy((schedule) => schedule.date).toList());
-        _allLoans
-          ..clear()
-          ..addAll(
-            clientLoans
-                .map((clientLoan) => _clientLoanSchedules
-                    .where((schedule) => schedule.loanId == clientLoan.id)
-                    .map((schedule) => LoanDisplay(
-                        loan: clientLoan,
-                        schedule: schedule,
-                        lot: _mappedLots[clientLoan.lotId]!)))
-                .flattened
-                .toList(),
-          );
+        _allLoans..clear();
         _filteredLoans
           ..clear()
           ..addAll(_allLoans);
@@ -787,8 +432,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
               _loans[loan.id] = loan;
             }
 
-            final display = LoanDisplay(
-                loan: loan, schedule: schedule, lot: _mappedLots[loan.lotId]!);
+            final display = LoanDisplay(loan: loan, schedule: schedule);
             _allLoans.add(display);
             _filteredLoans.add(display);
           }
@@ -806,28 +450,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           error: err, nextPage: _nextPageCalled, items: _filteredLoans));
       emit(LoanErrorState(
           message: 'Something went wrofng while getting all loans'));
-    }
-  }
-
-  Future<void> _handleGetAllLotsEvent(
-    GetAllLotsEvent event,
-    Emitter<LoanState> emit,
-  ) async {
-    try {
-      emit(LoanLoadingState(isLoading: true));
-
-      final lots = await lotRepository.all();
-      _mappedLots.addAll({for (var lot in lots) lot.id: lot});
-
-      emit(LoanLoadingState());
-      emit(LoanSuccessState(message: 'Successfully retrieved all lots'));
-    } catch (err) {
-      printd(err);
-      emit(
-        LoanErrorState(
-          message: 'Something went wrong while getting all lots',
-        ),
-      );
     }
   }
 
@@ -980,40 +602,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       emit(LoanErrorState(
           message: 'Something went wrong when removing loan: $err'));
     }
-  }
-
-  /// M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1].
-  ///
-  /// Here’s a breakdown of each of the variables:
-  ///
-  ///     M = Total monthly payment
-  ///     P = The total amount of your loan
-  ///     I = Your interest rate, as a monthly percentage
-  ///     N = The total amount of months in your timeline for paying
-  ///     off your mortgage
-  num _calculateMonthlyPayment({
-    required num outstandingBalance,
-    required num annualInterestRate,
-    required num yearsToPay,
-  }) {
-    /// in 1 year, there are 12 months
-    final monthlyInterestRate = annualInterestRate / 12;
-    final monthsToPay = yearsToPay * 12;
-    var added = 1.0 + num.parse(monthlyInterestRate.toStringAsFixed(5));
-    printd('added: $added');
-    var powered = pow(added, monthsToPay);
-    printd('pwered: $powered');
-    var innerFirst = powered * monthlyInterestRate;
-    printd('innerfirst: $innerFirst');
-    var outerSecond = powered - 1;
-    printd('outerSecond: $outerSecond');
-    // var first = powered * tcp;
-    // var second = powered - 1;
-    var divided = innerFirst / outerSecond;
-    printd('divided: $divided');
-    var monthly = outstandingBalance * divided;
-
-    return monthly;
   }
 
   /// P = (Pv*R) / [1 - (1 + R)^(-n)]

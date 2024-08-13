@@ -26,9 +26,3 @@ class LoadingSettingsState extends SettingsState {
   final String? loadingMessage;
 }
 
-class LotCategorySelectedState extends SettingsState {
-  final LotCategory category;
-
-  const LotCategorySelectedState({ required this.category});
-}
-

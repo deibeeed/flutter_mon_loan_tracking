@@ -10,10 +10,8 @@ import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/platform_stub.dart'
   if (dart.library.html)
     'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 
 Future<void> main() async {
-  printd('main_development.dart: called on refresh');
   if (kIsWeb) {
     usePathUrlStrategy();
   }

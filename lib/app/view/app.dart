@@ -7,11 +7,6 @@ import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/screens/add_loan_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/screens/loan_dashboard_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen.dart';
-import 'package:flutter_mon_loan_tracking/features/lot/bloc/general_lot_filter_selection_cubit.dart';
-import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
-import 'package:flutter_mon_loan_tracking/features/lot/screens/add_lot_screen.dart';
-import 'package:flutter_mon_loan_tracking/features/lot/screens/lot_dashboard_screen.dart';
-import 'package:flutter_mon_loan_tracking/features/lot/screens/lot_detail_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/main/bloc/menu_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/main/screens/main_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/settings/bloc/settings_bloc.dart';
@@ -28,7 +23,6 @@ import 'package:flutter_mon_loan_tracking/repositories/beneficiary_repository.da
 import 'package:flutter_mon_loan_tracking/repositories/employment_details_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/loan_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/loan_schedule_repository.dart';
-import 'package:flutter_mon_loan_tracking/repositories/lot_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/settings_repository.dart';
 import 'package:flutter_mon_loan_tracking/repositories/users_repository.dart';
 import 'package:flutter_mon_loan_tracking/services/address_firestore_service.dart';
@@ -37,8 +31,6 @@ import 'package:flutter_mon_loan_tracking/services/beneficiary_firestore_service
 import 'package:flutter_mon_loan_tracking/services/employment_details_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/loan_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/loan_schedule_firestore_service.dart';
-import 'package:flutter_mon_loan_tracking/services/lot_cache_service.dart';
-import 'package:flutter_mon_loan_tracking/services/lot_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/settings_cache_service.dart';
 import 'package:flutter_mon_loan_tracking/services/settings_firestore_service.dart';
 import 'package:flutter_mon_loan_tracking/services/user_cache_service.dart';
@@ -94,10 +86,6 @@ class _AppState extends State<App> {
               child: LoanDashboardScreen(),
             ),
             RouteUtils.buildNoTransitionRoute(
-              path: '/lot-dashboard',
-              child: LotDashboardScreen(),
-            ),
-            RouteUtils.buildNoTransitionRoute(
               path: '/users',
               child: UserListScreen(),
             ),
@@ -115,20 +103,12 @@ class _AppState extends State<App> {
                 child: AddLoanScreen(),
               ),
               RouteUtils.buildNoTransitionRoute(
-                path: '/add-lot',
-                child: AddLotScreen(),
-              ),
-              RouteUtils.buildNoTransitionRoute(
                 path: '/add-user',
                 child: AddUserScreen(),
               ),
               RouteUtils.buildNoTransitionRoute(
                 path: '/users/:userId',
                 child: UserDetailsScreen(),
-              ),
-              RouteUtils.buildNoTransitionRoute(
-                path: '/lots/:lotId',
-                child: LotDetailsScreen(),
               ),
               RouteUtils.buildNoTransitionRoute(
                 path: '/profile/:userId',
@@ -144,11 +124,6 @@ class _AppState extends State<App> {
             child: AddLoanScreen(),
           ),
           RouteUtils.buildNoTransitionRoute(
-            path: '/add-lot',
-            parentNavigatorKey: rootNavigatorKey,
-            child: AddLotScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
             path: '/add-user',
             parentNavigatorKey: rootNavigatorKey,
             child: AddUserScreen(),
@@ -157,11 +132,6 @@ class _AppState extends State<App> {
             path: '/users/:userId',
             parentNavigatorKey: rootNavigatorKey,
             child: UserDetailsScreen(),
-          ),
-          RouteUtils.buildNoTransitionRoute(
-            path: '/lots/:lotId',
-            parentNavigatorKey: rootNavigatorKey,
-            child: LotDetailsScreen(),
           ),
           RouteUtils.buildNoTransitionRoute(
             path: '/profile/:userId',
@@ -190,12 +160,6 @@ class _AppState extends State<App> {
           value: SettingsRepository(
             firestoreService: SettingsFireStoreService(),
             cacheService: SettingsCacheService(),
-          ),
-        ),
-        RepositoryProvider<LotRepository>.value(
-          value: LotRepository(
-            firestoreService: LotFirestoreService(),
-            cacheService: LotCacheService(),
           ),
         ),
         RepositoryProvider<LoanRepository>.value(
@@ -237,9 +201,6 @@ class _AppState extends State<App> {
               BlocProvider<GeneralFilterSelectionCubit>.value(
                 value: GeneralFilterSelectionCubit(),
               ),
-              BlocProvider<GeneralLotFilterSelectionCubit>.value(
-                value: GeneralLotFilterSelectionCubit(),
-              ),
               BlocProvider<AuthenticationBloc>.value(
                 value: AuthenticationBloc(
                   authenticationService: context.read<AuthenticationService>(),
@@ -248,12 +209,6 @@ class _AppState extends State<App> {
               ),
               BlocProvider<SettingsBloc>.value(
                 value: SettingsBloc(
-                  settingsRepository: context.read<SettingsRepository>(),
-                ),
-              ),
-              BlocProvider<LotBloc>.value(
-                value: LotBloc(
-                  lotRepository: context.read<LotRepository>(),
                   settingsRepository: context.read<SettingsRepository>(),
                 ),
               ),
@@ -272,7 +227,6 @@ class _AppState extends State<App> {
                   loanRepository: context.read<LoanRepository>(),
                   loanScheduleRepository:
                       context.read<LoanScheduleRepository>(),
-                  lotRepository: context.read<LotRepository>(),
                   userRepository: context.read<UserRepository>(),
                   settingsRepository: context.read<SettingsRepository>(),
                   authenticationService: context.read<AuthenticationService>(),
@@ -292,7 +246,6 @@ class _AppState extends State<App> {
                     context.read<AuthenticationBloc>().initialize();
                     context.read<SettingsBloc>().getSettings();
                     context.read<UserBloc>().getAllUsers();
-                    context.read<LotBloc>().initialize();
                     context.read<LoanBloc>().initialize();
 
                     return MaterialApp.router(

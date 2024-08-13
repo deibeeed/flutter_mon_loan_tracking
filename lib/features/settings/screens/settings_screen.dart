@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
-import 'package:flutter_mon_loan_tracking/features/lot/bloc/lot_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/settings/bloc/setting_field.dart';
 import 'package:flutter_mon_loan_tracking/features/settings/bloc/settings_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
@@ -46,25 +45,11 @@ class SettingsScreen extends StatelessWidget {
           ? buildSmallScreenBody(
           context: context,
           loanInterestRateController: loanInterestRateController,
-          incidentalFeesRateController: incidentalFeesRateController,
-          serviceFeeController: serviceFeeController,
-          lotCategoryNameController: lotCategoryNameController,
-          lotCategoryPricePerSqmController: lotCategoryPricePerSqmController,
-          downPaymentRateController: downPaymentRateController,
-          vatRateController: vatRateController,
-          vattableTCPController: vattableTCPController,
           allowTextControllerUpdate: allowTextControllerUpdate,
       )
           : buildLargeScreenBody(
         context: context,
         loanInterestRateController: loanInterestRateController,
-        incidentalFeesRateController: incidentalFeesRateController,
-        serviceFeeController: serviceFeeController,
-        lotCategoryNameController: lotCategoryNameController,
-        lotCategoryPricePerSqmController: lotCategoryPricePerSqmController,
-        downPaymentRateController: downPaymentRateController,
-        vatRateController: vatRateController,
-        vattableTCPController: vattableTCPController,
         allowTextControllerUpdate: allowTextControllerUpdate,
       ),
     );

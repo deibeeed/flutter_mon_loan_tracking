@@ -16,28 +16,18 @@ class SearchLotEvent extends LoanEvent {
 class GetSettingsEvent extends LoanEvent {}
 
 class AddLoanEvent extends LoanEvent {
-  final num downPayment;
   final num yearsToPay;
-  final String assistingAgent;
   final String date;
   final bool storeInDb;
-  final num? loanInterestRate;
-  final num? incidentalFeeRate;
   final bool withUser;
-  final num? serviceFeeRate;
-  final num? totalContractPrice;
+  final num? amount;
 
   AddLoanEvent({
-    required this.downPayment,
     required this.yearsToPay,
-    required this.assistingAgent,
     required this.date,
     this.storeInDb = true,
     this.withUser = true,
-    this.loanInterestRate,
-    this.incidentalFeeRate,
-    this.serviceFeeRate,
-    this.totalContractPrice,
+    this.amount,
   });
 }
 
@@ -47,8 +37,6 @@ class GetAllLoansEvent extends LoanEvent {
 
   GetAllLoansEvent({ this.clientId, this.clearList = false});
 }
-
-class GetAllLotsEvent extends LoanEvent {}
 
 class SearchLoanEvent extends LoanEvent {
   final String query;
