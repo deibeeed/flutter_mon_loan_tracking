@@ -18,8 +18,8 @@ class AuthenticationScreen extends StatefulWidget {
 }
 
 class _AuthenticationScreenState extends State<AuthenticationScreen> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final emailController = TextEditingController(text: 'deibeeed@test.co');
+  final passwordController = TextEditingController(text: 'Password1!');
 
   @override
   void initState() {
@@ -173,7 +173,6 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                             value,
                                         onSelected: (value) {
                                           emailController.text = value;
-                                          passwordController.text = value;
                                           authenticationBloc.selectEmail();
                                         },
                                         fieldViewBuilder: (context,
@@ -191,7 +190,6 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                             ),
                                             onChanged: (value) {
                                               emailController.text = value;
-                                              passwordController.text = value;
                                             },
                                           );
                                         },

@@ -497,7 +497,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     // final monthlyIncidentalFee = incidentalFee / monthsToPay;
     // printd('incidentalFee + serviceFee = ${incidentalFee + serviceFee}');
 
-    final loanMonthlyAmortization = _calculateMonthlyPayment(
+    final loanMonthlyAmortization = _calculateMonthlyPayment2(
       outstandingBalance: outstandingBalance,
       annualInterestRate: annualInterestRate,
       yearsToPay: yearsToPay,
@@ -983,14 +983,14 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   }
 
   /// M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1].
-  //
-  // Here’s a breakdown of each of the variables:
-  //
-  //     M = Total monthly payment
-  //     P = The total amount of your loan
-  //     I = Your interest rate, as a monthly percentage
-  //     N = The total amount of months in your timeline for paying
-  //     off your mortgage
+  ///
+  /// Here’s a breakdown of each of the variables:
+  ///
+  ///     M = Total monthly payment
+  ///     P = The total amount of your loan
+  ///     I = Your interest rate, as a monthly percentage
+  ///     N = The total amount of months in your timeline for paying
+  ///     off your mortgage
   num _calculateMonthlyPayment({
     required num outstandingBalance,
     required num annualInterestRate,
@@ -1014,5 +1014,31 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     var monthly = outstandingBalance * divided;
 
     return monthly;
+  }
+
+  /// P = (Pv*R) / [1 - (1 + R)^(-n)]
+  ///
+  /// Here’s a breakdown of each of the variables:
+  ///
+  ///     P = Monthly Payment
+  ///     Pv = Present Value (starting value of the loan)
+  ///     APR = Annual Percentage Rate
+  ///     R = Periodic Interest Rate = APR/number of interest periods per year
+  ///     n = Total number of interest periods (interest periods per year * number of years)
+  ///
+  /// source: https://superuser.com/questions/871404/what-would-be-the-the-mathematical-equivalent-of-this-excel-formula-pmt
+  num _calculateMonthlyPayment2({
+    required num outstandingBalance,
+    required num annualInterestRate,
+    required num yearsToPay,
+  }) {
+    /// in 1 year, there are 12 months
+    final monthlyInterestRate = annualInterestRate / 12;
+    final monthsToPay = yearsToPay * 12;
+
+    num p = (outstandingBalance * monthlyInterestRate) /
+        (1 - pow(1 + monthlyInterestRate, -1 * monthsToPay));
+
+    return p;
   }
 }

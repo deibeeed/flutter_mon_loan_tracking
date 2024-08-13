@@ -296,6 +296,7 @@ class _AppState extends State<App> {
                     context.read<LoanBloc>().initialize();
 
                     return MaterialApp.router(
+                      debugShowCheckedModeBanner: false,
                       routerConfig: _rootRouter,
                       theme: ThemeData(
                           useMaterial3: true, colorScheme: lightColorScheme),
