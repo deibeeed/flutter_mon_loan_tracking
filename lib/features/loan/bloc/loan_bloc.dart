@@ -156,38 +156,33 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   }
 
   void calculateLoan({
-    required String monthsToPay,
-    required String date,
-    String? loanInterestRate,
-    String? amount,
+    required int monthsToPay,
+    required DateTime date,
+    double? interestRate,
+    required double amount,
   }) {
-    printd('loanInterestRate: $loanInterestRate');
+    printd('loanInterestRate: $interestRate');
     printd('TCP: $amount');
-    num? finalTcp;
-
-    if (amount != null) {
-      finalTcp = Constants.defaultCurrencyFormat.parse(amount);
-    }
 
     try {
-      if (loanInterestRate != null) {
+      if (interestRate != null) {
         add(
           AddLoanEvent(
-            yearsToPay: Constants.defaultCurrencyFormat.parse(monthsToPay),
-            date: date,
-            storeInDb: false,
-            withUser: false,
-            amount: finalTcp,
-          ),
+              monthsToPay: monthsToPay,
+              date: date,
+              storeInDb: false,
+              withUser: false,
+              amount: amount,
+              interestRate: interestRate),
         );
       } else {
         add(
           AddLoanEvent(
-            yearsToPay: Constants.defaultCurrencyFormat.parse(monthsToPay),
+            monthsToPay: monthsToPay,
             date: date,
             storeInDb: false,
             withUser: false,
-            amount: finalTcp,
+            amount: amount,
           ),
         );
       }
@@ -197,16 +192,15 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   }
 
   void addLoan({
-    required String yearsToPay,
-    required String date,
-    required String amount,
+    required int monthsToPay,
+    required DateTime date,
+    required double amount,
   }) {
     try {
       add(
         AddLoanEvent(
-          yearsToPay: num.parse(yearsToPay),
-          amount:
-              Constants.defaultCurrencyFormat.parse(amount),
+          monthsToPay: monthsToPay,
+          amount: amount,
           date: date,
         ),
       );
@@ -252,19 +246,19 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   /// https://www.mymove.com/mortgage/mortgage-calculation/#:~:text=These%20factors%20include%20the%20total
   void _calculateLoan({
     required num amount,
-    required num yearsToPay,
+    required num monthsToPay,
     required DateTime date,
     required num interestRate,
   }) {
     _clientLoanSchedules.clear();
     var annualInterestRate = interestRate / 100;
-    var monthsToPay = yearsToPay * 12;
+    // var monthsToPay = yearsToPay * 12;
     var outstandingBalance = amount;
 
     final loanMonthlyAmortization = _calculateMonthlyPayment2(
       outstandingBalance: amount,
       annualInterestRate: annualInterestRate,
-      yearsToPay: yearsToPay,
+      monthsToPay: monthsToPay,
     );
     _monthlyAmortization = loanMonthlyAmortization;
     var monthlyInterestRate = annualInterestRate / 12;
@@ -274,7 +268,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             .add(months: 1);
     printd('---------------------------------------------------');
     for (var i = 1; i <= monthsToPay; i++) {
-      final interestPayment = amount * monthlyInterestRate;
+      final interestPayment = outstandingBalance * monthlyInterestRate;
       final principalPayment = loanMonthlyAmortization - interestPayment;
       outstandingBalance -= principalPayment;
       printd('month: $i');
@@ -321,6 +315,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         return;
       }
 
+      emit(
+        LoanLoadingState(
+          isLoading: true,
+        ),
+      );
+
       var clientId = 'none';
 
       if (event.withUser) {
@@ -332,12 +332,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         clientId = _selectedUser!.id;
       }
 
-      final loanInterestRate = settings!.loanInterestRate;
+      final loanInterestRate = event.interestRate ?? settings!.loanInterestRate;
 
       _calculateLoan(
-        amount: event.amount!,
-        yearsToPay: event.yearsToPay,
-        date: Constants.defaultDateFormat.parse(event.date),
+        amount: event.amount,
+        monthsToPay: event.monthsToPay,
+        date: event.date,
         interestRate: loanInterestRate,
       );
 
@@ -345,8 +345,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         clientId: clientId,
         preparedBy: authenticationService.loggedInUser!.uid,
         interestRate: loanInterestRate,
-        yearsToPay: event.yearsToPay,
-        amount: event.amount!,
+        yearsToPay: event.monthsToPay,
+        amount: event.amount,
       );
 
       if (event.storeInDb) {
@@ -618,11 +618,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   num _calculateMonthlyPayment2({
     required num outstandingBalance,
     required num annualInterestRate,
-    required num yearsToPay,
+    required num monthsToPay,
   }) {
     /// in 1 year, there are 12 months
     final monthlyInterestRate = annualInterestRate / 12;
-    final monthsToPay = yearsToPay * 12;
 
     num p = (outstandingBalance * monthlyInterestRate) /
         (1 - pow(1 + monthlyInterestRate, -1 * monthsToPay));

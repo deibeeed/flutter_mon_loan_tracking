@@ -175,11 +175,18 @@ Widget buildDashboardTable({
                 context: context,
                 name: Constants.loan_schedule_table_columns[5],
               ),
-              if (withStatus)
+
+              if (withStatus) ...[
                 gridHeaderItem(
                   context: context,
                   name: Constants.loan_schedule_table_columns[6],
                 ),
+                gridHeaderItem(
+                  context: context,
+                  name: Constants.loan_schedule_table_columns[7],
+                ),
+              ],
+
             ],
           ),
         ),
@@ -246,7 +253,14 @@ Widget buildDashboardTable({
                           ),
                         ),
                       ),
-                      if (withStatus)
+                      if (withStatus) ...[
+                        gridItem(
+                          child: Center(
+                            child: defaultCellText(
+                              text: schedule.extraPayment?.toCurrency() ?? '',
+                            ),
+                          ),
+                        ),
                         gridItem(
                           width: 180,
                           child: Center(
@@ -260,6 +274,7 @@ Widget buildDashboardTable({
                             ),
                           ),
                         ),
+                      ],
                     ],
                   ),
                 );

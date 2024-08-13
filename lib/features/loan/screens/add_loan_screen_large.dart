@@ -2,13 +2,8 @@ part of 'add_loan_screen.dart';
 
 Widget buildLargeScreenBody({
   required BuildContext context,
-  required LoanBloc loanBloc,
-  required TextEditingController firstNameController,
-  required TextEditingController lastNameController,
-  required TextEditingController tcpController,
-  required TextEditingController loanDurationController,
-  required TextEditingController dateController,
   required PagingController<int, LoanSchedule> pagingController,
+  required GlobalKey<FormBuilderState> formKey,
 }) {
   final horizontalScrollController = ScrollController();
   final loanBloc = BlocProvider.of<LoanBloc>(context);
@@ -55,244 +50,299 @@ Widget buildLargeScreenBody({
     isLargeScreenBreakpoint = true;
   }
 
-  return ListView(
-    children: [
-      const SizedBox(
-        height: 8,
-      ),
-      BlocBuilder<LoanBloc, LoanState>(
-        buildWhen: (previous, current) => current is LoanSuccessState,
-        builder: (context, state) {
-          return TextFormField(
-            onTap: () {
-              showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now().subtract(Duration(days: 365 * 100)),
-                lastDate: DateTime.now(),
-              ).then((date) {
-                if (date != null) {
-                  dateController.text =
-                      Constants.defaultDateFormat.format(date);
-                  loanBloc.selectDate(date: date);
-                }
-              });
-            },
-            controller: dateController,
-            decoration: const InputDecoration(
-              label: Text('Date'),
-              border: OutlineInputBorder(),
-            ),
-          );
-        },
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      Autocomplete(
-        optionsBuilder: (value) => userBloc.customers.where(
-          (user) => user.lastName.toLowerCase().contains(
-                value.text.toLowerCase(),
-              ),
+  return FormBuilder(
+    key: formKey,
+    child: ListView(
+      children: [
+        const SizedBox(
+          height: 8,
         ),
-        displayStringForOption: (user) => user.completeName,
-        onSelected: (user) => loanBloc.selectUser(user: user),
-        fieldViewBuilder:
-            (context, textEditingController, focusNode, onFieldSubmitted) {
-          return TextFormField(
-            controller: textEditingController,
-            focusNode: focusNode,
-            onFieldSubmitted: (value) => onFieldSubmitted(),
-            decoration: const InputDecoration(
-              label: Text('Last name'),
-              border: OutlineInputBorder(),
-            ),
-          );
-        },
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      TextFormField(
-        controller: firstNameController,
-        enabled: false,
-        decoration: const InputDecoration(
-          label: Text('First name'),
-          border: OutlineInputBorder(),
-        ),
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              controller: tcpController,
-              decoration: const InputDecoration(
-                label: Text('Total contract price'),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(
-                  RegExp(r'^[0-9]*[.]?[0-9]*'),
-                ),
-              ],
-              onChanged: (val) {
-              },
-            ),
-          ),
-          const SizedBox(
-            width: 32,
-          ),
-          Expanded(
-            child: TextFormField(
-              controller: loanDurationController,
-              decoration: const InputDecoration(
-                label: Text('Loan duration (Years)'),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
-              ],
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ElevatedButton(
-            onPressed: () => loanBloc.calculateLoan(
-              monthsToPay: loanDurationController.text,
-              date: dateController.text,
-              amount: tcpController.text,
-            ),
-            style: ElevatedButton.styleFrom(
-                padding: buttonPadding,
-                backgroundColor: Theme.of(context).colorScheme.primary),
-            child: Text(
-              'Calculate loan',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.apply(color: Colors.white),
-            ),
-          )
-        ],
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      const Divider(
-        thickness: 1.5,
-      ),
-      const SizedBox(
-        height: 16,
-      ),
-      Row(
-        children: [
-          Text(
-            'Computation',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ],
-      ),
-      const SizedBox(
-        height: 16,
-      ),
-      BlocBuilder<LoanBloc, LoanState>(
+        BlocBuilder<LoanBloc, LoanState>(
           buildWhen: (previous, current) => current is LoanSuccessState,
           builder: (context, state) {
-            return Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: computationDetailsWidth,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Total contract price:'),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Loan duration:'),
-                            Text(
-                                '${loanDurationController.text} years to pay (${loanBloc.yearsToMonths(years: loanDurationController.text)} mos.)'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: screenSize.width * 0.2,
-                    child: Column(
-                      children: [
-                        const Divider(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Monthly due:',
-                              style:
-                                  Theme.of(context).textTheme.titleLarge?.apply(
-                                        fontWeightDelta: 2,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary
-                                            .withOpacity(0.8),
-                                      ),
-                            ),
-                            Text(
-                              loanBloc.monthlyAmortization.toCurrency(),
-                              style:
-                                  Theme.of(context).textTheme.titleLarge?.apply(
-                                        fontWeightDelta: 2,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary
-                                            .withOpacity(0.8),
-                                      ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+            return FormBuilderDateTimePicker(
+              name: 'date',
+              inputType: InputType.date,
+              decoration: const InputDecoration(
+                label: Text('Date'),
+                border: OutlineInputBorder(),
+              ),
+              validator: FormBuilderValidators.compose(
+                [
+                  FormBuilderValidators.required(
+                    errorText: 'Please enter date',
                   ),
                 ],
               ),
             );
-          }),
-      const SizedBox(
-        height: 32,
-      ),
-      const Divider(
-        thickness: 1.5,
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Loan schedule',
-            style: Theme.of(context).textTheme.titleLarge,
+          },
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        FormBuilderSearchableDropdown<User>(
+          name: 'last_name',
+          asyncItems: userBloc.searchCustomer,
+          itemAsString: (user) => user.lastName,
+          onChanged: (user) {
+            if (user != null) {
+              formKey.currentState?.fields['first_name']
+                  ?.didChange(user.firstName);
+              loanBloc.selectUser(user: user);
+            }
+          },
+          compareFn: (u1, u2) {
+            return u1 != u2;
+          },
+          decoration: const InputDecoration(
+            label: Text('Last name'),
+            border: OutlineInputBorder(),
           ),
-          ElevatedButton(
+          validator: FormBuilderValidators.compose(
+            [
+              FormBuilderValidators.required(
+                  errorText: 'Please enter last name'),
+            ],
+          ),
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        FormBuilderTextField(
+          name: 'first_name',
+          enabled: false,
+          decoration: const InputDecoration(
+            label: Text('First name'),
+            border: OutlineInputBorder(),
+          ),
+          validator: FormBuilderValidators.compose(
+            [
+              FormBuilderValidators.required(
+                  errorText: 'Please enter first name'),
+            ],
+          ),
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: FormBuilderTextField(
+                name: 'amount',
+                decoration: const InputDecoration(
+                  label: Text('Loan amount'),
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r'^[0-9]*[.]?[0-9]*'),
+                  ),
+                ],
+                valueTransformer: (amt) {
+                  if (amt == null) {
+                    return null;
+                  }
+
+                  return double.parse(amt);
+                },
+                validator: FormBuilderValidators.compose(
+                  [
+                    FormBuilderValidators.required(
+                        errorText: 'Please enter loan amount'),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 32,
+            ),
+            Expanded(
+              child: FormBuilderTextField(
+                name: 'term',
+                decoration: const InputDecoration(
+                  label: Text('Term (In months)'),
+                  border: OutlineInputBorder(),
+                ),
+                valueTransformer: (term) {
+                  if (term == null) {
+                    return null;
+                  }
+
+                  print('transformer called');
+
+                  return int.parse(term);
+                },
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+                ],
+                validator: FormBuilderValidators.compose(
+                  [
+                    FormBuilderValidators.required(
+                      errorText: 'Please enter term',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                if (formKey.currentState?.saveAndValidate() ?? false) {
+                  loanBloc.calculateLoan(
+                    monthsToPay: formKey.currentState!.value['term'] as int,
+                    date: formKey.currentState!.value['date'] as DateTime,
+                    amount: formKey.currentState!.value['amount'] as double,
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                  padding: buttonPadding,
+                  backgroundColor: Theme.of(context).colorScheme.primary),
+              child: Text(
+                'Calculate loan',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.apply(color: Colors.white),
+              ),
+            )
+          ],
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        const Divider(
+          thickness: 1.5,
+        ),
+        const SizedBox(
+          height: 16,
+        ),
+        Row(
+          children: [
+            Text(
+              'Computation',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 16,
+        ),
+        BlocBuilder<LoanBloc, LoanState>(
+            buildWhen: (previous, current) => current is LoanSuccessState,
+            builder: (context, state) {
+              final term = formKey.currentState!.instantValue['term'] ?? 0;
+              var amount =
+                  formKey.currentState!.instantValue['amount'];
+
+              if (amount != null) {
+                if (amount.runtimeType == double) {
+                  amount = (amount as double).toCurrency();
+                } else if (amount.runtimeType == String) {
+                  amount = double.parse(amount as String).toCurrency();
+                }
+              } else {
+                amount = 0.0.toCurrency();
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: computationDetailsWidth,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Loan principal:'),
+                              Text('$amount'),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Term (in months):'),
+                              Text('$term months'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: screenSize.width * 0.2,
+                      child: Column(
+                        children: [
+                          const Divider(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Monthly due:',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.apply(
+                                      fontWeightDelta: 2,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary
+                                          .withOpacity(0.8),
+                                    ),
+                              ),
+                              Text(
+                                loanBloc.monthlyAmortization.toCurrency(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.apply(
+                                      fontWeightDelta: 2,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary
+                                          .withOpacity(0.8),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        const SizedBox(
+          height: 32,
+        ),
+        const Divider(
+          thickness: 1.5,
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Loan schedule',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            ElevatedButton(
               onPressed: () {
                 var loan = loanBloc.selectedLoan;
 
@@ -308,65 +358,76 @@ Widget buildLargeScreenBody({
               child: Text(
                 'Print',
                 style: Theme.of(context).textTheme.labelLarge,
-              ))
-        ],
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      BlocBuilder<LoanBloc, LoanState>(
-        buildWhen: (previous, current) {
-          return current is LoanSuccessState;
-        },
-        builder: (context, state) {
-          if (!isLargeScreenBreakpoint) {
-            return buildDashboardTable(
+              ),
+            )
+          ],
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        BlocBuilder<LoanBloc, LoanState>(
+          buildWhen: (previous, current) {
+            return current is LoanSuccessState;
+          },
+          builder: (context, state) {
+            if (!isLargeScreenBreakpoint) {
+              return buildDashboardTable(
                 context: context,
                 loanBloc: loanBloc,
-                pagingController: pagingController);
-          }
+                pagingController: pagingController,
+              );
+            }
 
-          return Scrollbar(
-            controller: horizontalScrollController,
-            thumbVisibility: true,
-            child: SingleChildScrollView(
+            return Scrollbar(
               controller: horizontalScrollController,
-              scrollDirection: Axis.horizontal,
-              child: buildDashboardTable(
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: horizontalScrollController,
+                scrollDirection: Axis.horizontal,
+                child: buildDashboardTable(
                   context: context,
                   loanBloc: loanBloc,
                   pagingController: pagingController,
-                  finiteSize: loanBloc.clientLoanSchedules.isNotEmpty),
-            ),
-          );
-        },
-      ),
-      const SizedBox(
-        height: 32,
-      ),
-      Row(
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () => loanBloc.addLoan(
-                yearsToPay: loanDurationController.text,
-                date: dateController.text,
-                amount: tcpController.text,
+                  finiteSize: loanBloc.clientLoanSchedules.isNotEmpty,
+                ),
               ),
-              style: ElevatedButton.styleFrom(
+            );
+          },
+        ),
+        const SizedBox(
+          height: 32,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  if (formKey.currentState?.saveAndValidate() ?? false) {
+                    loanBloc.addLoan(
+                      monthsToPay: int.parse(
+                          formKey.currentState!.value['term'] as String),
+                      date: formKey.currentState!.value['date'] as DateTime,
+                      amount: double.parse(
+                          formKey.currentState!.value['amount'] as String),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
                   padding: buttonPadding,
-                  backgroundColor: Theme.of(context).colorScheme.primary),
-              child: Text(
-                'Add loan',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.apply(color: Colors.white),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                ),
+                child: Text(
+                  'Add loan',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.apply(color: Colors.white),
+                ),
               ),
-            ),
-          )
-        ],
-      ),
-    ],
+            )
+          ],
+        ),
+      ],
+    ),
   );
 }

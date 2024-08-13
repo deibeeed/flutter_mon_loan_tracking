@@ -4,9 +4,11 @@ import 'package:drop_shadow/drop_shadow.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentication_bloc.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -18,8 +20,8 @@ class AuthenticationScreen extends StatefulWidget {
 }
 
 class _AuthenticationScreenState extends State<AuthenticationScreen> {
-  final emailController = TextEditingController(text: 'deibeeed@test.co');
-  final passwordController = TextEditingController(text: 'Password1!');
+  final _formKey =
+      GlobalKey<FormBuilderState>(debugLabel: 'authentication_screen');
 
   @override
   void initState() {
@@ -61,7 +63,6 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
       isMobileScreen = true;
     }
 
-    printd('size: ${MediaQuery.of(context).size}');
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(appBarHeight),
@@ -76,12 +77,12 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
               margin: const EdgeInsets.only(bottom: 48),
               child: Center(
                 child: Text(
-                    'Baybay Property Ventures Corp.\nLoan Monitoring System',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.apply(fontSizeFactor: 2.0),
-                    textAlign: TextAlign.center),
+                  'Loan Monitoring System',
+                  style: Theme.of(context).textTheme.titleSmall?.apply(
+                        fontSizeFactor: 2,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ),
@@ -95,7 +96,6 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
       ),
       body: BlocListener<AuthenticationBloc, AuthenticationState>(
         listener: (context, state) {
-          printd(state);
           if (state is LoginSuccessState) {
             if (state.message.isNotEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -158,128 +158,146 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                               Widget content = Padding(
                                 padding: EdgeInsets.all(cardPadding),
                                 child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      TextFormField(
-                                        controller: emailController,
-                                        decoration: const InputDecoration(
-                                          label: Text('Email'),
-                                          border: OutlineInputBorder(),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 32,
-                                      ),
-                                      BlocBuilder<AuthenticationBloc,
-                                              AuthenticationState>(
-                                          buildWhen: (previous, current) =>
-                                              current is UiEmitState,
-                                          builder: (context, state) {
-                                            return TextFormField(
-                                              controller: passwordController,
-                                              obscureText: true,
-                                              decoration: const InputDecoration(
-                                                label: Text('Password'),
-                                                border: OutlineInputBorder(),
-                                              ),
-                                              textInputAction:
-                                                  TextInputAction.go,
-                                              onFieldSubmitted: (value) {
-                                                authenticationBloc.login(
-                                                  email: emailController.text,
-                                                  password:
-                                                      passwordController.text,
-                                                );
-                                              },
-                                            );
-                                          }),
-                                      const SizedBox(
-                                        height: 72,
-                                      ),
-                                      SizedBox(
-                                        height: buttonHeight,
-                                        width: double.infinity,
-                                        child: ElevatedButton(
-                                          onPressed: () =>
-                                              authenticationBloc.login(
-                                            email: emailController.text,
-                                            password: passwordController.text,
+                                  child: FormBuilder(
+                                    key: _formKey,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        FormBuilderTextField(
+                                          name: 'email',
+                                          initialValue: 'deibeeed@test.co',
+                                          decoration: const InputDecoration(
+                                            label: Text('Email'),
+                                            border: OutlineInputBorder(),
                                           ),
-                                          style: ElevatedButton.styleFrom(
-                                              padding:
-                                                  EdgeInsets.all(buttonPadding),
-                                              backgroundColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                'Login',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium
-                                                    ?.apply(
-                                                        color: Colors.white),
+                                          validator:
+                                              FormBuilderValidators.compose(
+                                            [
+                                              FormBuilderValidators.required(
+                                                errorText: 'Please enter email',
                                               ),
-                                              BlocBuilder<AuthenticationBloc,
-                                                      AuthenticationState>(
-                                                  builder: (context, state) {
-                                                if (state
-                                                        is LoginLoadingState &&
-                                                    state.isLoading) {
-                                                  return Row(
-                                                    children: const [
-                                                      SizedBox(
-                                                        width: 16,
-                                                      ),
-                                                      CircularProgressIndicator(
-                                                        color: Colors.white,
-                                                      )
-                                                    ],
-                                                  );
-                                                }
-
-                                                return Container();
-                                              }),
                                             ],
                                           ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                          top: 16,
+                                        const SizedBox(
+                                          height: 32,
                                         ),
-                                        child: RichText(
-                                          text: TextSpan(
-                                              text: 'Having trouble? ',
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface
+                                        FormBuilderTextField(
+                                          name: 'password',
+                                          initialValue: 'Password1!',
+                                          obscureText: true,
+                                          decoration: const InputDecoration(
+                                            label: Text('Password'),
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          textInputAction: TextInputAction.go,
+                                          validator:
+                                              FormBuilderValidators.compose(
+                                            [
+                                              FormBuilderValidators.required(
+                                                errorText: 'Please enter Password',
                                               ),
-                                              children: [
-                                                TextSpan(
-                                                  text: 'Contact support',
-                                                  style: TextStyle(
-                                                      color: Colors.blueAccent),
-                                                  recognizer:
-                                                      TapGestureRecognizer()
-                                                        ..onTap = () async {
-                                                          if (await canLaunchUrlString(
-                                                              'mailto:support@anaheimtechnologies.com')) {
-                                                            launchUrlString(
-                                                                'mailto:support@anaheimtechnologies.com?subject=Need Help!&body=describe your problem here');
-                                                          }
-                                                        },
-                                                )
-                                              ]),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(
+                                          height: 72,
+                                        ),
+                                        SizedBox(
+                                          height: buttonHeight,
+                                          width: double.infinity,
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              if (_formKey.currentState
+                                                      ?.saveAndValidate() ??
+                                                  false) {
+                                                authenticationBloc.login(
+                                                  email: _formKey.currentState!
+                                                      .value['email'] as String,
+                                                  password: _formKey
+                                                          .currentState!
+                                                          .value['password']
+                                                      as String,
+                                                );
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                                padding: EdgeInsets.all(
+                                                    buttonPadding),
+                                                backgroundColor:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .primary),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  'Login',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.apply(
+                                                          color: Colors.white),
+                                                ),
+                                                BlocBuilder<AuthenticationBloc,
+                                                        AuthenticationState>(
+                                                    builder: (context, state) {
+                                                  if (state
+                                                          is LoginLoadingState &&
+                                                      state.isLoading) {
+                                                    return const Row(
+                                                      children: [
+                                                        SizedBox(
+                                                          width: 16,
+                                                        ),
+                                                        CircularProgressIndicator(
+                                                          color: Colors.white,
+                                                        )
+                                                      ],
+                                                    );
+                                                  }
+
+                                                  return Container();
+                                                }),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 16,
+                                          ),
+                                          child: RichText(
+                                            text: TextSpan(
+                                                text: 'Having trouble? ',
+                                                style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface),
+                                                children: [
+                                                  TextSpan(
+                                                    text: 'Contact support',
+                                                    style: const TextStyle(
+                                                        color:
+                                                            Colors.blueAccent),
+                                                    recognizer:
+                                                        TapGestureRecognizer()
+                                                          ..onTap = () async {
+                                                            if (await canLaunchUrlString(
+                                                                'mailto:support@anaheimtechnologies.com')) {
+                                                              launchUrlString(
+                                                                  'mailto:support@anaheimtechnologies.com?subject=Need Help!&body=describe your problem here');
+                                                            }
+                                                          },
+                                                  )
+                                                ]),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               );
@@ -326,29 +344,27 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                       return Expanded(
                         child: Container(
                           margin: EdgeInsets.only(
-                              top: loginContainerMarginTop,
-                              right: loginContainerMarginTop,
-                              bottom: 32),
+                            top: loginContainerMarginTop,
+                            right: loginContainerMarginTop,
+                          ),
                           child: Stack(
                             children: [
-                              ClipRRect(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(64)),
-                                child: Image.asset(
-                                  'assets/images/login_bg2.jpg',
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(64)),
+                                  child: Image.asset(
+                                    'assets/images/login_bg2.jpg',
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                  ),
                                 ),
                               ),
-                              DropShadow(
-                                offset: Offset(4, 4),
-                                borderRadius: 64,
-                                blurRadius: 2,
-                                color: Colors.white,
-                                spread: 1,
-                                child: Image.asset(
-                                  'assets/images/logo.png',
-                                  fit: BoxFit.cover,
+                              Center(
+                                child: Text(
+                                  'Logo client here or other media',
+                                  style:
+                                      Theme.of(context).textTheme.displayLarge,
                                 ),
                               ),
                             ],

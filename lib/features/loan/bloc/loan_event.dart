@@ -16,18 +16,20 @@ class SearchLotEvent extends LoanEvent {
 class GetSettingsEvent extends LoanEvent {}
 
 class AddLoanEvent extends LoanEvent {
-  final num yearsToPay;
-  final String date;
+  final num monthsToPay;
+  final DateTime date;
   final bool storeInDb;
   final bool withUser;
-  final num? amount;
+  final double amount;
+  final double? interestRate;
 
   AddLoanEvent({
-    required this.yearsToPay,
+    required this.monthsToPay,
     required this.date,
     this.storeInDb = true,
     this.withUser = true,
-    this.amount,
+    required this.amount,
+    this.interestRate,
   });
 }
 

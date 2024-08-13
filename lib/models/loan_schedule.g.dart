@@ -15,6 +15,7 @@ LoanSchedule _$LoanScheduleFromJson(Map<String, dynamic> json) => LoanSchedule(
       loanId: json['loanId'] as String,
       id: json['id'] as String,
       createdAt: json['createdAt'] as num,
+      extraPayment: json['extraPayment'] as num?,
     )..paidOn = json['paidOn'] as num?;
 
 Map<String, dynamic> _$LoanScheduleToJson(LoanSchedule instance) =>
@@ -28,4 +29,5 @@ Map<String, dynamic> _$LoanScheduleToJson(LoanSchedule instance) =>
       'loanId': instance.loanId,
       'id': instance.id,
       'createdAt': instance.createdAt,
+      'extraPayment': instance.extraPayment,
     };

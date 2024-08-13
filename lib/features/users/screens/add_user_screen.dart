@@ -18,24 +18,6 @@ class AddUserScreen extends StatefulWidget {
 }
 
 class _AddUserScreenState extends State<AddUserScreen> {
-  final lastNameController = TextEditingController();
-  final firstNameController = TextEditingController();
-  final mobileNumberController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
-  final birthDateController = TextEditingController();
-  final middleNameController = TextEditingController();
-  final birthPlaceController = TextEditingController();
-  final nationalityController = TextEditingController();
-  final heightController = TextEditingController();
-  final weightController = TextEditingController();
-  final childrenCountController = TextEditingController();
-  final tinNoController = TextEditingController();
-  final sssNoController = TextEditingController();
-  final philHealthController = TextEditingController();
-  final telNoController = TextEditingController();
-
   final _formKey = GlobalKey<FormBuilderState>(debugLabel: 'add_user_screen');
 
   @override

@@ -379,7 +379,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       final updatedUser = await userRepository.update(data: tempUser!);
 
       if (tempUserSpouse != null) {
-        final updatedSpouse = await userRepository.update(data: tempUserSpouse!);
+        final updatedSpouse =
+            await userRepository.update(data: tempUserSpouse!);
       }
 
       if (tempUserEmploymentDetails != null) {
@@ -389,13 +390,13 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
       if (tempUserSpouseEmploymentDetails != null) {
         final updatedUserSpouseEmploymentDetails =
-        await employmentDetailsRepository.update(
-            data: tempUserSpouseEmploymentDetails!);
+            await employmentDetailsRepository.update(
+                data: tempUserSpouseEmploymentDetails!);
       }
 
       if (tempUserAddress != null) {
         final updatedUserAddress =
-        await addressRepository.update(data: tempUserAddress!);
+            await addressRepository.update(data: tempUserAddress!);
       }
 
       for (final beneficiary in tempUserBeneficiaries) {
@@ -434,6 +435,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     } catch (err) {
       printd(err);
     }
+  }
+
+  Future<List<User>> searchCustomer(String query) {
+    return userRepository.customers().then((customers) {
+      return customers
+          .where((customer) => customer.lastName.toLowerCase().contains(query))
+          .toList();
+    });
   }
 
   Future<void> _handleSearchUsersEvent(

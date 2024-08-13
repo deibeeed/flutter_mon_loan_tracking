@@ -76,6 +76,7 @@ class Constants {
     'Monthly amortization',
     'Principal payment',
     'Interest payment',
+    'Extra payment',
     'Status'
   ];
 

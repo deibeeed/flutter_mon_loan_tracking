@@ -1,16 +1,21 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/loan.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
+import 'package:flutter_mon_loan_tracking/models/user.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
 import 'package:flutter_mon_loan_tracking/widgets/pdf_generator.dart';
 import 'package:flutter_mon_loan_tracking/widgets/widget_utils.dart';
+import 'package:form_builder_extra_fields/form_builder_extra_fields.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -26,12 +31,7 @@ class AddLoanScreen extends StatefulWidget {
 }
 
 class _AddLoanScreenState extends State<AddLoanScreen> {
-  final firstNameController = TextEditingController();
-  final lastNameController = TextEditingController();
-  final tcpController = TextEditingController();
-  final loanDurationController = TextEditingController();
-  final dateController = TextEditingController(
-      text: Constants.defaultDateFormat.format(DateTime.now()));
+  final _formKey = GlobalKey<FormBuilderState>(debugLabel: 'add_loan_screen');
   final pagingController = PagingController<int, LoanSchedule>(firstPageKey: 0);
   var _downpaymentPopulated = false;
 
@@ -90,12 +90,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
     return BlocListener<LoanBloc, LoanState>(
       listener: (context, state) {
         if (state is LoanSuccessState) {
-          if (loanBloc.selectedUser != null) {
-            firstNameController.text = loanBloc.selectedUser!.firstName;
-          }
-
           if (loanBloc.settings != null) {
-
             pagingController.value = PagingState(
               itemList: loanBloc.clientLoanSchedules,
             );
@@ -204,103 +199,14 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
         body: shortestSide <= Constants.smallScreenShortestSideBreakPoint
             ? buildSmallScreenBody(
                 context: context,
-                loanBloc: loanBloc,
-                firstNameController: firstNameController,
-                lastNameController: lastNameController,
-                tcpController: tcpController,
-                loanDurationController: loanDurationController,
-                dateController: dateController,
                 pagingController: pagingController,
+                formKey: _formKey,
               )
             : buildLargeScreenBody(
                 context: context,
-                loanBloc: loanBloc,
-                firstNameController: firstNameController,
-                lastNameController: lastNameController,
-                tcpController: tcpController,
-                loanDurationController: loanDurationController,
-                dateController: dateController,
                 pagingController: pagingController,
+                formKey: _formKey,
               ),
-      ),
-    );
-  }
-
-  Widget _buildTable({
-    required BuildContext context,
-    required LoanBloc loanBloc,
-  }) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        dataRowHeight: 72,
-        headingRowColor: MaterialStateColor.resolveWith(
-          (states) => Theme.of(context)
-              .colorScheme
-              .secondaryContainer
-              .withOpacity(0.32),
-        ),
-        columns: [
-          for (String name in Constants.loan_schedule_table_columns)
-            DataColumn(
-                label: Text(
-              name.toUpperCase(),
-              style: Theme.of(context).textTheme.titleMedium?.apply(
-                    fontWeightDelta: 3,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-            ))
-        ],
-        rows: loanBloc.clientLoanSchedules
-            .mapIndexed(
-              (i, schedule) => DataRow(
-                cells: [
-                  DataCell(
-                    defaultCellText(
-                      text: '${i + 1}',
-                    ),
-                  ),
-                  DataCell(
-                    defaultCellText(
-                      text: Constants.defaultDateFormat.format(
-                        DateTime.fromMillisecondsSinceEpoch(
-                          schedule.date.toInt(),
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: defaultCellText(
-                        text: schedule.outstandingBalance.toCurrency(),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: defaultCellText(
-                        text: schedule.monthlyAmortization.toCurrency(),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: defaultCellText(
-                        text: schedule.principalPayment.toCurrency(),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Center(
-                      child: defaultCellText(
-                        text: schedule.interestPayment.toCurrency(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-            .toList(),
       ),
     );
   }

@@ -156,12 +156,14 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreenSmall> {
                   height: 32,
                 ),
                 ElevatedButton(
-                  onPressed: () => loanBloc.calculateLoan(
-                    monthsToPay: loanDurationController.text,
-                    date: Constants.defaultDateFormat.format(DateTime.now()),
-                    loanInterestRate: interestRateController.text,
-                    amount: tcpController.text,
-                  ),
+                  onPressed: () {
+                    // loanBloc.calculateLoan(
+                    //   monthsToPay: loanDurationController.text,
+                    //   date: Constants.defaultDateFormat.format(DateTime.now()),
+                    //   loanInterestRate: interestRateController.text,
+                    //   amount: tcpController.text,
+                    // );
+                  },
                   style: ElevatedButton.styleFrom(
                       padding: buttonPadding,
                       backgroundColor: Theme.of(context).colorScheme.primary),
