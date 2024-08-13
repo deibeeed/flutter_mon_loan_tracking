@@ -37,6 +37,7 @@ dependencies:
   printing: ^5.13.1
   shared_preferences: ^2.0.18
   url_launcher: ^6.1.10
+  gap: ^3.0.1
 
 dev_dependencies:
   bloc_test: ^9.1.0

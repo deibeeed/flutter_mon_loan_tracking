@@ -175,15 +175,18 @@ Widget buildDashboardTable({
                 context: context,
                 name: Constants.loan_schedule_table_columns[5],
               ),
-
+              gridHeaderItem(
+                context: context,
+                name: Constants.loan_schedule_table_columns[6],
+              ),
               if (withStatus) ...[
                 gridHeaderItem(
                   context: context,
-                  name: Constants.loan_schedule_table_columns[6],
+                  name: Constants.loan_schedule_table_columns[7],
                 ),
                 gridHeaderItem(
                   context: context,
-                  name: Constants.loan_schedule_table_columns[7],
+                  name: Constants.loan_schedule_table_columns[8],
                 ),
               ],
 
@@ -222,6 +225,13 @@ Widget buildDashboardTable({
                             DateTime.fromMillisecondsSinceEpoch(
                               schedule.date.toInt(),
                             ),
+                          ),
+                        ),
+                      ),
+                      gridItem(
+                        child: Center(
+                          child: defaultCellText(
+                            text: schedule.beginningBalance.toCurrency(),
                           ),
                         ),
                       ),

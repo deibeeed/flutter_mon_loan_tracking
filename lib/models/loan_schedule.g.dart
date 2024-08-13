@@ -8,6 +8,7 @@ part of 'loan_schedule.dart';
 
 LoanSchedule _$LoanScheduleFromJson(Map<String, dynamic> json) => LoanSchedule(
       date: json['date'] as num,
+      beginningBalance: json['beginningBalance'] as num,
       outstandingBalance: json['outstandingBalance'] as num,
       monthlyAmortization: json['monthlyAmortization'] as num,
       principalPayment: json['principalPayment'] as num,
@@ -21,6 +22,7 @@ LoanSchedule _$LoanScheduleFromJson(Map<String, dynamic> json) => LoanSchedule(
 Map<String, dynamic> _$LoanScheduleToJson(LoanSchedule instance) =>
     <String, dynamic>{
       'date': instance.date,
+      'beginningBalance': instance.beginningBalance,
       'outstandingBalance': instance.outstandingBalance,
       'monthlyAmortization': instance.monthlyAmortization,
       'principalPayment': instance.principalPayment,

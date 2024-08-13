@@ -905,6 +905,9 @@ Widget _buildLargeScreenUserBlock({
                   ? '${userBloc.tempUserEmploymentDetails != null ? "Remove" : "Add"} employment details'
                   : '${userBloc.tempUserSpouseEmploymentDetails != null ? "Remove" : "Add"} employment details',
             ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            ),
           ),
         ],
       ),
@@ -1097,7 +1100,10 @@ Widget _buildLargeScreenBeneficiaryBlock({
             child: const Text(
               'Add',
             ),
-          )
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            ),
+          ),
         ],
       ),
       const SizedBox(

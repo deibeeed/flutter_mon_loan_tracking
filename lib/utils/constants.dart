@@ -72,20 +72,12 @@ class Constants {
   static const loan_schedule_table_columns = [
     'Period',
     'Date',
-    'Outstanding balance',
-    'Monthly amortization',
-    'Principal payment',
-    'Interest payment',
-    'Extra payment',
-    'Status'
-  ];
-
-  static const user_loan_schedule_table_columns = [
-    'Date',
-    'Outstanding balance',
-    'Monthly amortization',
-    'Principal payment',
-    'Interest payment',
+    'Beginning\nbalance',
+    'Ending\nbalance',
+    'Monthly\namortization',
+    'Principal\npayment',
+    'Interest\npayment',
+    'Extra\npayment',
     'Status'
   ];
 

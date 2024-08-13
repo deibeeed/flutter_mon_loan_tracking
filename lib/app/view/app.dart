@@ -217,7 +217,8 @@ class _AppState extends State<App> {
                   userRepository: context.read<UserRepository>(),
                   authenticationService: context.read<AuthenticationService>(),
                   addressRepository: context.read<AddressRepository>(),
-                  beneficiaryRepository: context.read<BeneficiariesRepository>(),
+                  beneficiaryRepository:
+                      context.read<BeneficiariesRepository>(),
                   employmentDetailsRepository:
                       context.read<EmploymentDetailsRepository>(),
                 ),
@@ -252,9 +253,13 @@ class _AppState extends State<App> {
                       debugShowCheckedModeBanner: false,
                       routerConfig: _rootRouter,
                       theme: ThemeData(
-                          useMaterial3: true, colorScheme: lightColorScheme),
+                        useMaterial3: true,
+                        colorScheme: lightColorScheme,
+                      ),
                       darkTheme: ThemeData(
-                          useMaterial3: true, colorScheme: darkColorScheme),
+                        useMaterial3: true,
+                        colorScheme: darkColorScheme,
+                      ),
                       localizationsDelegates:
                           AppLocalizations.localizationsDelegates,
                       supportedLocales: AppLocalizations.supportedLocales,
@@ -263,7 +268,7 @@ class _AppState extends State<App> {
                   },
                   future: Future.wait([
                     context.read<AuthenticationBloc>().initializeFuture(),
-                    context.read<SettingsBloc>().initializeFuture()
+                    context.read<SettingsBloc>().initializeFuture(),
                   ]),
                 );
               },

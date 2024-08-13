@@ -33,9 +33,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     required this.beneficiaryRepository,
     required this.employmentDetailsRepository,
   }) : super(UserInitial()) {
-    // on<UserEvent>((event, emit) {
-    //   // TODO: implement event handler
-    // });
     on(_handleGetAllUsersEvent);
     on(_handleSearchUsersEvent);
     on(_handleGetUserEvent);

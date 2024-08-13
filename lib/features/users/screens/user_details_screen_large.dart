@@ -162,43 +162,50 @@ Widget buildLargeScreenBody({
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (userBloc.getLoggedInUser()?.type == UserType.admin &&
-                  userBloc.getLoggedInUser()?.id != userId) ...[
-                ElevatedButton(
-                  onPressed: loanBloc.removeLoan,
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                      Theme.of(context).colorScheme.errorContainer),
-                  child: Text(
-                    'Remove',
-                    style: Theme.of(context).textTheme.titleMedium?.apply(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+              // if (userBloc.getLoggedInUser()?.type == UserType.admin &&
+              //     userBloc.getLoggedInUser()?.id != userId) ...[
+              //   ElevatedButton(
+              //     onPressed: loanBloc.removeLoan,
+              //     style: ElevatedButton.styleFrom(
+              //         backgroundColor:
+              //         Theme.of(context).colorScheme.errorContainer),
+              //     child: Text(
+              //       'Remove',
+              //       style: Theme.of(context).textTheme.titleMedium?.apply(
+              //         color: Theme.of(context).colorScheme.error,
+              //       ),
+              //     ),
+              //   ),
+              //   const SizedBox(
+              //     width: 16,
+              //   )
+              // ],
+              ElevatedButton(
+                onPressed: () {
+                  var user = userBloc.tempUser;
+                  var loan = loanBloc.selectedLoan;
+
+                  if (user == null || loan == null) {
+                    return;
+                  }
+
+                  PdfGenerator.generatePdf(
+                    user: user,
+                    schedules: loanBloc.clientLoanSchedules,
+                    loan: loan,
+                  );
+                },
+                child: Text(
+                  'Print',
+                  style: TextStyle(
+                    fontSize: 16,
                   ),
                 ),
-                const SizedBox(
-                  width: 16,
-                )
-              ],
-              ElevatedButton(
-                  onPressed: () {
-                    var user = userBloc.tempUser;
-                    var loan = loanBloc.selectedLoan;
-
-                    if (user == null || loan == null) {
-                      return;
-                    }
-
-                    PdfGenerator.generatePdf(
-                      user: user,
-                      schedules: loanBloc.clientLoanSchedules,
-                      loan: loan,
-                    );
-                  },
-                  child: Text(
-                    'Print',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  )),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primaryContainer,
+                    padding: EdgeInsets.all(16)),
+              ),
             ],
           )
         ],
@@ -227,9 +234,22 @@ Widget buildLargeScreenBody({
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        const Text('Loan principal:'),
+                        Text(loanBloc.selectedLoan!.amount.toCurrency()),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         const Text('Loan duration:'),
-                        Text(
-                            '${loanBloc.selectedLoan!.monthsToPay} years to pay (${loanBloc.yearsToMonths(years: loanBloc.selectedLoan!.monthsToPay.toString())} mos.)'),
+                        Text('${loanBloc.selectedLoan!.monthsToPay} months'),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Monthly amortization:'),
+                        Text(loanBloc.selectedLoan!.monthlyAmortization.toCurrency()),
                       ],
                     ),
                   ],

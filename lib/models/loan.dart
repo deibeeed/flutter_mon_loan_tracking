@@ -10,19 +10,21 @@ class Loan extends Equatable {
   final String id;
   final String clientId;
   final String preparedBy;
-  final num loanInterestRate;
+  final num monthlyInterestRate;
   final num createdAt;
   final num amount;
   final num monthsToPay;
+  final double monthlyAmortization;
 
   Loan({
     required this.id,
     required this.clientId,
     required this.preparedBy,
-    required this.loanInterestRate,
+    required this.monthlyInterestRate,
     required this.createdAt,
     required this.amount,
     required this.monthsToPay,
+    required this.monthlyAmortization,
   });
 
   factory Loan.create({
@@ -30,16 +32,18 @@ class Loan extends Equatable {
     required String preparedBy,
     required num interestRate,
     required num amount,
-    required num yearsToPay,
+    required num monthsToPay,
+    required double monthlyAmortization,
   }) =>
       Loan(
         id: Constants.NO_ID,
         clientId: clientId,
         preparedBy: preparedBy,
-        loanInterestRate: interestRate,
+        monthlyInterestRate: interestRate,
         createdAt: DateTime.timestamp().millisecondsSinceEpoch,
         amount: amount,
-        monthsToPay: yearsToPay,
+        monthsToPay: monthsToPay,
+        monthlyAmortization: monthlyAmortization,
       );
 
   factory Loan.updateId({
@@ -50,10 +54,11 @@ class Loan extends Equatable {
         id: id,
         clientId: loan.clientId,
         preparedBy: loan.preparedBy,
-        loanInterestRate: loan.loanInterestRate,
+        monthlyInterestRate: loan.monthlyInterestRate,
         createdAt: loan.createdAt,
         amount: loan.amount,
         monthsToPay: loan.monthsToPay,
+        monthlyAmortization: loan.monthlyAmortization,
       );
 
   factory Loan.fromJson(Map<String, dynamic> json) => _$LoanFromJson(json);
@@ -66,7 +71,7 @@ class Loan extends Equatable {
     id,
     clientId,
     preparedBy,
-    loanInterestRate,
+    monthlyInterestRate,
     createdAt,
     amount,
   ];

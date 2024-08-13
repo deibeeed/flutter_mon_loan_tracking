@@ -62,6 +62,7 @@ Widget buildLargeScreenBody({
           builder: (context, state) {
             return FormBuilderDateTimePicker(
               name: 'date',
+              initialValue: DateTime.now(),
               inputType: InputType.date,
               decoration: const InputDecoration(
                 label: Text('Date'),
@@ -249,6 +250,8 @@ Widget buildLargeScreenBody({
               if (amount != null) {
                 if (amount.runtimeType == double) {
                   amount = (amount as double).toCurrency();
+                } else if (amount.runtimeType == int) {
+                  amount = (amount as int).toCurrency();
                 } else if (amount.runtimeType == String) {
                   amount = double.parse(amount as String).toCurrency();
                 }

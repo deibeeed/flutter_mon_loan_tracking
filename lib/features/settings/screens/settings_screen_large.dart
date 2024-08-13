@@ -78,7 +78,7 @@ Widget buildLargeScreenBody({
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Loan interest rate'),
+                    const Text('Monthly interest rate'),
                     BlocBuilder<SettingsBloc, SettingsState>(
                       buildWhen: (previousState, currentState) {
                         return currentState is SettingsSuccessState;
@@ -104,7 +104,7 @@ Widget buildLargeScreenBody({
                 TextFormField(
                   controller: loanInterestRateController,
                   decoration: const InputDecoration(
-                    label: Text('Loan interest rate'),
+                    label: Text('Monthly interest rate'),
                     suffixText: '%',
                     border: OutlineInputBorder(),
                   ),

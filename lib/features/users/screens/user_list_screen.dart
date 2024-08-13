@@ -231,7 +231,7 @@ class UserListScreen extends StatelessWidget {
       child: DataTable(
         showCheckboxColumn: false,
         dataRowHeight: 72,
-        headingRowColor: MaterialStateColor.resolveWith(
+        headingRowColor: WidgetStateColor.resolveWith(
           (states) => Theme.of(context)
               .colorScheme
               .secondaryContainer

@@ -7,6 +7,7 @@ part 'loan_schedule.g.dart';
 @JsonSerializable()
 class LoanSchedule extends Equatable {
   final num date;
+  final num beginningBalance;
   final num outstandingBalance;
   final num monthlyAmortization;
   final num principalPayment;
@@ -19,6 +20,7 @@ class LoanSchedule extends Equatable {
 
   LoanSchedule({
     required this.date,
+    required this.beginningBalance,
     required this.outstandingBalance,
     required this.monthlyAmortization,
     required this.principalPayment,
@@ -31,6 +33,7 @@ class LoanSchedule extends Equatable {
 
   factory LoanSchedule.create({
     required num date,
+    required num beginningBalance,
     required num outstandingBalance,
     required num monthlyAmortization,
     required num principalPayment,
@@ -39,6 +42,7 @@ class LoanSchedule extends Equatable {
   }) =>
       LoanSchedule(
         date: date,
+        beginningBalance: beginningBalance,
         outstandingBalance: outstandingBalance,
         monthlyAmortization: monthlyAmortization,
         principalPayment: principalPayment,
@@ -54,6 +58,7 @@ class LoanSchedule extends Equatable {
   }) =>
       LoanSchedule(
         date: loanSchedule.date,
+        beginningBalance: loanSchedule.beginningBalance,
         outstandingBalance: loanSchedule.outstandingBalance,
         monthlyAmortization: loanSchedule.monthlyAmortization,
         principalPayment: loanSchedule.principalPayment,
@@ -70,6 +75,7 @@ class LoanSchedule extends Equatable {
   }) =>
       LoanSchedule(
         date: loanSchedule.date,
+        beginningBalance: loanSchedule.beginningBalance,
         outstandingBalance: loanSchedule.outstandingBalance,
         monthlyAmortization: loanSchedule.monthlyAmortization,
         principalPayment: loanSchedule.principalPayment,

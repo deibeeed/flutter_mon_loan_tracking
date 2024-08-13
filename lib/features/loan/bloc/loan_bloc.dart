@@ -251,17 +251,15 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required num interestRate,
   }) {
     _clientLoanSchedules.clear();
-    var annualInterestRate = interestRate / 100;
-    // var monthsToPay = yearsToPay * 12;
+    var monthlyInterestRate = interestRate / 100;
     var outstandingBalance = amount;
 
-    final loanMonthlyAmortization = _calculateMonthlyPayment2(
+    final loanMonthlyAmortization = _calculateMonthlyPayment(
       outstandingBalance: amount,
-      annualInterestRate: annualInterestRate,
+      monthlyInterestRate: monthlyInterestRate,
       monthsToPay: monthsToPay,
     );
     _monthlyAmortization = loanMonthlyAmortization;
-    var monthlyInterestRate = annualInterestRate / 12;
     // var nextMonthDate = date.add(const Duration(days: 30));
     var nextMonthDate =
         Jiffy.parseFromMillisecondsSinceEpoch(date.millisecondsSinceEpoch)
@@ -279,6 +277,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       printd('---------------------------------------------------');
       final schedule = LoanSchedule.create(
         date: nextMonthDate.millisecondsSinceEpoch,
+        beginningBalance: outstandingBalance + principalPayment,
         outstandingBalance: outstandingBalance,
         monthlyAmortization: loanMonthlyAmortization,
         principalPayment: principalPayment,
@@ -345,8 +344,9 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         clientId: clientId,
         preparedBy: authenticationService.loggedInUser!.uid,
         interestRate: loanInterestRate,
-        yearsToPay: event.monthsToPay,
+        monthsToPay: event.monthsToPay,
         amount: event.amount,
+        monthlyAmortization: _monthlyAmortization.toDouble()
       );
 
       if (event.storeInDb) {
@@ -615,14 +615,11 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   ///     n = Total number of interest periods (interest periods per year * number of years)
   ///
   /// source: https://superuser.com/questions/871404/what-would-be-the-the-mathematical-equivalent-of-this-excel-formula-pmt
-  num _calculateMonthlyPayment2({
+  num _calculateMonthlyPayment({
     required num outstandingBalance,
-    required num annualInterestRate,
+    required num monthlyInterestRate,
     required num monthsToPay,
   }) {
-    /// in 1 year, there are 12 months
-    final monthlyInterestRate = annualInterestRate / 12;
-
     num p = (outstandingBalance * monthlyInterestRate) /
         (1 - pow(1 + monthlyInterestRate, -1 * monthsToPay));
 

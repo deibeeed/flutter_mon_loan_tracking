@@ -12,7 +12,7 @@ import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class PdfGenerator {
-  static generatePdf({
+  static void generatePdf({
     User? user,
     required List<LoanSchedule> schedules,
     required Loan loan,
@@ -22,8 +22,16 @@ class PdfGenerator {
       // when the user changes the printer or printer settings
       onLayout: (PdfPageFormat format) {
         // Any valid Pdf document can be returned here as a list of int
+        const margin = 1 * PdfPageFormat.cm;
         return _buildPdf(
-          format,
+          format.copyWith(
+            height: PdfPageFormat.a4.width,
+            width: PdfPageFormat.a4.height,
+            marginLeft: margin,
+            marginTop: margin,
+            marginRight: margin,
+            marginBottom: margin,
+          ),
           user: user,
           schedules: schedules,
           loan: loan,
@@ -33,22 +41,19 @@ class PdfGenerator {
   }
 
   static Future<Uint8List> _buildPdf(
-      PdfPageFormat format, {
-        User? user,
-        required List<LoanSchedule> schedules,
-        required Loan loan,
-      }) async {
+    PdfPageFormat format, {
+    User? user,
+    required List<LoanSchedule> schedules,
+    required Loan loan,
+  }) async {
     final pdfTheme = pw.ThemeData.withFont(
         base: await PdfGoogleFonts.robotoRegular(),
         bold: await PdfGoogleFonts.robotoBold(),
         boldItalic: await PdfGoogleFonts.robotoBoldItalic(),
         italic: await PdfGoogleFonts.robotoItalic(),
-        icons: await PdfGoogleFonts.robotoRegular()
-    );
+        icons: await PdfGoogleFonts.robotoRegular());
     // Create the Pdf documentf
-    final pw.Document doc = pw.Document(
-        theme: pdfTheme
-    );
+    final pw.Document doc = pw.Document(theme: pdfTheme);
     printd('pageFormat: $format');
     // final finalFormat = format.copyWith(marginLeft: 1.0 * PdfPageFormat.cm);
 
@@ -56,6 +61,7 @@ class PdfGenerator {
     // pw.Partitions
     doc.addPage(
       pw.MultiPage(
+        orientation: pw.PageOrientation.landscape,
         pageFormat: format,
         build: (pw.Context context) {
           return [
@@ -73,22 +79,22 @@ class PdfGenerator {
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text('Total contract price'),
+                    pw.Text('Loan principal'),
                     pw.Text(loan.amount.toCurrency()),
                   ],
                 ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text('Interest rate'),
-                    pw.Text('${loan.loanInterestRate}%'),
+                    pw.Text('Monthly interest rate'),
+                    pw.Text('${loan.monthlyInterestRate}%'),
                   ],
                 ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text('Type'),
-                    pw.Text('${loan.monthsToPay} years to pay'),
+                    pw.Text('Term'),
+                    pw.Text('${loan.monthsToPay} months'),
                   ],
                 ),
               ]),
@@ -96,54 +102,94 @@ class PdfGenerator {
             pw.SizedBox(
               height: 32,
             ),
-            pw.Table( children: [
-              pw.TableRow(
-                repeat: true,
-                children: Constants.loan_schedule_table_columns
-                    .sublist(
-                    0,
-                    Constants.loan_schedule_table_columns
-                        .length -
-                        1)
-                    .map((header) => pw.Container(
-                  margin: pw.EdgeInsets.only(bottom: 16),
-                  decoration: pw.BoxDecoration(
-                    border: pw.Border(
-                      bottom: pw.BorderSide()
-                    )
+            pw.Table(
+              children: [
+                pw.TableRow(
+                  repeat: true,
+                  children: Constants.loan_schedule_table_columns
+                      .sublist(
+                          0, Constants.loan_schedule_table_columns.length - 1)
+                      .map(
+                        (header) => pw.Expanded(
+                          child: pw.Container(
+                            margin: const pw.EdgeInsets.only(bottom: 16),
+                            decoration: const pw.BoxDecoration(
+                                border: pw.Border(bottom: pw.BorderSide())),
+                            height: 40,
+                            child: pw.Text(
+                              header,
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                              textAlign: pw.TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+                ...schedules.mapIndexed(
+                  (index, schedule) => pw.TableRow(
+                    children: [
+                      pw.Expanded(
+                        child: pw.Text(
+                          '${index + 1}',
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Expanded(
+                        child: pw.Text(
+                          schedule.date.toDefaultDate(),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Expanded(
+                        child: pw.Text(
+                          schedule.beginningBalance.toCurrency(),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Expanded(
+                        child: pw.Text(
+                          schedule.outstandingBalance.toCurrency(),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Expanded(
+                        child: pw.Text(
+                          schedule.monthlyAmortization.toCurrency(),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Expanded(
+                        child: pw.Text(
+                          schedule.principalPayment.toCurrency(),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Expanded(
+                        child: pw.Text(
+                          schedule.interestPayment.toCurrency(),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Expanded(
+                        child: pw.Text(
+                          schedule.extraPayment?.toCurrency() ?? '',
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                    ],
                   ),
-                    width: header.toLowerCase() == 'month' ? 80 : 120,
-                    height: 40,
-                    child: pw.Text(header,
-                        style: pw.TextStyle(
-                            fontWeight: pw.FontWeight.bold),
-                        textAlign: pw.TextAlign.center)))
-                    .toList(),
-              ),
-              // for (var schedule in schedules)
-              //   pw.TableRow(children: [
-              //     pw.Text(schedule.date.toDefaultDate()),
-              //     pw.Text(schedule.outstandingBalance.toCurrency()),
-              //     pw.Text(schedule.monthlyAmortization.toCurrency()),
-              //     pw.Text(schedule.principalPayment.toCurrency()),
-              //     pw.Text(schedule.interestPayment.toCurrency()),
-              //     pw.Text(schedule.incidentalFee.toCurrency()),
-              //   ]),
-              ...schedules.mapIndexed((index, schedule) => pw.TableRow(children: [
-                pw.Text('${index + 1}'),
-                pw.Text(schedule.date.toDefaultDate()),
-                pw.Text(schedule.outstandingBalance.toCurrency()),
-                pw.Text(schedule.monthlyAmortization.toCurrency()),
-                pw.Text(schedule.principalPayment.toCurrency()),
-                pw.Text(schedule.interestPayment.toCurrency()),
-              ])).toList(),
-            ])
+                ),
+              ],
+            ),
           ];
         },
       ),
     );
 
     // Build and return the final Pdf file data
-    return await doc.save();
+    return doc.save();
   }
 }
