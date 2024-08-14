@@ -112,182 +112,184 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
       },
       child: Column(
         children: [
-          BlocBuilder<GeneralFilterSelectionCubit, GeneralFilterSelectionState>(
-            builder: (context, state) {
-              var position = 0;
-
-              if (state is FilterSelectedState) {
-                position = state.position;
-              }
-
-              return Row(
-                children: [
-                  for (var i = 0;
-                      i < Constants.loan_dashboard_general_filters.length;
-                      i++)
-                    Column(
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            loanBloc.filterByStatus(
-                              status:
-                                  Constants.loan_dashboard_general_filters[i],
-                            );
-                            generalFilterCubit.select(position: i);
-                          },
-                          child: Text(
-                            Constants.loan_dashboard_general_filters[i],
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.apply(
-                                    fontSizeDelta: 2,
-                                    fontWeightDelta: 2,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .secondary),
-                          ),
-                        ),
-                        Visibility(
-                            visible: position == i,
-                            child: Container(
-                              height: 2,
-                              width: 56,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ))
-                      ],
-                    ),
-                ],
-              );
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Container(
-              color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
-              height: 2,
-              width: double.infinity,
-            ),
-          ),
+          // Text('Some reports here'),
+          // BlocBuilder<GeneralFilterSelectionCubit, GeneralFilterSelectionState>(
+          //   builder: (context, state) {
+          //     var position = 0;
+          //
+          //     if (state is FilterSelectedState) {
+          //       position = state.position;
+          //     }
+          //
+          //     return Row(
+          //       children: [
+          //         for (var i = 0;
+          //             i < Constants.loan_dashboard_general_filters.length;
+          //             i++)
+          //           Column(
+          //             children: [
+          //               TextButton(
+          //                 onPressed: () {
+          //                   loanBloc.filterByStatus(
+          //                     status:
+          //                         Constants.loan_dashboard_general_filters[i],
+          //                   );
+          //                   generalFilterCubit.select(position: i);
+          //                 },
+          //                 child: Text(
+          //                   Constants.loan_dashboard_general_filters[i],
+          //                   style: Theme.of(context)
+          //                       .textTheme
+          //                       .titleMedium
+          //                       ?.apply(
+          //                           fontSizeDelta: 2,
+          //                           fontWeightDelta: 2,
+          //                           color: Theme.of(context)
+          //                               .colorScheme
+          //                               .secondary),
+          //                 ),
+          //               ),
+          //               Visibility(
+          //                 visible: position == i,
+          //                 child: Container(
+          //                   height: 2,
+          //                   width: 56,
+          //                   color: Theme.of(context).colorScheme.secondary,
+          //                 ),
+          //               )
+          //             ],
+          //           ),
+          //       ],
+          //     );
+          //   },
+          // ),
+          // Padding(
+          //   padding: const EdgeInsets.only(bottom: 16),
+          //   child: Container(
+          //     color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+          //     height: 2,
+          //     width: double.infinity,
+          //   ),
+          // ),
           Expanded(
             child: Card(
               shadowColor: Colors.black,
               elevation: 16,
               child: Column(
                 children: [
-                  Padding(
-                    padding: searchContainerPadding,
-                    child: Row(
-                      children: [
-                        // OutlinedButton(
-                        //   onPressed: () => print('hello'),
-                        //   style: OutlinedButton.styleFrom(
-                        //     padding: const EdgeInsets.all(22),
-                        //     foregroundColor: Theme.of(context)
-                        //         .colorScheme
-                        //         .secondary
-                        //         .withOpacity(0.8),
-                        //     side: BorderSide(
-                        //       width: 1.5,
-                        //       color: Theme.of(context)
-                        //           .colorScheme
-                        //           .secondary
-                        //           .withOpacity(0.8),
-                        //     ),
-                        //   ),
-                        //   child: Row(
-                        //     children: [
-                        //       const Icon(Icons.filter_alt_rounded),
-                        //       Text(
-                        //         'FILTER',
-                        //         style: Theme.of(context).textTheme.titleMedium,
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                        // const SizedBox(
-                        //   width: 32,
-                        // ),
-                        // SizedBox(
-                        //   width: searchTextFieldWidth,
-                        //   child: TextFormField(
-                        //     // style: TextStyle(fontSize: 16, ),
-                        //     controller: _searchController,
-                        //     decoration: InputDecoration(
-                        //         contentPadding: searchTextFieldPadding,
-                        //         label: const Text(
-                        //             'Search loan schedules by user name or email'),
-                        //         floatingLabelBehavior:
-                        //             FloatingLabelBehavior.never,
-                        //         filled: true,
-                        //         fillColor: Theme.of(context)
-                        //             .colorScheme
-                        //             .secondaryContainer,
-                        //         border: defaultBorder,
-                        //         enabledBorder: defaultBorder,
-                        //         focusedBorder: defaultBorder),
-                        //     textInputAction: TextInputAction.search,
-                        //     onFieldSubmitted: (value) =>
-                        //         loanBloc.search(query: value),
-                        //   ),
-                        // ),
-                        // const SizedBox(
-                        //   width: 16,
-                        // ),
-                        // OutlinedButton(
-                        //   onPressed: () =>
-                        //       loanBloc.search(query: _searchController.text),
-                        //   style: OutlinedButton.styleFrom(
-                        //     padding: searchButtonPadding,
-                        //     foregroundColor: Theme.of(context)
-                        //         .colorScheme
-                        //         .secondary
-                        //         .withOpacity(0.8),
-                        //     side: BorderSide(
-                        //       width: 1.5,
-                        //       color: Theme.of(context)
-                        //           .colorScheme
-                        //           .secondary
-                        //           .withOpacity(0.8),
-                        //     ),
-                        //   ),
-                        //   child: Row(
-                        //     children: [
-                        //       const Icon(
-                        //         Icons.search_rounded,
-                        //         size: 18,
-                        //       ),
-                        //       Text(
-                        //         'Search',
-                        //         // style: Theme.of(context).textTheme.titleMedium,
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                        BlocBuilder<LoanBloc, LoanState>(
-                          buildWhen: (previous, current) =>
-                              current is LoanLoadingState ||
-                              current is LoanErrorState,
-                          builder: (context, state) {
-                            if (state is LoanLoadingState) {
-                              if (state.isLoading) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: SizedBox(
-                                    width: 32,
-                                    height: 32,
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-                            }
-
-                            return Container();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: searchContainerPadding,
+                  //   child: Row(
+                  //     children: [
+                  //       // OutlinedButton(
+                  //       //   onPressed: () => print('hello'),
+                  //       //   style: OutlinedButton.styleFrom(
+                  //       //     padding: const EdgeInsets.all(22),
+                  //       //     foregroundColor: Theme.of(context)
+                  //       //         .colorScheme
+                  //       //         .secondary
+                  //       //         .withOpacity(0.8),
+                  //       //     side: BorderSide(
+                  //       //       width: 1.5,
+                  //       //       color: Theme.of(context)
+                  //       //           .colorScheme
+                  //       //           .secondary
+                  //       //           .withOpacity(0.8),
+                  //       //     ),
+                  //       //   ),
+                  //       //   child: Row(
+                  //       //     children: [
+                  //       //       const Icon(Icons.filter_alt_rounded),
+                  //       //       Text(
+                  //       //         'FILTER',
+                  //       //         style: Theme.of(context).textTheme.titleMedium,
+                  //       //       ),
+                  //       //     ],
+                  //       //   ),
+                  //       // ),
+                  //       // const SizedBox(
+                  //       //   width: 32,
+                  //       // ),
+                  //       SizedBox(
+                  //         width: searchTextFieldWidth,
+                  //         child: TextFormField(
+                  //           // style: TextStyle(fontSize: 16, ),
+                  //           controller: _searchController,
+                  //           decoration: InputDecoration(
+                  //               contentPadding: searchTextFieldPadding,
+                  //               label: const Text(
+                  //                   'Search loan schedules by user name or email'),
+                  //               floatingLabelBehavior:
+                  //                   FloatingLabelBehavior.never,
+                  //               filled: true,
+                  //               fillColor: Theme.of(context)
+                  //                   .colorScheme
+                  //                   .secondaryContainer,
+                  //               border: defaultBorder,
+                  //               enabledBorder: defaultBorder,
+                  //               focusedBorder: defaultBorder),
+                  //           textInputAction: TextInputAction.search,
+                  //           onFieldSubmitted: (value) =>
+                  //               loanBloc.search(query: value),
+                  //         ),
+                  //       ),
+                  //       const SizedBox(
+                  //         width: 16,
+                  //       ),
+                  //       OutlinedButton(
+                  //         onPressed: () =>
+                  //             loanBloc.search(query: _searchController.text),
+                  //         style: OutlinedButton.styleFrom(
+                  //           padding: searchButtonPadding,
+                  //           foregroundColor: Theme.of(context)
+                  //               .colorScheme
+                  //               .secondary
+                  //               .withOpacity(0.8),
+                  //           side: BorderSide(
+                  //             width: 1.5,
+                  //             color: Theme.of(context)
+                  //                 .colorScheme
+                  //                 .secondary
+                  //                 .withOpacity(0.8),
+                  //           ),
+                  //         ),
+                  //         child: Row(
+                  //           children: [
+                  //             const Icon(
+                  //               Icons.search_rounded,
+                  //               size: 18,
+                  //             ),
+                  //             Text(
+                  //               'Search',
+                  //               // style: Theme.of(context).textTheme.titleMedium,
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //       BlocBuilder<LoanBloc, LoanState>(
+                  //         buildWhen: (previous, current) =>
+                  //             current is LoanLoadingState ||
+                  //             current is LoanErrorState,
+                  //         builder: (context, state) {
+                  //           if (state is LoanLoadingState) {
+                  //             if (state.isLoading) {
+                  //               return const Padding(
+                  //                 padding: EdgeInsets.all(16),
+                  //                 child: SizedBox(
+                  //                   width: 32,
+                  //                   height: 32,
+                  //                   child: CircularProgressIndicator(),
+                  //                 ),
+                  //               );
+                  //             }
+                  //           }
+                  //
+                  //           return Container();
+                  //         },
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                   Expanded(
                     child: Builder(
                       builder: (context) {
