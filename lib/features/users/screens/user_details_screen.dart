@@ -57,8 +57,10 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   void initState() {
     super.initState();
     context.read<UserBloc>().initializeAddUser(withId: widget.userId);
-    context.read<LoanBloc>()
-      .getAllLoans(clearList: true, clientId: widget.userId);
+    context.read<LoanBloc>().getAllLoans(
+          clearList: true,
+          clientId: widget.userId,
+        );
   }
 
   @override
@@ -113,7 +115,6 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         BlocListener<UserBloc, UserState>(
           listener: (context, state) {
             if (state is UserSuccessState) {
-
             } else if (state is UserErrorState) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(state.message)));

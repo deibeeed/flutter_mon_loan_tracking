@@ -38,7 +38,9 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
 
     if (!_didAddPageRequestListener) {
       _pagingController.addPageRequestListener((pageKey) {
-        context.read<LoanBloc>().getAllLoans(clearList: pageKey == 0, clientId: clientId);
+        context
+            .read<LoanBloc>()
+            .getAllLoans(clearList: pageKey == 0, clientId: clientId);
       });
       _didAddPageRequestListener = true;
     }
@@ -101,6 +103,11 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
             itemList: state.items,
             error: state.error,
           );
+
+          // _pagingController.appendPage(
+          //   state.items,
+          //   state.nextPage,
+          // );
         }
       },
       child: Column(
@@ -173,7 +180,7 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                     child: Row(
                       children: [
                         // OutlinedButton(
-                        //   onPressed: () => printd('hello'),
+                        //   onPressed: () => print('hello'),
                         //   style: OutlinedButton.styleFrom(
                         //     padding: const EdgeInsets.all(22),
                         //     foregroundColor: Theme.of(context)
@@ -201,62 +208,62 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                         // const SizedBox(
                         //   width: 32,
                         // ),
-                        SizedBox(
-                          width: searchTextFieldWidth,
-                          child: TextFormField(
-                            // style: TextStyle(fontSize: 16, ),
-                            controller: _searchController,
-                            decoration: InputDecoration(
-                                contentPadding: searchTextFieldPadding,
-                                label: const Text(
-                                    'Search loan schedules by user name or email'),
-                                floatingLabelBehavior:
-                                    FloatingLabelBehavior.never,
-                                filled: true,
-                                fillColor: Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer,
-                                border: defaultBorder,
-                                enabledBorder: defaultBorder,
-                                focusedBorder: defaultBorder),
-                            textInputAction: TextInputAction.search,
-                            onFieldSubmitted: (value) =>
-                                loanBloc.search(query: value),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 16,
-                        ),
-                        OutlinedButton(
-                          onPressed: () =>
-                              loanBloc.search(query: _searchController.text),
-                          style: OutlinedButton.styleFrom(
-                            padding: searchButtonPadding,
-                            foregroundColor: Theme.of(context)
-                                .colorScheme
-                                .secondary
-                                .withOpacity(0.8),
-                            side: BorderSide(
-                              width: 1.5,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondary
-                                  .withOpacity(0.8),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.search_rounded,
-                                size: 18,
-                              ),
-                              Text(
-                                'Search',
-                                // style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ],
-                          ),
-                        ),
+                        // SizedBox(
+                        //   width: searchTextFieldWidth,
+                        //   child: TextFormField(
+                        //     // style: TextStyle(fontSize: 16, ),
+                        //     controller: _searchController,
+                        //     decoration: InputDecoration(
+                        //         contentPadding: searchTextFieldPadding,
+                        //         label: const Text(
+                        //             'Search loan schedules by user name or email'),
+                        //         floatingLabelBehavior:
+                        //             FloatingLabelBehavior.never,
+                        //         filled: true,
+                        //         fillColor: Theme.of(context)
+                        //             .colorScheme
+                        //             .secondaryContainer,
+                        //         border: defaultBorder,
+                        //         enabledBorder: defaultBorder,
+                        //         focusedBorder: defaultBorder),
+                        //     textInputAction: TextInputAction.search,
+                        //     onFieldSubmitted: (value) =>
+                        //         loanBloc.search(query: value),
+                        //   ),
+                        // ),
+                        // const SizedBox(
+                        //   width: 16,
+                        // ),
+                        // OutlinedButton(
+                        //   onPressed: () =>
+                        //       loanBloc.search(query: _searchController.text),
+                        //   style: OutlinedButton.styleFrom(
+                        //     padding: searchButtonPadding,
+                        //     foregroundColor: Theme.of(context)
+                        //         .colorScheme
+                        //         .secondary
+                        //         .withOpacity(0.8),
+                        //     side: BorderSide(
+                        //       width: 1.5,
+                        //       color: Theme.of(context)
+                        //           .colorScheme
+                        //           .secondary
+                        //           .withOpacity(0.8),
+                        //     ),
+                        //   ),
+                        //   child: Row(
+                        //     children: [
+                        //       const Icon(
+                        //         Icons.search_rounded,
+                        //         size: 18,
+                        //       ),
+                        //       Text(
+                        //         'Search',
+                        //         // style: Theme.of(context).textTheme.titleMedium,
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
                         BlocBuilder<LoanBloc, LoanState>(
                           buildWhen: (previous, current) =>
                               current is LoanLoadingState ||

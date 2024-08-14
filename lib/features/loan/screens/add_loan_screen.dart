@@ -35,11 +35,12 @@ class AddLoanScreen extends StatefulWidget {
 class _AddLoanScreenState extends State<AddLoanScreen> {
   final _formKey = GlobalKey<FormBuilderState>(debugLabel: 'add_loan_screen');
   final pagingController = PagingController<int, LoanSchedule>(firstPageKey: 0);
-  var _downpaymentPopulated = false;
 
   @override
   void deactivate() {
-    context.read<LoanBloc>().reset();
+    context.read<LoanBloc>()
+      ..reset()
+      ..getAllLoans(clearList: true);
     super.deactivate();
   }
 

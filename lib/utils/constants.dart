@@ -58,9 +58,9 @@ class Constants {
   ];
   static const loan_dashboard_general_filters = [
     'All',
-    'Paid',
+    // 'Paid',
     // 'Unpaid',
-    'Overdue'
+    // 'Overdue'
   ];
 
   static const user_list_table_colums = [

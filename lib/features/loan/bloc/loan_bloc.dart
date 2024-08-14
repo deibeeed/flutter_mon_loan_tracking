@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_mon_loan_tracking/models/discount.dart';
 import 'package:flutter_mon_loan_tracking/models/loan.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
@@ -41,7 +40,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     on(_handleFilterByStatusEvent);
     on(_handlePayLoanScheduleEvent);
     on(_handleRemoveLoanEvent);
-    getAllLoans();
     getSettings();
   }
 
@@ -89,8 +87,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   int? _nextPageCalled;
 
-  bool withCustomTCP = false;
-
   void reset({bool isLogout = false}) {
     if (isLogout) {
       loanScheduleRepository.reset();
@@ -104,8 +100,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _selectedUser = null;
     _monthlyAmortization = 0;
     _nextPageCalled = null;
-    withCustomTCP = false;
-    emit(LoanSuccessState(message: 'successfully reset values'));
   }
 
   void removeLoan() {
@@ -134,7 +128,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   void initialize() {
     getSettings();
-    getAllLoans(clearList: true);
   }
 
   void getSettings() {
@@ -432,7 +425,6 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         // await Future.wait(futureLoanSchedules);
         emit(LoanLoadingState());
         emit(LoanSuccessState(message: 'Adding loan successfully'));
-        await Future.delayed(const Duration(seconds: 3));
         emit(CloseAddLoanState());
       } else {
         _selectedLoan = loan;
@@ -445,6 +437,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       emit(LoanErrorState(message: 'Something went wrong while adding loan'));
     }
   }
+
+  var _lastGetAllLoansCalled = 0;
 
   Future<void> _handleGetAllLoansEvent(
     GetAllLoansEvent event,
@@ -488,9 +482,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             paymentFrequency: _selectedLoan!.paymentFrequency,
             paidSchedules: schedules,
           );
-          _clientLoanSchedules
-            .insertAll(
-                0, schedules.sortedBy((schedule) => schedule.date).toList());
+          _clientLoanSchedules.insertAll(
+              0, schedules.sortedBy((schedule) => schedule.date).toList());
           _allLoans
             ..clear()
             ..addAll(
@@ -514,6 +507,17 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         }
         _nextPageCalled = null;
       } else {
+        final calledNow = Jiffy.now();
+
+        if (calledNow.diff(
+                Jiffy.parseFromMillisecondsSinceEpoch(_lastGetAllLoansCalled),
+                unit: Unit.millisecond) <
+            500) {
+          throw Exception('Already called!');
+        }
+
+        _lastGetAllLoansCalled = calledNow.millisecondsSinceEpoch;
+
         if (event.clearList) {
           _allLoans.clear();
           _filteredLoans.clear();
@@ -612,6 +616,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       }
 
       emit(LoanLoadingState());
+      emit(LoanDisplaySummaryState(
+        nextPage: 0,
+        items: _filteredLoans,
+      ));
       emit(LoanSuccessState(
           message: 'Successfully searched for ${event.query}'));
     } catch (err) {
@@ -634,10 +642,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
       final now = DateTime.now().millisecondsSinceEpoch;
       final filteredList = <LoanDisplay>[];
+      var nextPageKey = _nextPageCalled;
       switch (event.status) {
         case PaymentStatus.all:
           filteredList.addAll(_allLoans);
           _isFilteringByStatus = false;
+          nextPageKey = _nextPageCalled;
           break;
         case PaymentStatus.paid:
           filteredList.addAll(
@@ -671,6 +681,12 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         ..addAll(filteredList);
 
       emit(LoanLoadingState());
+      emit(
+        LoanDisplaySummaryState(
+          nextPage: 1,
+          items: _filteredLoans,
+        ),
+      );
       emit(LoanSuccessState(message: 'Successfully filtered loan schedules'));
     } catch (err) {
       printd(err);
