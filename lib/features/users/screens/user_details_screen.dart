@@ -58,7 +58,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     super.initState();
     context.read<UserBloc>().initializeAddUser(withId: widget.userId);
     context.read<LoanBloc>()
-      ..getAllLoans(clearList: true, clientId: widget.userId);
+      .getAllLoans(clearList: true, clientId: widget.userId);
   }
 
   @override

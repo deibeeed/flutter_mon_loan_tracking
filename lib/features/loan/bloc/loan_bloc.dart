@@ -313,13 +313,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     for (var i = 1; i <= numOfPayments; i++) {
       final beginningBalance = outstandingBalance;
       final interestPayment = outstandingBalance * monthlyInterestRate;
-      final monthlyAmortization = min(loanMonthlyAmortization, beginningBalance + interestPayment);
+      final monthlyAmortization =
+          min(loanMonthlyAmortization, beginningBalance + interestPayment);
       final principalPayment = monthlyAmortization - interestPayment;
       outstandingBalance -= principalPayment;
       printd('month: $i');
       printd('date: ${nextMonthDate.format()}');
-      printd(
-          'monthly: $monthlyAmortization');
+      printd('monthly: $monthlyAmortization');
       printd('interestPayment: $interestPayment');
       printd('principalPayment: $principalPayment');
       printd('outstandingBalance: $outstandingBalance');
@@ -464,6 +464,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         _loans.addAll({for (final loan in clientLoans) loan.id: loan});
         _selectedLoan = clientLoans.firstOrNull;
 
+        if (_selectedLoan == null) {
+          throw Exception('Client no loans');
+        }
+
         final futureClientLoanSchedules = clientLoans.map(
           (loan) => loanScheduleRepository.allByLoanId(
             loanId: loan.id,
@@ -472,13 +476,42 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         );
 
         final schedules =
-            (await Future.wait(futureClientLoanSchedules)).flattened;
-        _clientLoanSchedules
-          ..clear()
-          ..addAll(schedules.sortedBy((schedule) => schedule.date).toList());
-        _filteredLoans
-          ..clear()
-          ..addAll(_allLoans);
+            (await Future.wait(futureClientLoanSchedules)).flattened.toList();
+        // construct remaining schedules
+        if (schedules.isNotEmpty) {
+          _calculateLoan(
+            amount: _selectedLoan!.amount,
+            monthsToPay: _selectedLoan!.monthsToPay,
+            date: DateTime.fromMillisecondsSinceEpoch(
+                _selectedLoan!.startAt.toInt()),
+            interestRate: _selectedLoan!.monthlyInterestRate,
+            paymentFrequency: _selectedLoan!.paymentFrequency,
+            paidSchedules: schedules,
+          );
+          _clientLoanSchedules
+            .insertAll(
+                0, schedules.sortedBy((schedule) => schedule.date).toList());
+          _allLoans
+            ..clear()
+            ..addAll(
+              clientLoans
+                  .map(
+                    (clientLoan) => _clientLoanSchedules
+                        .where((schedule) => schedule.loanId == clientLoan.id)
+                        .map(
+                          (schedule) => LoanDisplay(
+                            loan: clientLoan,
+                            schedule: schedule,
+                          ),
+                        ),
+                  )
+                  .flattened
+                  .toList(),
+            );
+          _filteredLoans
+            ..clear()
+            ..addAll(_allLoans);
+        }
         _nextPageCalled = null;
       } else {
         if (event.clearList) {
