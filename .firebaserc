@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "loan-tracking-system"
-  }
+  },
+  "targets": {
+    "loan-tracking-system-dev-stg": {
+      "hosting": {
+        "develop": [
+          "loan-tracking-system-dev-stg"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

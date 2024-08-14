@@ -8,7 +8,7 @@ part 'loan_schedule.g.dart';
 class LoanSchedule extends Equatable {
   final num date;
   final num beginningBalance;
-  final num outstandingBalance;
+  num outstandingBalance;
   final num monthlyAmortization;
   final num principalPayment;
   final num interestPayment;
@@ -16,7 +16,7 @@ class LoanSchedule extends Equatable {
   final String loanId;
   final String id;
   final num createdAt;
-  final num? extraPayment;
+  num? extraPayment;
 
   LoanSchedule({
     required this.date,

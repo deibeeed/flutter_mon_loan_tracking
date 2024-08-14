@@ -189,6 +189,35 @@ Widget buildLargeScreenBody({
                 ),
               ),
             ),
+            const SizedBox(
+              width: 32,
+            ),
+            Expanded(
+              child: FormBuilderDropdown(
+                name: 'payment_frequency',
+                decoration: const InputDecoration(
+                  label: Text('Payment frequency'),
+                  border: OutlineInputBorder(),
+                ),
+                // keyboardType: TextInputType.number,
+                // inputFormatters: [
+                //   FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+                // ],
+                validator: FormBuilderValidators.compose(
+                  [
+                    FormBuilderValidators.required(
+                      errorText: 'Please enter payment frequency',
+                    ),
+                  ],
+                ),
+                items: PaymentFrequency.values.map((item) {
+                  return DropdownMenuItem<PaymentFrequency>(
+                    value: item,
+                    child: Text(item.label),
+                  );
+                }).toList(),
+              ),
+            ),
           ],
         ),
         const SizedBox(
@@ -204,6 +233,8 @@ Widget buildLargeScreenBody({
                     monthsToPay: formKey.currentState!.value['term'] as int,
                     date: formKey.currentState!.value['date'] as DateTime,
                     amount: formKey.currentState!.value['amount'] as double,
+                    paymentFrequency: formKey.currentState!
+                        .value['payment_frequency'] as PaymentFrequency,
                   );
                 }
               },
@@ -244,8 +275,7 @@ Widget buildLargeScreenBody({
             buildWhen: (previous, current) => current is LoanSuccessState,
             builder: (context, state) {
               final term = formKey.currentState!.instantValue['term'] ?? 0;
-              var amount =
-                  formKey.currentState!.instantValue['amount'];
+              var amount = formKey.currentState!.instantValue['amount'];
 
               if (amount != null) {
                 if (amount.runtimeType == double) {
@@ -270,6 +300,14 @@ Widget buildLargeScreenBody({
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Start date:'),
+                              Text(DateTime.now().toDefaultDate()),
+                            ],
+                          ),
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Loan principal:'),
@@ -281,6 +319,17 @@ Widget buildLargeScreenBody({
                             children: [
                               const Text('Term (in months):'),
                               Text('$term months'),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Payment frequency:'),
+                              Text((formKey.currentState!.instantValue[
+                              'payment_frequency']
+                              as PaymentFrequency?)
+                                  ?.label ?? ''),
                             ],
                           ),
                         ],
@@ -406,12 +455,20 @@ Widget buildLargeScreenBody({
               child: ElevatedButton(
                 onPressed: () {
                   if (formKey.currentState?.saveAndValidate() ?? false) {
+                    // var monthsToPay = formKey.currentState!.value['term'];
+                    //
+                    // if (monthsToPay.runtimeType == String) {
+                    //   monthsToPay = int.parse(monthsToPay as String);
+                    // } else {
+                    //   monthsToPay = monthsToPay as int;
+                    // }
+
                     loanBloc.addLoan(
-                      monthsToPay: int.parse(
-                          formKey.currentState!.value['term'] as String),
+                      monthsToPay: formKey.currentState!.value['term'] as int,
                       date: formKey.currentState!.value['date'] as DateTime,
-                      amount: double.parse(
-                          formKey.currentState!.value['amount'] as String),
+                      amount: formKey.currentState!.value['amount'] as double,
+                      paymentFrequency: formKey.currentState!
+                          .value['payment_frequency'] as PaymentFrequency,
                     );
                   }
                 },

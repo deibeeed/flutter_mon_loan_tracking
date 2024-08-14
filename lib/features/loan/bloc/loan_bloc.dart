@@ -8,6 +8,7 @@ import 'package:flutter_mon_loan_tracking/models/discount.dart';
 import 'package:flutter_mon_loan_tracking/models/loan.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
+import 'package:flutter_mon_loan_tracking/models/payment_frequency.dart';
 import 'package:flutter_mon_loan_tracking/models/payment_status.dart';
 import 'package:flutter_mon_loan_tracking/models/settings.dart';
 import 'package:flutter_mon_loan_tracking/models/user.dart';
@@ -160,20 +161,20 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required DateTime date,
     double? interestRate,
     required double amount,
+    PaymentFrequency paymentFrequency = PaymentFrequency.monthly,
   }) {
-    printd('loanInterestRate: $interestRate');
-    printd('TCP: $amount');
-
     try {
       if (interestRate != null) {
         add(
           AddLoanEvent(
-              monthsToPay: monthsToPay,
-              date: date,
-              storeInDb: false,
-              withUser: false,
-              amount: amount,
-              interestRate: interestRate),
+            monthsToPay: monthsToPay,
+            date: date,
+            storeInDb: false,
+            withUser: false,
+            amount: amount,
+            interestRate: interestRate,
+            paymentFrequency: paymentFrequency,
+          ),
         );
       } else {
         add(
@@ -183,6 +184,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             storeInDb: false,
             withUser: false,
             amount: amount,
+            paymentFrequency: paymentFrequency,
           ),
         );
       }
@@ -195,6 +197,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required int monthsToPay,
     required DateTime date,
     required double amount,
+    PaymentFrequency paymentFrequency = PaymentFrequency.monthly,
   }) {
     try {
       add(
@@ -202,6 +205,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           monthsToPay: monthsToPay,
           amount: amount,
           date: date,
+          paymentFrequency: paymentFrequency,
         ),
       );
     } catch (err) {
@@ -209,8 +213,16 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
   }
 
-  void payLoanSchedule({required LoanSchedule schedule}) {
-    add(PayLoanScheduleEvent(schedule: schedule));
+  void payLoanSchedule({
+    required LoanSchedule schedule,
+    double payment = 0.0,
+  }) {
+    add(
+      PayLoanScheduleEvent(
+        schedule: schedule,
+        payment: payment,
+      ),
+    );
   }
 
   void selectDate({required DateTime date}) {
@@ -249,43 +261,88 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required num monthsToPay,
     required DateTime date,
     required num interestRate,
+    required PaymentFrequency paymentFrequency,
+    List<LoanSchedule> paidSchedules = const [],
   }) {
     _clientLoanSchedules.clear();
+    // making sure that paid schedules are sorted by payment date
+    paidSchedules.sortBy((sched) => sched.date);
     var monthlyInterestRate = interestRate / 100;
     var outstandingBalance = amount;
+    var numOfPayments = monthsToPay;
+    var nextMonthDate = Jiffy.parseFromDateTime(date).startOf(Unit.day);
 
-    final loanMonthlyAmortization = _calculateMonthlyPayment(
-      outstandingBalance: amount,
-      monthlyInterestRate: monthlyInterestRate,
-      monthsToPay: monthsToPay,
-    );
+    num loanMonthlyAmortization = 0;
+
+    if (paidSchedules.isEmpty) {
+      loanMonthlyAmortization = _calculateMonthlyPayment(
+        outstandingBalance: amount,
+        monthlyInterestRate: monthlyInterestRate,
+        monthsToPay: monthsToPay,
+        paymentFrequency: paymentFrequency,
+      );
+    } else {
+      loanMonthlyAmortization = paidSchedules.first.monthlyAmortization;
+      outstandingBalance = paidSchedules.last.outstandingBalance;
+      nextMonthDate =
+          Jiffy.parseFromMillisecondsSinceEpoch(paidSchedules.last.date.toInt())
+              .startOf(Unit.day);
+    }
+
+    if (paymentFrequency == PaymentFrequency.biMonthly) {
+      // loanMonthlyAmortization /= 2;
+      numOfPayments *= 2;
+      monthlyInterestRate /= 2;
+    }
+
+    if (paidSchedules.isNotEmpty) {
+      numOfPayments -= paidSchedules.length;
+    }
+
+    print('loan amortization: $loanMonthlyAmortization');
+
+    if (paymentFrequency == PaymentFrequency.monthly) {
+      nextMonthDate = nextMonthDate.add(months: 1);
+    } else {
+      nextMonthDate = nextMonthDate.add(days: 15);
+    }
+
     _monthlyAmortization = loanMonthlyAmortization;
-    // var nextMonthDate = date.add(const Duration(days: 30));
-    var nextMonthDate =
-        Jiffy.parseFromMillisecondsSinceEpoch(date.millisecondsSinceEpoch)
-            .add(months: 1);
+
     printd('---------------------------------------------------');
-    for (var i = 1; i <= monthsToPay; i++) {
+    for (var i = 1; i <= numOfPayments; i++) {
+      final beginningBalance = outstandingBalance;
       final interestPayment = outstandingBalance * monthlyInterestRate;
-      final principalPayment = loanMonthlyAmortization - interestPayment;
+      final monthlyAmortization = min(loanMonthlyAmortization, beginningBalance + interestPayment);
+      final principalPayment = monthlyAmortization - interestPayment;
       outstandingBalance -= principalPayment;
       printd('month: $i');
-      printd('monthly: $loanMonthlyAmortization');
+      printd('date: ${nextMonthDate.format()}');
+      printd(
+          'monthly: $monthlyAmortization');
       printd('interestPayment: $interestPayment');
       printd('principalPayment: $principalPayment');
       printd('outstandingBalance: $outstandingBalance');
+      printd('beginningBalance: $beginningBalance');
       printd('---------------------------------------------------');
       final schedule = LoanSchedule.create(
         date: nextMonthDate.millisecondsSinceEpoch,
-        beginningBalance: outstandingBalance + principalPayment,
+        beginningBalance: beginningBalance,
         outstandingBalance: outstandingBalance,
-        monthlyAmortization: loanMonthlyAmortization,
+        monthlyAmortization:
+            min(loanMonthlyAmortization, beginningBalance + interestPayment),
         principalPayment: principalPayment,
         interestPayment: interestPayment,
         loanId: 'loanId:$i',
       );
+
       _clientLoanSchedules.add(schedule);
-      nextMonthDate = nextMonthDate.add(months: 1);
+
+      if (paymentFrequency == PaymentFrequency.monthly) {
+        nextMonthDate = nextMonthDate.add(months: 1);
+      } else {
+        nextMonthDate = nextMonthDate.add(days: 15);
+      }
     }
   }
 
@@ -338,7 +395,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         monthsToPay: event.monthsToPay,
         date: event.date,
         interestRate: loanInterestRate,
+        paymentFrequency: event.paymentFrequency,
       );
+
+      final firstSchedule = _clientLoanSchedules.first;
 
       final loan = Loan.create(
         clientId: clientId,
@@ -346,20 +406,30 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         interestRate: loanInterestRate,
         monthsToPay: event.monthsToPay,
         amount: event.amount,
-        monthlyAmortization: _monthlyAmortization.toDouble()
+        monthlyAmortization: _monthlyAmortization.toDouble(),
+        paymentFrequency: event.paymentFrequency,
+        startAt: event.date.millisecondsSinceEpoch,
       );
 
       if (event.storeInDb) {
         final loanWithId = await loanRepository.add(data: loan);
-        final futureLoanSchedules = _clientLoanSchedules.map(
-          (schedule) {
-            final loanScheduleWithLoanId = LoanSchedule.setLoanId(
-                loanId: loanWithId.id, loanSchedule: schedule);
-            return loanScheduleRepository.add(data: loanScheduleWithLoanId);
-          },
-        ).toList();
-
-        await Future.wait(futureLoanSchedules);
+        final schedule = await loanScheduleRepository.add(
+          data: LoanSchedule.setLoanId(
+            loanId: loanWithId.id,
+            loanSchedule: firstSchedule,
+          ),
+        );
+        // final futureLoanSchedules = _clientLoanSchedules.map(
+        //   (schedule) {
+        //     final loanScheduleWithLoanId = LoanSchedule.setLoanId(
+        //       loanId: loanWithId.id,
+        //       loanSchedule: schedule,
+        //     );
+        //     return loanScheduleRepository.add(data: loanScheduleWithLoanId);
+        //   },
+        // ).toList();
+        //
+        // await Future.wait(futureLoanSchedules);
         emit(LoanLoadingState());
         emit(LoanSuccessState(message: 'Adding loan successfully'));
         await Future.delayed(const Duration(seconds: 3));
@@ -391,33 +461,44 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         final clientLoans = loans.where(
           (loan) => loan.clientId == event.clientId,
         );
-        _loans.addAll({for (var loan in clientLoans) loan.id: loan});
+        _loans.addAll({for (final loan in clientLoans) loan.id: loan});
         _selectedLoan = clientLoans.firstOrNull;
 
         final futureClientLoanSchedules = clientLoans.map(
-          (loan) => loanScheduleRepository.allByLoanId(loanId: loan.id),
+          (loan) => loanScheduleRepository.allByLoanId(
+            loanId: loan.id,
+            onlyPaid: false,
+          ),
         );
 
-        final schedules = await Future.wait(futureClientLoanSchedules)
-            .then((value) => value.flattened.toList());
+        final schedules =
+            (await Future.wait(futureClientLoanSchedules)).flattened;
         _clientLoanSchedules
           ..clear()
           ..addAll(schedules.sortedBy((schedule) => schedule.date).toList());
-        _allLoans..clear();
         _filteredLoans
           ..clear()
           ..addAll(_allLoans);
         _nextPageCalled = null;
       } else {
+        if (event.clearList) {
+          _allLoans.clear();
+          _filteredLoans.clear();
+        }
+
+        var loans = <Loan>[];
         if (_loans.isEmpty) {
-          final loans = await loanRepository.all();
+          loans = await loanRepository.all();
           // adding all loans to the map
-          _loans.addAll({for (var loan in loans) loan.id: loan});
+          _loans.addAll({for (final loan in loans) loan.id: loan});
         }
 
         if (_loans.isNotEmpty) {
-          final schedules =
-              await loanScheduleRepository.next(reset: event.clearList);
+          final futureClientLoanSchedules = _loans.values.map(
+            (loan) => loanScheduleRepository.nextOne(loan.id),
+          );
+
+          final schedules = await Future.wait(futureClientLoanSchedules);
           _nextPageCalled = _nextPageCalled == null ? 0 : _nextPageCalled! + 1;
 
           if (schedules.length < Constants.loanScheduleQueryResultLimit) {
@@ -440,16 +521,25 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       }
 
       emit(LoanLoadingState());
-      emit(LoanDisplaySummaryState(
-          nextPage: _nextPageCalled, items: _filteredLoans));
+      emit(
+        LoanDisplaySummaryState(
+          nextPage: _nextPageCalled,
+          items: _filteredLoans,
+        ),
+      );
       emit(LoanSuccessState(message: 'Successfully retrieved loans'));
     } catch (err) {
       printd(err);
       _loansBottomReached = true;
-      emit(LoanDisplaySummaryState(
-          error: err, nextPage: _nextPageCalled, items: _filteredLoans));
+      emit(
+        LoanDisplaySummaryState(
+          error: err,
+          nextPage: _nextPageCalled,
+          items: _filteredLoans,
+        ),
+      );
       emit(LoanErrorState(
-          message: 'Something went wrofng while getting all loans'));
+          message: 'Something went wrong while getting all loans'));
     }
   }
 
@@ -565,7 +655,53 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       emit(LoanLoadingState(isLoading: true));
       final schedule = event.schedule
         ..paidOn = DateTime.now().millisecondsSinceEpoch;
+      final extraPayment = event.payment - schedule.monthlyAmortization;
+
+      if (extraPayment > 0.0) {
+        schedule
+          ..extraPayment = extraPayment
+          ..outstandingBalance -= extraPayment;
+      }
+
       await loanScheduleRepository.update(data: schedule);
+
+      // create next schedule
+      final loan = _loans[schedule.loanId];
+      if (loan != null) {
+        final allSchedules =
+            await loanScheduleRepository.allByLoanId(loanId: loan.id);
+        _calculateLoan(
+          amount: loan.amount,
+          monthsToPay: loan.monthsToPay,
+          date: DateTime.fromMillisecondsSinceEpoch(loan.startAt.toInt()),
+          interestRate: loan.monthlyInterestRate,
+          paymentFrequency: loan.paymentFrequency,
+          paidSchedules: allSchedules,
+        );
+        final loanScheduleDate =
+            Jiffy.parseFromMillisecondsSinceEpoch(schedule.date.toInt());
+        var nextPaymentDate = loanScheduleDate;
+
+        if (loan.paymentFrequency == PaymentFrequency.monthly) {
+          nextPaymentDate = loanScheduleDate.add(months: 1);
+        } else {
+          nextPaymentDate = loanScheduleDate.add(days: 15);
+        }
+
+        final nextScheduleTemp = _clientLoanSchedules.firstWhereOrNull(
+            (sched) => sched.date == nextPaymentDate.millisecondsSinceEpoch);
+
+        if (nextScheduleTemp != null) {
+          final nextSchedule = LoanSchedule.setLoanId(
+            loanId: loan.id,
+            loanSchedule: nextScheduleTemp,
+          );
+
+          await loanScheduleRepository.add(data: nextSchedule);
+          printd('success created next schedule');
+        }
+      }
+
       emit(LoanLoadingState());
       emit(LoanSuccessState(message: 'Successfully paid loan schedule'));
     } catch (err) {
@@ -619,9 +755,18 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required num outstandingBalance,
     required num monthlyInterestRate,
     required num monthsToPay,
+    required PaymentFrequency paymentFrequency,
   }) {
-    num p = (outstandingBalance * monthlyInterestRate) /
-        (1 - pow(1 + monthlyInterestRate, -1 * monthsToPay));
+    var interestRate = monthlyInterestRate;
+    var numPayments = monthsToPay;
+
+    if (paymentFrequency == PaymentFrequency.biMonthly) {
+      interestRate /= 2;
+      numPayments *= 2;
+    }
+
+    num p = (outstandingBalance * interestRate) /
+        (1 - pow(1 + interestRate, -1 * numPayments));
 
     return p;
   }

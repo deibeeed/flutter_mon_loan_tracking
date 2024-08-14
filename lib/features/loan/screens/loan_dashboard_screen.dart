@@ -34,12 +34,14 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
       clientId = userBloc.getLoggedInUser()?.id;
     }
 
-    context.read<LoanBloc>()
-      ..getAllLoans(clearList: true, clientId: clientId);
+    // context.read<LoanBloc>().getAllLoans(clearList: true, clientId: clientId);
 
-    _pagingController.addPageRequestListener((pageKey) {
-      context.read<LoanBloc>().getAllLoans();
-    });
+    if (!_didAddPageRequestListener) {
+      _pagingController.addPageRequestListener((pageKey) {
+        context.read<LoanBloc>().getAllLoans(clearList: pageKey == 0, clientId: clientId);
+      });
+      _didAddPageRequestListener = true;
+    }
   }
 
   @override
@@ -95,9 +97,10 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
       listener: (context, state) {
         if (state is LoanDisplaySummaryState) {
           _pagingController.value = PagingState(
-              nextPageKey: state.nextPage,
-              itemList: state.items,
-              error: state.error);
+            nextPageKey: state.nextPage,
+            itemList: state.items,
+            error: state.error,
+          );
         }
       },
       child: Column(
@@ -120,8 +123,9 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                         TextButton(
                           onPressed: () {
                             loanBloc.filterByStatus(
-                                status: Constants
-                                    .loan_dashboard_general_filters[i]);
+                              status:
+                                  Constants.loan_dashboard_general_filters[i],
+                            );
                             generalFilterCubit.select(position: i);
                           },
                           child: Text(
@@ -242,7 +246,10 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.search_rounded, size: 18,),
+                              const Icon(
+                                Icons.search_rounded,
+                                size: 18,
+                              ),
                               Text(
                                 'Search',
                                 // style: Theme.of(context).textTheme.titleMedium,
@@ -325,17 +332,19 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                   name: Constants.loan_dashboard_table_columns[0],
                 ),
                 gridHeaderItem(
-                    context: context,
-                    name: Constants.loan_dashboard_table_columns[1],
-                    width: 160),
+                  context: context,
+                  name: Constants.loan_dashboard_table_columns[1],
+                  width: 160,
+                ),
+                gridHeaderItem(
+                  context: context,
+                  name: Constants.loan_dashboard_table_columns[3],
+                  width: 180,
+                ),
                 gridHeaderItem(
                   context: context,
                   name: Constants.loan_dashboard_table_columns[2],
                 ),
-                gridHeaderItem(
-                    context: context,
-                    name: Constants.loan_dashboard_table_columns[3],
-                    width: 180),
               ],
             ),
           ),
@@ -364,20 +373,10 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                           text: userBloc.mappedUsers[loanDisplay.loan.clientId]!
                               .completeName,
                         ),
-                        Text(userBloc
-                            .mappedUsers[loanDisplay.loan.clientId]!.email ?? '')
+                        Text(userBloc.mappedUsers[loanDisplay.loan.clientId]!
+                                .email ??
+                            '')
                       ],
-                    ),
-                  ),
-                  gridItem(
-                    width: 180,
-                    child: paymentStatusWidget(
-                      context: context,
-                      schedule: loanDisplay.schedule,
-                      loanBloc: loanBloc,
-                      showPaymentControls: loanDisplay.schedule.paidOn == null &&
-                          ![UserType.customer, UserType.accountant]
-                              .contains(userBloc.getLoggedInUser()?.type)
                     ),
                   ),
                   gridItem(
@@ -385,6 +384,18 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
                       text:
                           loanDisplay.schedule.monthlyAmortization.toCurrency(),
                     ),
+                  ),
+                  gridItem(
+                    width: 180,
+                    child: paymentStatusWidget(
+                        context: context,
+                        schedule: loanDisplay.schedule,
+                        showPaymentControls:
+                            loanDisplay.schedule.paidOn == null &&
+                                ![
+                                  UserType.customer,
+                                  UserType.accountant
+                                ].contains(userBloc.getLoggedInUser()?.type)),
                   ),
                 ],
               ),

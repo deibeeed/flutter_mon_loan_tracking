@@ -22,6 +22,7 @@ class AddLoanEvent extends LoanEvent {
   final bool withUser;
   final double amount;
   final double? interestRate;
+  final PaymentFrequency paymentFrequency;
 
   AddLoanEvent({
     required this.monthsToPay,
@@ -30,6 +31,7 @@ class AddLoanEvent extends LoanEvent {
     this.withUser = true,
     required this.amount,
     this.interestRate,
+    this.paymentFrequency = PaymentFrequency.monthly,
   });
 }
 
@@ -37,7 +39,7 @@ class GetAllLoansEvent extends LoanEvent {
   final String? clientId;
   final bool clearList;
 
-  GetAllLoansEvent({ this.clientId, this.clearList = false});
+  GetAllLoansEvent({this.clientId, this.clearList = false});
 }
 
 class SearchLoanEvent extends LoanEvent {
@@ -51,13 +53,17 @@ class SearchLoanEvent extends LoanEvent {
 class FilterByStatusDashboardLoanEvent extends LoanEvent {
   final PaymentStatus status;
 
-  FilterByStatusDashboardLoanEvent({ required this.status });
+  FilterByStatusDashboardLoanEvent({required this.status});
 }
 
-class PayLoanScheduleEvent extends LoanEvent{
+class PayLoanScheduleEvent extends LoanEvent {
   final LoanSchedule schedule;
+  final double payment;
 
-  PayLoanScheduleEvent({ required this.schedule });
+  PayLoanScheduleEvent({
+    required this.schedule,
+    required this.payment,
+  });
 }
 
-class RemoveLoanEvent extends LoanEvent { }
+class RemoveLoanEvent extends LoanEvent {}

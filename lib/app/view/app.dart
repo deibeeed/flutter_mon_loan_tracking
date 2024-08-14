@@ -147,43 +147,43 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        RepositoryProvider<AuthenticationService>.value(
-          value: AuthenticationService(),
+        RepositoryProvider<AuthenticationService>(
+          create: (context) => AuthenticationService(),
         ),
-        RepositoryProvider<UserRepository>.value(
-          value: UserRepository(
+        RepositoryProvider<UserRepository>(
+          create: (context) => UserRepository(
             firestoreService: UserFirestoreService(),
             cacheService: UserCacheService(),
           ),
         ),
-        RepositoryProvider<SettingsRepository>.value(
-          value: SettingsRepository(
+        RepositoryProvider<SettingsRepository>(
+          create: (context) => SettingsRepository(
             firestoreService: SettingsFireStoreService(),
             cacheService: SettingsCacheService(),
           ),
         ),
-        RepositoryProvider<LoanRepository>.value(
-          value: LoanRepository(
+        RepositoryProvider<LoanRepository>(
+          create: (context) => LoanRepository(
             firestoreService: LoanFirestoreService(),
           ),
         ),
-        RepositoryProvider<LoanScheduleRepository>.value(
-          value: LoanScheduleRepository(
+        RepositoryProvider<LoanScheduleRepository>(
+          create: (context) => LoanScheduleRepository(
             firestoreService: LoanScheduleFirestoreService(),
           ),
         ),
-        RepositoryProvider<AddressRepository>.value(
-          value: AddressRepository(
+        RepositoryProvider<AddressRepository>(
+          create: (context) => AddressRepository(
             firestoreService: AddressFirestoreService(),
           ),
         ),
-        RepositoryProvider<BeneficiariesRepository>.value(
-          value: BeneficiariesRepository(
+        RepositoryProvider<BeneficiariesRepository>(
+          create: (context) => BeneficiariesRepository(
             firestoreService: BeneficiariesFirestoreService(),
           ),
         ),
-        RepositoryProvider<EmploymentDetailsRepository>.value(
-          value: EmploymentDetailsRepository(
+        RepositoryProvider<EmploymentDetailsRepository>(
+          create: (context) => EmploymentDetailsRepository(
             firestoreService: EmploymentDetailsFirestoreService(),
           ),
         ),
@@ -192,8 +192,8 @@ class _AppState extends State<App> {
         builder: (context) {
           return MultiBlocProvider(
             providers: [
-              BlocProvider<SplashBloc>.value(
-                value: SplashBloc(),
+              BlocProvider<SplashBloc>(
+                create: (context) => SplashBloc(),
               ),
               BlocProvider<MenuSelectionCubit>.value(
                 value: MenuSelectionCubit(),
@@ -201,19 +201,19 @@ class _AppState extends State<App> {
               BlocProvider<GeneralFilterSelectionCubit>.value(
                 value: GeneralFilterSelectionCubit(),
               ),
-              BlocProvider<AuthenticationBloc>.value(
-                value: AuthenticationBloc(
+              BlocProvider<AuthenticationBloc>(
+                create: (context) => AuthenticationBloc(
                   authenticationService: context.read<AuthenticationService>(),
                   usersRepository: context.read<UserRepository>(),
                 ),
               ),
-              BlocProvider<SettingsBloc>.value(
-                value: SettingsBloc(
+              BlocProvider<SettingsBloc>(
+                create: (context) => SettingsBloc(
                   settingsRepository: context.read<SettingsRepository>(),
                 ),
               ),
-              BlocProvider<UserBloc>.value(
-                value: UserBloc(
+              BlocProvider<UserBloc>(
+                create: (context) => UserBloc(
                   userRepository: context.read<UserRepository>(),
                   authenticationService: context.read<AuthenticationService>(),
                   addressRepository: context.read<AddressRepository>(),
@@ -223,8 +223,8 @@ class _AppState extends State<App> {
                       context.read<EmploymentDetailsRepository>(),
                 ),
               ),
-              BlocProvider<LoanBloc>.value(
-                value: LoanBloc(
+              BlocProvider<LoanBloc>(
+                create: (context) => LoanBloc(
                   loanRepository: context.read<LoanRepository>(),
                   loanScheduleRepository:
                       context.read<LoanScheduleRepository>(),

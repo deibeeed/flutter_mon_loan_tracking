@@ -7,6 +7,7 @@ import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen_small.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
+import 'package:flutter_mon_loan_tracking/models/payment_frequency.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/utils/print_utils.dart';
@@ -200,6 +201,31 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                 ),
               ),
               const Gap(16),
+              FormBuilderDropdown(
+                name: 'payment_frequency',
+                decoration: const InputDecoration(
+                  label: Text('Payment frequency'),
+                  border: OutlineInputBorder(),
+                ),
+                // keyboardType: TextInputType.number,
+                // inputFormatters: [
+                //   FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
+                // ],
+                validator: FormBuilderValidators.compose(
+                  [
+                    FormBuilderValidators.required(
+                      errorText: 'Please enter payment frequency',
+                    ),
+                  ],
+                ),
+                items: PaymentFrequency.values.map((item) {
+                  return DropdownMenuItem<PaymentFrequency>(
+                    value: item,
+                    child: Text(item.label),
+                  );
+                }).toList(),
+              ),
+              const Gap(16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -214,6 +240,8 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                               .currentState!.value['interest_rate'] as double,
                           amount:
                               _formKey.currentState!.value['amount'] as double,
+                          paymentFrequency: _formKey.currentState!
+                              .value['payment_frequency'] as PaymentFrequency,
                         );
                       }
                     },
@@ -283,6 +311,14 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
+                                    const Text('Start date:'),
+                                    Text(DateTime.now().toDefaultDate()),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
                                     const Text('Loan principal:'),
                                     Text('$amount'),
                                   ],
@@ -293,6 +329,17 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                                   children: [
                                     const Text('Term (in months):'),
                                     Text('$term months'),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('Payment frequency:'),
+                                    Text((_formKey.currentState!.instantValue[
+                                                'payment_frequency']
+                                            as PaymentFrequency?)
+                                        ?.label ?? ''),
                                   ],
                                 ),
                               ],
@@ -379,7 +426,7 @@ class _LoanCalculatorScreenState extends State<LoanCalculatorScreen> {
                     ),
                     style: ElevatedButton.styleFrom(
                         backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
+                            Theme.of(context).colorScheme.primaryContainer,
                         padding: EdgeInsets.all(16)),
                   ),
                 ],

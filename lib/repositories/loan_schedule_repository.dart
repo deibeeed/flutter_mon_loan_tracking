@@ -6,6 +6,7 @@ class LoanScheduleRepository extends BaseRepository<LoanSchedule> {
   LoanScheduleRepository({
     required this.firestoreService,
   });
+
   final LoanScheduleFirestoreService firestoreService;
 
   void reset() => firestoreService.reset();
@@ -20,12 +21,22 @@ class LoanScheduleRepository extends BaseRepository<LoanSchedule> {
     return firestoreService.all();
   }
 
-  Future<List<LoanSchedule>> allByLoanId({ required String loanId}) {
-    return firestoreService.allByLoanId(loanId: loanId);
+  Future<List<LoanSchedule>> allByLoanId({
+    required String loanId,
+    bool onlyPaid = true,
+  }) {
+    return firestoreService.allByLoanId(
+      loanId: loanId,
+      onlyPaid: onlyPaid,
+    );
   }
 
-  Future<List<LoanSchedule>> next({ bool reset = false}) {
+  Future<List<LoanSchedule>> next({bool reset = false}) {
     return firestoreService.next(reset: reset);
+  }
+
+  Future<LoanSchedule> nextOne(String loanId) {
+    return firestoreService.nextOne(loanId);
   }
 
   @override

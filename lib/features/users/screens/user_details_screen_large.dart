@@ -234,6 +234,13 @@ Widget buildLargeScreenBody({
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        const Text('Start date:'),
+                        Text(loanBloc.selectedLoan!.createdAt.toDefaultDate()),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         const Text('Loan principal:'),
                         Text(loanBloc.selectedLoan!.amount.toCurrency()),
                       ],
@@ -241,8 +248,15 @@ Widget buildLargeScreenBody({
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Loan duration:'),
+                        const Text('Term (in months):'),
                         Text('${loanBloc.selectedLoan!.monthsToPay} months'),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Payment frequency:'),
+                        Text(loanBloc.selectedLoan!.paymentFrequency.label),
                       ],
                     ),
                     Row(

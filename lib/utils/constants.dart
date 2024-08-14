@@ -23,6 +23,8 @@ class Constants {
   static var defaultDateFormat = DateFormat('yyyy-MMM-dd');
   static var defaultCurrencyFormat =
       NumberFormat('${Constants.currency}###,###,###,###,###,##0.00');
+  static var defaultCurrencyFormatOptionalDecimal =
+  NumberFormat('${Constants.currency}###,###,###,###,###,##0.##');
   static var menuItems = [
     const MenuItemModel(
       name: 'Loan Dashboard',

@@ -90,7 +90,7 @@ class MainLargeScreen extends StatelessWidget {
                             if (user != null) {
                               Constants.appBarTitle = user.completeName;
                               context.read<MenuSelectionCubit>().select(
-                                page: 2,
+                                page: 1,
                               );
                               GoRouter.of(context).go('/profile/${user.id}');
                             }

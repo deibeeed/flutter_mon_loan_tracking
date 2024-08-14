@@ -3,12 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 
 extension FormattingExtension on num {
-  String toCurrency({bool isDeduction = false}) {
+  String toCurrency({
+    bool isDeduction = false,
+    bool optionalDecimal = false,
+    bool removeNegative = true,
+  }) {
     var formatted =
         Constants.defaultCurrencyFormat.format(num.parse(toStringAsFixed(2)));
-    final diff = (formatted.length - 1) - formatted.indexOf('.');
 
-    if (formatted.startsWith('-')) {
+    if (optionalDecimal) {
+      formatted = Constants.defaultCurrencyFormatOptionalDecimal.format(this);
+    }
+
+    // final diff = (formatted.length - 1) - formatted.indexOf('.');
+
+    if (removeNegative && formatted.startsWith('-')) {
       formatted = formatted.substring(1);
     }
 
@@ -16,9 +25,9 @@ extension FormattingExtension on num {
       return formatted.replaceFirst(' ', ' -');
     }
 
-    if (diff == 1) {
-      return '${formatted}0';
-    }
+    // if (diff == 1) {
+    //   return '${formatted}0';
+    // }
 
     return formatted;
   }
@@ -31,6 +40,14 @@ extension FormattingExtension on num {
 
   String withUnit() {
     return '$this sqm';
+  }
+}
+
+extension DateTimeExtension on DateTime {
+  String toDefaultDate() {
+    return Constants.defaultDateFormat.format(
+      this,
+    );
   }
 }
 

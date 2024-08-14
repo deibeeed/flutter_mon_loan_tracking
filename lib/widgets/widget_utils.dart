@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
+import 'package:flutter_mon_loan_tracking/models/loan.dart';
+import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_schedule.dart';
 import 'package:flutter_mon_loan_tracking/models/payment_status.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 Text defaultCellText({required String text}) {
@@ -23,10 +28,10 @@ Text defaultCellText({required String text}) {
 Widget paymentStatusWidget({
   required BuildContext context,
   required LoanSchedule schedule,
-  required LoanBloc loanBloc,
   bool showPaymentControls = false,
 }) {
-  final status = context.read<LoanBloc>().getPaymentStatus(schedule: schedule);
+  final loanBloc = context.read<LoanBloc>();
+  final status = loanBloc.getPaymentStatus(schedule: schedule);
   // success text color 0xff007F00
   // success background color 0xffCDFFCD
   final themeColorScheme = Theme.of(context).colorScheme;
@@ -40,7 +45,7 @@ Widget paymentStatusWidget({
   }
 
   if (status == PaymentStatus.nextPayment) {
-    textColor = themeColorScheme.surfaceVariant;
+    textColor = themeColorScheme.surfaceContainerHighest;
     backgroundColor = themeColorScheme.onSurfaceVariant;
     payStatus = 'Pay on ${schedule.date.toDefaultDate()}';
   }
@@ -80,7 +85,95 @@ Widget paymentStatusWidget({
         visible: showPaymentControls,
         child: InkWell(
           onTap: () {
-            loanBloc.payLoanSchedule(schedule: schedule);
+            final formKey = GlobalKey<FormBuilderState>(debugLabel: 'payment');
+
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text('Payment'),
+                    content: FormBuilder(
+                      key: formKey,
+                      child: FormBuilderTextField(
+                        name: 'amount',
+                        initialValue: schedule.monthlyAmortization.toCurrency(),
+                        inputFormatters: [
+                          TextInputFormatter.withFunction((oldValue, newValue) {
+                            var text = '';
+                            if (newValue.text.isEmpty) {
+                              text = '';
+                            }
+
+                            print('oldValue: ${oldValue.text}');
+                            print('newValue: ${newValue.text}');
+
+                            try {
+                              final base = Constants
+                                  .defaultCurrencyFormatOptionalDecimal
+                                  .parse(newValue.text);
+                              print('base: $base');
+
+                              if (newValue.text.endsWith('.')) {
+                                text = newValue.text;
+                              } else {
+                                text = base.toCurrency(
+                                  optionalDecimal: true,
+                                );
+                              }
+                            } on FormatException catch (err) {
+                              print(err);
+                              final base = Constants
+                                  .defaultCurrencyFormatOptionalDecimal
+                                  .parse(oldValue.text);
+                              text = base.toCurrency(optionalDecimal: true);
+
+                              if (newValue.text == Constants.currency) {
+                                text = '';
+                              }
+                            }
+
+                            return TextEditingValue(
+                              text: text,
+                              selection: TextSelection.collapsed(
+                                offset: text.length,
+                              ),
+                            );
+                          }),
+                        ],
+                        valueTransformer: (val) {
+                          if (val == null) {
+                            return null;
+                          }
+
+                          return Constants.defaultCurrencyFormat.parse(val);
+                        },
+                        validator: FormBuilderValidators.compose(
+                          [
+                            FormBuilderValidators.required(
+                                errorText: 'Please enter amount'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    actions: [
+                      FilledButton(
+                        onPressed: () {
+                          if (formKey.currentState?.saveAndValidate() ??
+                              false) {
+                            loanBloc.payLoanSchedule(
+                              schedule: schedule,
+                              payment: formKey.currentState!.value['amount']
+                                  as double,
+                            );
+
+                            Navigator.of(context, rootNavigator: true).pop();
+                          }
+                        },
+                        child: Text('Submit'),
+                      ),
+                    ],
+                  );
+                });
           },
           child: SvgPicture.asset(
             'assets/icons/online-payment.svg',
@@ -137,7 +230,11 @@ Widget buildDashboardTable({
   UserType loggedInUserType = UserType.customer,
 }) {
   return SizedBox(
-    width: !finiteSize ? null : !withStatus ? 1072 : 1212,
+    width: !finiteSize
+        ? null
+        : !withStatus
+            ? 1072
+            : 1212,
     height: !finiteSize ? null : 1180,
     child: Column(
       children: [
@@ -156,9 +253,10 @@ Widget buildDashboardTable({
                 name: Constants.loan_schedule_table_columns[0],
               ),
               gridHeaderItem(
-                  context: context,
-                  name: Constants.loan_schedule_table_columns[1],
-                  width: 160),
+                context: context,
+                name: Constants.loan_schedule_table_columns[1],
+                width: 160,
+              ),
               gridHeaderItem(
                 context: context,
                 name: Constants.loan_schedule_table_columns[2],
@@ -189,7 +287,6 @@ Widget buildDashboardTable({
                   name: Constants.loan_schedule_table_columns[8],
                 ),
               ],
-
             ],
           ),
         ),
@@ -277,7 +374,6 @@ Widget buildDashboardTable({
                             child: paymentStatusWidget(
                               context: context,
                               schedule: schedule,
-                              loanBloc: loanBloc,
                               showPaymentControls: schedule.paidOn == null &&
                                   ![UserType.customer, UserType.accountant]
                                       .contains(loggedInUserType),

@@ -15,7 +15,8 @@ class LoanScheduleFirestoreService extends BaseFirestoreService<LoanSchedule> {
   @override
   Future<LoanSchedule> add({required LoanSchedule data}) async {
     final doc = root.doc();
-    final updatedSchedule = LoanSchedule.updateId(id: doc.id, loanSchedule: data);
+    final updatedSchedule =
+        LoanSchedule.updateId(id: doc.id, loanSchedule: data);
 
     await doc.set(updatedSchedule.toJson());
 
@@ -32,11 +33,20 @@ class LoanScheduleFirestoreService extends BaseFirestoreService<LoanSchedule> {
     return schedules;
   }
 
-  Future<List<LoanSchedule>> allByLoanId({required String loanId}) async {
-    final doc = await root
-        .where('loanId', isEqualTo: loanId)
-        .orderBy('createdAt')
-        .get();
+  Future<List<LoanSchedule>> allByLoanId({
+    required String loanId,
+    required bool onlyPaid,
+  }) async {
+    var query = root.where('loanId', isEqualTo: loanId);
+
+    if (onlyPaid) {
+      query = query.where(
+        'paidOn',
+        isNull: false,
+      );
+    }
+
+    final doc = await query.orderBy('date').get();
     final schedules = doc.docs
         .map((e) => LoanSchedule.fromJson(e.data() as Map<String, dynamic>))
         .toList();
@@ -44,9 +54,9 @@ class LoanScheduleFirestoreService extends BaseFirestoreService<LoanSchedule> {
     return schedules;
   }
 
-  Future<List<LoanSchedule>> next({ bool reset = false}) async {
+  Future<List<LoanSchedule>> next({bool reset = false}) async {
     var query = root.orderBy('date');
-    
+
     if (reset) {
       _lastDocumentSnapshot = null;
     }
@@ -64,6 +74,23 @@ class LoanScheduleFirestoreService extends BaseFirestoreService<LoanSchedule> {
     _lastDocumentSnapshot = doc.docs.last;
 
     return schedules.sortedBy((schedule) => schedule.date);
+  }
+
+  Future<LoanSchedule> nextOne(String loanId) async {
+    var query = root
+        .orderBy('date')
+        .where(
+          'paidOn',
+          isNull: true,
+        )
+        .where(
+          'loanId',
+          isEqualTo: loanId,
+        );
+
+    final doc = await query.limit(1).get();
+
+    return LoanSchedule.fromJson(doc.docs.first.data() as Map<String, dynamic>);
   }
 
   @override

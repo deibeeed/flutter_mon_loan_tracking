@@ -254,7 +254,7 @@ class UserListScreen extends StatelessWidget {
                 onSelectChanged: (value) {
                   Constants.appBarTitle = user.completeName;
                   context.read<MenuSelectionCubit>().select(
-                    page: 2,
+                    page: 1,
                   );
                   if (isMobile()) {
                     GoRouter.of(context).push('/users/${user.id}');
