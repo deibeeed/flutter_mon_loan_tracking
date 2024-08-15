@@ -91,7 +91,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
     }
 
     return BlocListener<LoanBloc, LoanState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is LoanSuccessState) {
           if (loanBloc.settings != null) {
             pagingController.value = PagingState(
@@ -103,7 +103,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
               .showSnackBar(SnackBar(content: Text(state.message)));
         } else if (state is LoanLoadingState) {
           if (state.isLoading) {
-            showDialog(
+            await showDialog(
                 context: context,
                 barrierDismissible: false,
                 builder: (context) {
@@ -126,6 +126,51 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
           }
         } else if (state is CloseAddLoanState) {
           GoRouter.of(context).pop();
+        } else if (state is UserHasOutstandingLoanState) {
+          await showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('WARNING: Client has existing loan'),
+                  content: Text(
+                      'Client has an existing loan with an outstanding balance of ${state.outstandingBalance.toCurrency()}.\nIf you will proceed, the outstanding balance will be deducted from the loan amount.\n\nDo you wish to proceed?'),
+                  actions: [
+                    FilledButton(
+                        onPressed: () {
+                          if (_formKey.currentState?.saveAndValidate() ??
+                              false) {
+                            loanBloc.addLoan(
+                              monthsToPay: int.parse(_formKey
+                                  .currentState!.value['term'] as String),
+                              date: _formKey.currentState!.value['date']
+                                  as DateTime,
+                              amount: double.parse(_formKey
+                                  .currentState!.value['amount'] as String),
+                              paymentFrequency: _formKey
+                                      .currentState!.value['payment_frequency']
+                                  as PaymentFrequency,
+                              isReloan: true,
+                            );
+                            Navigator.of(context, rootNavigator: true).pop();
+                          }
+                        },
+                        child: Text('Yes')),
+                    FilledButton(
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        },
+                        child: Text('No')),
+                  ],
+                );
+              });
+        } else if (state is PrintReloanStatementState) {
+         await PdfGenerator.generatePdf(
+            schedules: state.schedules,
+            loan: state.loan,
+            user: loanBloc.selectedUser,
+          );
+
+         GoRouter.of(context).pop();
         }
       },
       child: Scaffold(

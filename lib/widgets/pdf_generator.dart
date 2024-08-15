@@ -12,12 +12,12 @@ import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class PdfGenerator {
-  static void generatePdf({
+  static Future<void> generatePdf({
     User? user,
     required List<LoanSchedule> schedules,
     required Loan loan,
   }) {
-    Printing.layoutPdf(
+    return Printing.layoutPdf(
       // [onLayout] will be called multiple times
       // when the user changes the printer or printer settings
       onLayout: (PdfPageFormat format) {
@@ -76,6 +76,22 @@ class PdfGenerator {
                       pw.Text(user.completeName),
                     ],
                   ),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Loan amount'),
+                    pw.Text(
+                      (loan.amount + loan.previousLoanBalance).toCurrency(),
+                    ),
+                  ],
+                ),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Previous loan balance'),
+                    pw.Text(loan.previousLoanBalance.toCurrency()),
+                  ],
+                ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [

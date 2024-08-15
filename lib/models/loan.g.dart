@@ -18,6 +18,8 @@ Loan _$LoanFromJson(Map<String, dynamic> json) => Loan(
       paymentFrequency:
           $enumDecode(_$PaymentFrequencyEnumMap, json['paymentFrequency']),
       startAt: json['startAt'] as num,
+      fullPaidOn: json['fullPaidOn'] as num?,
+      previousLoanBalance: json['previousLoanBalance'] as num? ?? 0,
     );
 
 Map<String, dynamic> _$LoanToJson(Loan instance) => <String, dynamic>{
@@ -31,6 +33,8 @@ Map<String, dynamic> _$LoanToJson(Loan instance) => <String, dynamic>{
       'monthlyAmortization': instance.monthlyAmortization,
       'paymentFrequency': _$PaymentFrequencyEnumMap[instance.paymentFrequency]!,
       'startAt': instance.startAt,
+      'fullPaidOn': instance.fullPaidOn,
+      'previousLoanBalance': instance.previousLoanBalance,
     };
 
 const _$PaymentFrequencyEnumMap = {

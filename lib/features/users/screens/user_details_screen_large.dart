@@ -241,6 +241,20 @@ Widget buildLargeScreenBody({
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        const Text('Loan amount:'),
+                        Text('${(loanBloc.selectedLoan!.amount + loanBloc.selectedLoan!.previousLoanBalance).toCurrency()}'),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Previous loan balance:'),
+                        Text(loanBloc.selectedLoan!.previousLoanBalance.toCurrency()),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         const Text('Loan principal:'),
                         Text(loanBloc.selectedLoan!.amount.toCurrency()),
                       ],

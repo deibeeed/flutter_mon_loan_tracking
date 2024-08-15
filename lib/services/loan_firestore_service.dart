@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mon_loan_tracking/exceptions/loan_not_found_exception.dart';
 import 'package:flutter_mon_loan_tracking/models/loan.dart';
 import 'package:flutter_mon_loan_tracking/services/base_firebase_service.dart';
@@ -14,13 +15,38 @@ class LoanFirestoreService extends BaseFirestoreService<Loan> {
   }
 
   @override
-  Future<List<Loan>> all() async {
-    final doc = await root.get();
+  Future<List<Loan>> all({
+    bool onlyFullPaid = false,
+  }) async {
+    Query query;
+
+    if (onlyFullPaid) {
+      query = root.where('fullPaidOn', isNull: false);
+    } else {
+      query = root.where('fullPaidOn', isNull: true);
+    }
+
+    final doc = await query.get();
     final users = doc.docs
         .map((e) => Loan.fromJson(e.data() as Map<String, dynamic>))
         .toList();
 
-    return users;
+     return users;
+  }
+
+  Future<Loan?> clientLastLoan(String clientId) async {
+    final docs = await root
+        .where('clientId', isEqualTo: clientId)
+        .where('fullPaidOn', isNull: true)
+        .orderBy('startAt')
+        .limit(1)
+        .get();
+
+    if (docs.size == 0) {
+      return null;
+    }
+
+    return Loan.fromJson(docs.docs.first.data() as Map<String, dynamic>);
   }
 
   @override

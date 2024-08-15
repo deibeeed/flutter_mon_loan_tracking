@@ -155,6 +155,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     double? interestRate,
     required double amount,
     PaymentFrequency paymentFrequency = PaymentFrequency.monthly,
+    bool withUser = false,
   }) {
     try {
       if (interestRate != null) {
@@ -163,7 +164,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             monthsToPay: monthsToPay,
             date: date,
             storeInDb: false,
-            withUser: false,
+            withUser: withUser,
             amount: amount,
             interestRate: interestRate,
             paymentFrequency: paymentFrequency,
@@ -175,7 +176,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             monthsToPay: monthsToPay,
             date: date,
             storeInDb: false,
-            withUser: false,
+            withUser: withUser,
             amount: amount,
             paymentFrequency: paymentFrequency,
           ),
@@ -191,6 +192,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     required DateTime date,
     required double amount,
     PaymentFrequency paymentFrequency = PaymentFrequency.monthly,
+    bool isReloan = false,
   }) {
     try {
       add(
@@ -199,6 +201,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           amount: amount,
           date: date,
           paymentFrequency: paymentFrequency,
+          forceLoan: isReloan,
         ),
       );
     } catch (err) {
@@ -383,8 +386,23 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
       final loanInterestRate = event.interestRate ?? settings!.loanInterestRate;
 
+      var loanableAmount = event.amount;
+      num previousLoanBalance = 0;
+
+      // check if client has existing loan
+      final clientLastLoan = await loanRepository.clientLastLoan(clientId);
+
+      if (clientLastLoan != null) {
+        final clientLastLoanSchedule =
+            await loanScheduleRepository.nextOne(clientLastLoan.id);
+
+        previousLoanBalance = clientLastLoanSchedule.beginningBalance;
+
+        loanableAmount -= previousLoanBalance;
+      }
+
       _calculateLoan(
-        amount: event.amount,
+        amount: loanableAmount,
         monthsToPay: event.monthsToPay,
         date: event.date,
         interestRate: loanInterestRate,
@@ -398,13 +416,24 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         preparedBy: authenticationService.loggedInUser!.uid,
         interestRate: loanInterestRate,
         monthsToPay: event.monthsToPay,
-        amount: event.amount,
+        amount: loanableAmount,
         monthlyAmortization: _monthlyAmortization.toDouble(),
         paymentFrequency: event.paymentFrequency,
         startAt: event.date.millisecondsSinceEpoch,
+        previousLoanBalance: previousLoanBalance,
       );
 
       if (event.storeInDb) {
+        if (clientLastLoan != null && !event.forceLoan) {
+          emit(LoanLoadingState());
+          emit(
+            UserHasOutstandingLoanState(
+              outstandingBalance: previousLoanBalance.toDouble(),
+            ),
+          );
+          return;
+        }
+
         final loanWithId = await loanRepository.add(data: loan);
         final schedule = await loanScheduleRepository.add(
           data: LoanSchedule.setLoanId(
@@ -412,24 +441,37 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             loanSchedule: firstSchedule,
           ),
         );
-        // final futureLoanSchedules = _clientLoanSchedules.map(
-        //   (schedule) {
-        //     final loanScheduleWithLoanId = LoanSchedule.setLoanId(
-        //       loanId: loanWithId.id,
-        //       loanSchedule: schedule,
-        //     );
-        //     return loanScheduleRepository.add(data: loanScheduleWithLoanId);
-        //   },
-        // ).toList();
-        //
-        // await Future.wait(futureLoanSchedules);
+
+        // finish previous loan
+        if (clientLastLoan != null) {
+          await loanRepository.update(
+            data: clientLastLoan
+              ..fullPaidOn = event.date.millisecondsSinceEpoch,
+          );
+        }
+
         emit(LoanLoadingState());
         emit(LoanSuccessState(message: 'Adding loan successfully'));
-        emit(CloseAddLoanState());
+
+        if (clientLastLoan != null) {
+          emit(
+            PrintReloanStatementState(
+              loan: loan,
+              schedules: _clientLoanSchedules,
+            ),
+          );
+        } else {
+          emit(CloseAddLoanState());
+        }
       } else {
         _selectedLoan = loan;
         emit(LoanLoadingState());
-        emit(LoanSuccessState(message: 'compute loan successfully'));
+        emit(
+          LoanSuccessState(
+            message: 'compute loan successfully',
+            data: loan,
+          ),
+        );
       }
     } catch (err) {
       printd(err);
@@ -561,7 +603,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       emit(
         LoanDisplaySummaryState(
           nextPage: _nextPageCalled,
-          items: _filteredLoans,
+          items: _filteredLoans..sortBy((key) => key.schedule.date),
         ),
       );
       emit(LoanSuccessState(message: 'Successfully retrieved loans'));
@@ -717,37 +759,42 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       // create next schedule
       final loan = _loans[schedule.loanId];
       if (loan != null) {
-        final allSchedules =
-            await loanScheduleRepository.allByLoanId(loanId: loan.id);
-        _calculateLoan(
-          amount: loan.amount,
-          monthsToPay: loan.monthsToPay,
-          date: DateTime.fromMillisecondsSinceEpoch(loan.startAt.toInt()),
-          interestRate: loan.monthlyInterestRate,
-          paymentFrequency: loan.paymentFrequency,
-          paidSchedules: allSchedules,
-        );
-        final loanScheduleDate =
-            Jiffy.parseFromMillisecondsSinceEpoch(schedule.date.toInt());
-        var nextPaymentDate = loanScheduleDate;
-
-        if (loan.paymentFrequency == PaymentFrequency.monthly) {
-          nextPaymentDate = loanScheduleDate.add(months: 1);
+        if (schedule.outstandingBalance <= 0) {
+          // fully paid!!
+          loan.fullPaidOn = DateTime.timestamp().millisecondsSinceEpoch;
+          await loanRepository.update(data: loan);
         } else {
-          nextPaymentDate = loanScheduleDate.add(days: 15);
-        }
-
-        final nextScheduleTemp = _clientLoanSchedules.firstWhereOrNull(
-            (sched) => sched.date == nextPaymentDate.millisecondsSinceEpoch);
-
-        if (nextScheduleTemp != null) {
-          final nextSchedule = LoanSchedule.setLoanId(
-            loanId: loan.id,
-            loanSchedule: nextScheduleTemp,
+          final allSchedules =
+              await loanScheduleRepository.allByLoanId(loanId: loan.id);
+          _calculateLoan(
+            amount: loan.amount,
+            monthsToPay: loan.monthsToPay,
+            date: DateTime.fromMillisecondsSinceEpoch(loan.startAt.toInt()),
+            interestRate: loan.monthlyInterestRate,
+            paymentFrequency: loan.paymentFrequency,
+            paidSchedules: allSchedules,
           );
+          final loanScheduleDate =
+              Jiffy.parseFromMillisecondsSinceEpoch(schedule.date.toInt());
+          var nextPaymentDate = loanScheduleDate;
 
-          await loanScheduleRepository.add(data: nextSchedule);
-          printd('success created next schedule');
+          if (loan.paymentFrequency == PaymentFrequency.monthly) {
+            nextPaymentDate = loanScheduleDate.add(months: 1);
+          } else {
+            nextPaymentDate = loanScheduleDate.add(days: 15);
+          }
+
+          final nextScheduleTemp = _clientLoanSchedules.firstWhereOrNull(
+              (sched) => sched.date == nextPaymentDate.millisecondsSinceEpoch);
+
+          if (nextScheduleTemp != null) {
+            final nextSchedule = LoanSchedule.setLoanId(
+              loanId: loan.id,
+              loanSchedule: nextScheduleTemp,
+            );
+
+            await loanScheduleRepository.add(data: nextSchedule);
+          }
         }
       }
 

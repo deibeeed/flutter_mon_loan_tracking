@@ -6,6 +6,7 @@ class LoanRepository extends BaseRepository<Loan> {
   LoanRepository({
     required this.firestoreService,
   });
+
   final LoanFirestoreService firestoreService;
 
   @override
@@ -14,8 +15,14 @@ class LoanRepository extends BaseRepository<Loan> {
   }
 
   @override
-  Future<List<Loan>> all() {
-    return firestoreService.all();
+  Future<List<Loan>> all({
+    bool onlyFullPaid = false,
+  }) {
+    return firestoreService.all(onlyFullPaid: onlyFullPaid);
+  }
+
+  Future<Loan?> clientLastLoan(String clientId) {
+    return firestoreService.clientLastLoan(clientId);
   }
 
   @override

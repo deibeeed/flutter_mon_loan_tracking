@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_mon_loan_tracking/models/discount.dart';
 import 'package:flutter_mon_loan_tracking/models/payment_frequency.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -13,11 +12,15 @@ class Loan extends Equatable {
   final String preparedBy;
   final num monthlyInterestRate;
   final num createdAt;
-  final num amount;
+  num amount;
   final num monthsToPay;
   final double monthlyAmortization;
   final PaymentFrequency paymentFrequency;
   final num startAt;
+  @JsonKey(defaultValue: null)
+  num? fullPaidOn;
+  @JsonKey(defaultValue: 0)
+  num previousLoanBalance;
 
   Loan({
     required this.id,
@@ -30,6 +33,8 @@ class Loan extends Equatable {
     required this.monthlyAmortization,
     required this.paymentFrequency,
     required this.startAt,
+    this.fullPaidOn,
+    this.previousLoanBalance = 0,
   });
 
   factory Loan.create({
@@ -41,6 +46,7 @@ class Loan extends Equatable {
     required double monthlyAmortization,
     required PaymentFrequency paymentFrequency,
     required num startAt,
+    num previousLoanBalance = 0,
   }) =>
       Loan(
         id: Constants.NO_ID,
@@ -53,6 +59,7 @@ class Loan extends Equatable {
         monthlyAmortization: monthlyAmortization,
         paymentFrequency: paymentFrequency,
         startAt: startAt,
+        previousLoanBalance: previousLoanBalance,
       );
 
   factory Loan.updateId({
@@ -70,6 +77,8 @@ class Loan extends Equatable {
         monthlyAmortization: loan.monthlyAmortization,
         paymentFrequency: loan.paymentFrequency,
         startAt: loan.startAt,
+        fullPaidOn: loan.fullPaidOn,
+        previousLoanBalance: loan.previousLoanBalance,
       );
 
   factory Loan.fromJson(Map<String, dynamic> json) => _$LoanFromJson(json);
@@ -88,5 +97,7 @@ class Loan extends Equatable {
     monthlyAmortization,
     paymentFrequency,
     startAt,
+    fullPaidOn,
+    previousLoanBalance,
   ];
 }

@@ -418,14 +418,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     try {
       emit(UserLoadingState(isLoading: true));
       final tmpUsers = await userRepository.all();
-      final spouseIds = tmpUsers
-          .where((user) => user.spouseId != null)
-          .toList()
-          .map((e) => e.spouseId!)
-          .toList();
+      // final spouseIds = tmpUsers
+      //     .where((user) => user.spouseId != null)
+      //     .toList()
+      //     .map((e) => e.spouseId!)
+      //     .toList();
       _filteredUsers
         ..clear()
-        ..addAll(tmpUsers.whereNot((user) => spouseIds.contains(user.id)));
+        ..addAll(tmpUsers);
       _customers = await userRepository.customers();
       emit(UserLoadingState());
       emit(UserSuccessState(message: 'Successfully loaded all users'));

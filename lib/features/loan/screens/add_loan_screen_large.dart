@@ -235,6 +235,7 @@ Widget buildLargeScreenBody({
                     amount: formKey.currentState!.value['amount'] as double,
                     paymentFrequency: formKey.currentState!
                         .value['payment_frequency'] as PaymentFrequency,
+                    withUser: true,
                   );
                 }
               },
@@ -276,6 +277,8 @@ Widget buildLargeScreenBody({
             builder: (context, state) {
               final term = formKey.currentState!.instantValue['term'] ?? 0;
               var amount = formKey.currentState!.instantValue['amount'];
+              num previousLoanBalance = 0;
+              var loanPrincipal = 0.toCurrency();
 
               if (amount != null) {
                 if (amount.runtimeType == double) {
@@ -289,6 +292,17 @@ Widget buildLargeScreenBody({
                 amount = 0.0.toCurrency();
               }
 
+              if (state is LoanSuccessState &&
+                  state.data != null &&
+                  state.data is Loan) {
+                final loan = state.data as Loan;
+                previousLoanBalance = loan.previousLoanBalance ?? 0;
+                loanPrincipal =
+                    (Constants.defaultCurrencyFormat.parse(amount.toString()) -
+                            previousLoanBalance)
+                        .toCurrency();
+              }
+
               return Padding(
                 padding: const EdgeInsets.only(left: 16.0),
                 child: Row(
@@ -300,8 +314,7 @@ Widget buildLargeScreenBody({
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Start date:'),
                               Text(DateTime.now().toDefaultDate()),
@@ -310,8 +323,22 @@ Widget buildLargeScreenBody({
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Loan principal:'),
+                              const Text('Loan amount:'),
                               Text('$amount'),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Previous loan balance:'),
+                              Text(previousLoanBalance.toCurrency()),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Loan principal:'),
+                              Text(loanPrincipal),
                             ],
                           ),
                           Row(
@@ -322,14 +349,14 @@ Widget buildLargeScreenBody({
                             ],
                           ),
                           Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Payment frequency:'),
-                              Text((formKey.currentState!.instantValue[
-                              'payment_frequency']
-                              as PaymentFrequency?)
-                                  ?.label ?? ''),
+                              Text((formKey.currentState!
+                                              .instantValue['payment_frequency']
+                                          as PaymentFrequency?)
+                                      ?.label ??
+                                  ''),
                             ],
                           ),
                         ],

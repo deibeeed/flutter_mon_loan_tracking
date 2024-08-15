@@ -23,6 +23,7 @@ class AddLoanEvent extends LoanEvent {
   final double amount;
   final double? interestRate;
   final PaymentFrequency paymentFrequency;
+  final bool forceLoan;
 
   AddLoanEvent({
     required this.monthsToPay,
@@ -32,6 +33,7 @@ class AddLoanEvent extends LoanEvent {
     required this.amount,
     this.interestRate,
     this.paymentFrequency = PaymentFrequency.monthly,
+    this.forceLoan = false,
   });
 }
 
