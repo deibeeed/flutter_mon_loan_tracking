@@ -32,14 +32,14 @@ extension FormattingExtension on num {
     return formatted;
   }
 
+  String toPercent() {
+    return '${toStringAsFixed(2)}%';
+  }
+
   String toDefaultDate() {
     return Constants.defaultDateFormat.format(
       DateTime.fromMillisecondsSinceEpoch(toInt()),
     );
-  }
-
-  String withUnit() {
-    return '$this sqm';
   }
 }
 
