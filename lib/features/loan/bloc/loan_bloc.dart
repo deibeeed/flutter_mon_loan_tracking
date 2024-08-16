@@ -391,9 +391,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
       // check if client has existing loan
       final clientLastLoan = await loanRepository.clientLastLoan(clientId);
+      LoanSchedule? clientLastLoanSchedule;
 
       if (clientLastLoan != null) {
-        final clientLastLoanSchedule =
+        clientLastLoanSchedule =
             await loanScheduleRepository.nextOne(clientLastLoan.id);
 
         previousLoanBalance = clientLastLoanSchedule.beginningBalance;
@@ -448,6 +449,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             data: clientLastLoan
               ..fullPaidOn = event.date.millisecondsSinceEpoch,
           );
+
+          if (clientLastLoanSchedule != null) {
+            await loanScheduleRepository.update(
+              data: clientLastLoanSchedule
+                ..paidOn = event.date.millisecondsSinceEpoch,
+            );
+          }
         }
 
         emit(LoanLoadingState());

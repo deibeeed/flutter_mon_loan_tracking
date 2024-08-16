@@ -21,6 +21,10 @@ class LoanRepository extends BaseRepository<Loan> {
     return firestoreService.all(onlyFullPaid: onlyFullPaid);
   }
 
+  Future<List<Loan>> allLoans() {
+    return firestoreService.allLoans();
+  }
+
   Future<Loan?> clientLastLoan(String clientId) {
     return firestoreService.clientLastLoan(clientId);
   }

@@ -34,6 +34,13 @@ class LoanFirestoreService extends BaseFirestoreService<Loan> {
      return users;
   }
 
+  Future<List<Loan>> allLoans() async {
+    final doc = await root.get();
+    return doc.docs
+        .map((e) => Loan.fromJson(e.data() as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<Loan?> clientLastLoan(String clientId) async {
     final docs = await root
         .where('clientId', isEqualTo: clientId)

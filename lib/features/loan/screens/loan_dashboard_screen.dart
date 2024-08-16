@@ -1,13 +1,16 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/loan/bloc/reports_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/users/bloc/user_bloc.dart';
 import 'package:flutter_mon_loan_tracking/models/loan_display.dart';
 import 'package:flutter_mon_loan_tracking/models/user_type.dart';
 import 'package:flutter_mon_loan_tracking/utils/constants.dart';
 import 'package:flutter_mon_loan_tracking/utils/extensions.dart';
 import 'package:flutter_mon_loan_tracking/widgets/widget_utils.dart';
+import 'package:gap/gap.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class LoanDashboardScreen extends StatefulWidget {
@@ -112,7 +115,233 @@ class _LoanDashboardScreenState extends State<LoanDashboardScreen> {
       },
       child: Column(
         children: [
-          // Text('Some reports here'),
+          BlocBuilder<ReportsBloc, ReportsState>(
+            builder: (context, state) {
+              if (state is ShowReportState) {
+                final colorScheme = Theme.of(context).colorScheme;
+
+                return Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 300,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Expanded(
+                              child: BarChart(
+                                BarChartData(
+                                  barTouchData: BarTouchData(
+                                    touchTooltipData: BarTouchTooltipData(
+                                      getTooltipItem:
+                                          (group, groupIndex, rod, rodIndex) {
+                                        return BarTooltipItem(
+                                          rod.toY.toCurrency(),
+                                          const TextStyle(),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  barGroups: [
+                                    BarChartGroupData(
+                                      x: 0,
+                                      showingTooltipIndicators: [0, 1],
+                                      barRods: [
+                                        BarChartRodData(
+                                          toY: state.totalLoanAmount,
+                                          color: colorScheme.primary,
+                                          width: 80,
+                                        ),
+                                        BarChartRodData(
+                                          toY: state.totalExpectedCollections,
+                                          color: colorScheme.primaryContainer,
+                                          width: 80,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                  maxY: state.totalExpectedCollections * 1.2,
+                                  gridData: const FlGridData(
+                                    show: false,
+                                  ),
+                                  borderData: FlBorderData(
+                                      border: const Border(
+                                    left: BorderSide(
+                                      color: Colors.white,
+                                    ),
+                                    bottom: BorderSide(
+                                      color: Colors.white,
+                                    ),
+                                  )),
+                                  titlesData: const FlTitlesData(
+                                    rightTitles: AxisTitles(),
+                                    topTitles: AxisTitles(
+                                      axisNameWidget: Text(''),
+                                    ),
+                                    bottomTitles: AxisTitles(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const Gap(8),
+                                    const Text('Total Loan amount'),
+                                  ],
+                                ),
+                                const Gap(8),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.primaryContainer,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const Gap(8),
+                                    const Text('Total Expected collections'),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: SizedBox(
+                        height: 300,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: PieChart(
+                                PieChartData(
+                                  sections: [
+                                    PieChartSectionData(
+                                      color: colorScheme.tertiaryContainer,
+                                      value: state.totalExpectedProfitPercent,
+                                      radius: 76,
+                                      title: state.totalExpectedProfit
+                                          .toCurrency(),
+                                      titlePositionPercentageOffset: 2,
+                                    ),
+                                    PieChartSectionData(
+                                      color: colorScheme.tertiary,
+                                      value: state
+                                          .totalActualCollectionsProfitPercent,
+                                      radius: 100,
+                                      title: state.totalActualCollectionsProfit
+                                          .toCurrency(),
+                                      titlePositionPercentageOffset: 1.5,
+                                      // titleStyle: const TextStyle(
+                                      //   color: Colors.black,
+                                      // ),
+                                    ),
+                                  ],
+                                  pieTouchData: PieTouchData(
+                                    touchCallback: (event, touchResponse) {},
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.tertiaryContainer,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const Gap(8),
+                                    const Text('Expected collections'),
+                                  ],
+                                ),
+                                const Gap(8),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.tertiary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const Gap(8),
+                                    const Text('Actual collections'),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: SizedBox(
+                        height: 300,
+                        child: Center(
+                          child: SizedBox(
+                            height: 230,
+                            width: 450,
+                            child: Card(
+                              color: Colors.white,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '${state.overdueCount}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 36,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Overdue accounts',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              return Container();
+            },
+          ),
+          const Gap(24),
           // BlocBuilder<GeneralFilterSelectionCubit, GeneralFilterSelectionState>(
           //   builder: (context, state) {
           //     var position = 0;

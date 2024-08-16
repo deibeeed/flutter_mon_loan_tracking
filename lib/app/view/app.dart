@@ -4,6 +4,7 @@ import 'package:flutter_mon_loan_tracking/features/authentication/bloc/authentic
 import 'package:flutter_mon_loan_tracking/features/authentication/screen/authentication_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/general_filter_selection_cubit.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/bloc/loan_bloc.dart';
+import 'package:flutter_mon_loan_tracking/features/loan/bloc/reports_bloc.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/screens/add_loan_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan/screens/loan_dashboard_screen.dart';
 import 'package:flutter_mon_loan_tracking/features/loan_calculator/screens/loan_calculator_screen.dart';
@@ -233,6 +234,9 @@ class _AppState extends State<App> {
                   authenticationService: context.read<AuthenticationService>(),
                 ),
               ),
+              BlocProvider(
+                create: ReportsBloc.new,
+              ),
             ],
             child: Builder(
               builder: (context) {
@@ -248,6 +252,7 @@ class _AppState extends State<App> {
                     context.read<SettingsBloc>().getSettings();
                     context.read<UserBloc>().getAllUsers();
                     context.read<LoanBloc>().initialize();
+                    context.read<ReportsBloc>().initialize();
 
                     return MaterialApp.router(
                       debugShowCheckedModeBanner: false,
