@@ -244,7 +244,6 @@ Widget buildLargeScreenBody({
           Expanded(
             child: TextFormField(
               controller: tcpController,
-              enabled: false,
               decoration: const InputDecoration(
                 label: Text('Total contract price'),
                 border: OutlineInputBorder(),
@@ -252,8 +251,20 @@ Widget buildLargeScreenBody({
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[0-9.,]'))
+                FilteringTextInputFormatter.allow(
+                  RegExp(r'^[0-9]*[.]?[0-9]*'),
+                ),
               ],
+              onChanged: (val) {
+                downpaymentController.text = loanBloc
+                    .computeDownPaymentRate(
+                  withCustomTCP: val.isNotEmpty
+                      ? Constants.defaultCurrencyFormat
+                      .parse(tcpController.text)
+                      : null,
+                )
+                    .toCurrency();
+              },
             ),
           ),
           const SizedBox(
@@ -313,8 +324,8 @@ Widget buildLargeScreenBody({
                             decimal: true),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                            RegExp('[0-9.,]'),
-                          )
+                            RegExp(r'^[0-9]*[.]?[0-9]*'),
+                          ),
                         ],
                       ),
                     ),
@@ -420,9 +431,11 @@ Widget buildLargeScreenBody({
         children: [
           ElevatedButton(
             onPressed: () => loanBloc.calculateLoan(
-                downPayment: downpaymentController.text,
-                yearsToPay: loanDurationController.text,
-                date: dateController.text),
+              downPayment: downpaymentController.text,
+              yearsToPay: loanDurationController.text,
+              date: dateController.text,
+              totalContractPrice: tcpController.text,
+            ),
             style: ElevatedButton.styleFrom(
                 padding: buttonPadding,
                 backgroundColor: Theme.of(context).colorScheme.primary),
@@ -503,7 +516,14 @@ Widget buildLargeScreenBody({
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('Total contract price:'),
-                            Text(loanBloc.computeTCP().toCurrency()),
+                            Text(loanBloc
+                                .computeTCP(
+                                  withCustomTCP: tcpController.text.isNotEmpty
+                                      ? Constants.defaultCurrencyFormat
+                                          .parse(tcpController.text)
+                                      : null,
+                                )
+                                .toCurrency()),
                           ],
                         ),
                         Row(
@@ -540,7 +560,14 @@ Widget buildLargeScreenBody({
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('Add: Incidental fee:'),
-                            Text(loanBloc.computeIncidentalFee().toCurrency()),
+                            Text(loanBloc
+                                .computeIncidentalFee(
+                                  withCustomTCP: tcpController.text.isNotEmpty
+                                      ? Constants.defaultCurrencyFormat
+                                          .parse(tcpController.text)
+                                      : null,
+                                )
+                                .toCurrency()),
                           ],
                         ),
                         Row(
@@ -550,7 +577,13 @@ Widget buildLargeScreenBody({
                             Text(loanBloc.getServiceFee().toCurrency()),
                           ],
                         ),
-                        if (loanBloc.getVatAmount() != null)
+                        if (loanBloc.getVatAmount(
+                              withCustomTCP: tcpController.text.isNotEmpty
+                                  ? Constants.defaultCurrencyFormat
+                                      .parse(tcpController.text)
+                                  : null,
+                            ) !=
+                            null)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -582,13 +615,14 @@ Widget buildLargeScreenBody({
                             ),
                             Text(
                               loanBloc.monthlyAmortization.toCurrency(),
-                              style: Theme.of(context).textTheme.titleLarge?.apply(
-                                fontWeightDelta: 2,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .tertiary
-                                    .withOpacity(0.8),
-                              ),
+                              style:
+                                  Theme.of(context).textTheme.titleLarge?.apply(
+                                        fontWeightDelta: 2,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary
+                                            .withOpacity(0.8),
+                                      ),
                             ),
                           ],
                         ),
@@ -628,6 +662,7 @@ Widget buildLargeScreenBody({
                   schedules: loanBloc.clientLoanSchedules,
                   loan: loan,
                   lot: lot,
+                  showServiceFee: true,
                 );
               },
               child: Text(
@@ -674,10 +709,12 @@ Widget buildLargeScreenBody({
           Expanded(
             child: ElevatedButton(
               onPressed: () => loanBloc.addLoan(
-                  yearsToPay: loanDurationController.text,
-                  downPayment: downpaymentController.text,
-                  agentAssisted: agentAssistedController.text,
-                  date: dateController.text),
+                yearsToPay: loanDurationController.text,
+                downPayment: downpaymentController.text,
+                agentAssisted: agentAssistedController.text,
+                date: dateController.text,
+                totalContractPrice: tcpController.text,
+              ),
               style: ElevatedButton.styleFrom(
                   padding: buttonPadding,
                   backgroundColor: Theme.of(context).colorScheme.primary),

@@ -21,22 +21,27 @@ class Loan extends Equatable {
   final String lotId;
   final num loanInterestRate;
   final num incidentalFeeRate;
+
   /// serviceFee is defaulted to zero because there
   /// was no service fee implemented in the past.
   @JsonKey(defaultValue: 0)
   final num serviceFee;
   final num createdAt;
   final num ratePerSquareMeter;
+
   /// all deductions from tcp.
   /// deductions are amounts to deduct
   final List<Discount> deductions;
+
   /// computed when everything from the
   /// tcp is deducted
   final num outstandingBalance;
+
   /// tcp = lot area * per sqm rate
   /// if TCP >= Constants.vattableTCP
   /// tcp += vatValue
   final num totalContractPrice;
+
   /// amount of additional fees.
   /// computed as = tcp * incidentalFeeRate
   /// TODO: add serviceFee in the computation
@@ -52,10 +57,16 @@ class Loan extends Equatable {
   final num downPaymentRate;
   @JsonKey(defaultValue: 12)
   final num vatRate;
+
   /// by default vatValue is null.
   /// vatValue will only have value is TCP is
   /// 1.5M pesos or more.
   final num? vatValue;
+
+  @JsonKey(
+    defaultValue: null,
+  )
+  final num? deletedAt;
 
   Loan({
     required this.id,
@@ -78,6 +89,7 @@ class Loan extends Equatable {
     required this.downPaymentRate,
     required this.vatRate,
     this.vatValue,
+    this.deletedAt,
   });
 
   factory Loan.create({
@@ -148,6 +160,7 @@ class Loan extends Equatable {
         downPaymentRate: loan.downPaymentRate,
         vatRate: loan.vatRate,
         vatValue: loan.vatValue,
+        deletedAt: loan.deletedAt,
       );
 
   factory Loan.fromJson(Map<String, dynamic> json) => _$LoanFromJson(json);
@@ -156,25 +169,26 @@ class Loan extends Equatable {
 
   @override
   List<Object?> get props => [
-    incidentalFees,
-    downPayment,
-    yearsToPay,
-    assistingAgent,
-    lotCategoryName,
-    downPaymentRate,
-    id,
-    clientId,
-    preparedBy,
-    lotId,
-    loanInterestRate,
-    incidentalFeeRate,
-    serviceFee,
-    createdAt,
-    ratePerSquareMeter,
-    deductions,
-    outstandingBalance,
-    totalContractPrice,
-    vatRate,
-    vatValue,
-  ];
+        incidentalFees,
+        downPayment,
+        yearsToPay,
+        assistingAgent,
+        lotCategoryName,
+        downPaymentRate,
+        id,
+        clientId,
+        preparedBy,
+        lotId,
+        loanInterestRate,
+        incidentalFeeRate,
+        serviceFee,
+        createdAt,
+        ratePerSquareMeter,
+        deductions,
+        outstandingBalance,
+        totalContractPrice,
+        vatRate,
+        vatValue,
+        deletedAt,
+      ];
 }

@@ -22,7 +22,7 @@ class Constants {
   static const defaultRadius = Radius.circular(120);
   static var defaultDateFormat = DateFormat('yyyy-MMM-dd');
   static var defaultCurrencyFormat =
-      NumberFormat('${Constants.currency} ###,###,###,###,###,##0.00');
+      NumberFormat('${Constants.currency}###,###,###,###,###,##0.00');
   static var menuItems = [
     const MenuItemModel(
       name: 'Loan Dashboard',

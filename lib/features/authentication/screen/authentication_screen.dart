@@ -173,7 +173,6 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                             value,
                                         onSelected: (value) {
                                           emailController.text = value;
-                                          passwordController.text = value;
                                           authenticationBloc.selectEmail();
                                         },
                                         fieldViewBuilder: (context,
@@ -191,7 +190,6 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                                             ),
                                             onChanged: (value) {
                                               emailController.text = value;
-                                              passwordController.text = value;
                                             },
                                           );
                                         },

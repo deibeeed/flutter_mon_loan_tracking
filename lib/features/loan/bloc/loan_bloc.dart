@@ -117,6 +117,8 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
   int? _nextPageCalled;
 
+  bool withCustomTCP = false;
+
   void reset({bool isLogout = false}) {
     if (isLogout) {
       loanScheduleRepository.reset();
@@ -134,6 +136,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     _selectedUser = null;
     _monthlyAmortization = 0;
     _nextPageCalled = null;
+    withCustomTCP = false;
     emit(LoanSuccessState(message: 'successfully reset values'));
   }
 
@@ -197,19 +200,27 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     String? incidentalFeeRate,
     String? loanInterestRate,
     String? serviceFeeRate,
+    String? totalContractPrice,
   }) {
-    printd('incidentalFeeRate: ${incidentalFeeRate}');
+    printd('incidentalFeeRate: $incidentalFeeRate');
 
-    printd('loanInterestRate: ${loanInterestRate}');
-    printd('serviceFeeRate: ${serviceFeeRate}');
+    printd('loanInterestRate: $loanInterestRate');
+    printd('serviceFeeRate: $serviceFeeRate');
+    printd('TCP: $totalContractPrice');
+    num? finalTcp;
+
+    if (totalContractPrice != null) {
+      finalTcp = Constants.defaultCurrencyFormat.parse(totalContractPrice);
+    }
+
     try {
       if (incidentalFeeRate != null &&
           loanInterestRate != null &&
           serviceFeeRate != null) {
         add(
           AddLoanEvent(
-            downPayment: num.parse(downPayment),
-            yearsToPay: num.parse(yearsToPay),
+            downPayment: Constants.defaultCurrencyFormat.parse(downPayment),
+            yearsToPay: Constants.defaultCurrencyFormat.parse(yearsToPay),
             date: date,
             incidentalFeeRate: num.parse(incidentalFeeRate),
             loanInterestRate: num.parse(loanInterestRate),
@@ -217,17 +228,19 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             storeInDb: false,
             withUser: false,
             serviceFeeRate: num.parse(serviceFeeRate),
+            totalContractPrice: finalTcp,
           ),
         );
       } else {
         add(
           AddLoanEvent(
-            downPayment: num.parse(downPayment),
-            yearsToPay: num.parse(yearsToPay),
+            downPayment: Constants.defaultCurrencyFormat.parse(downPayment),
+            yearsToPay: Constants.defaultCurrencyFormat.parse(yearsToPay),
             date: date,
             assistingAgent: 'None',
             storeInDb: false,
             withUser: false,
+            totalContractPrice: finalTcp,
           ),
         );
       }
@@ -236,17 +249,21 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
   }
 
-  void addLoan(
-      {required String yearsToPay,
-      required String downPayment,
-      required String agentAssisted,
-      required String date}) {
+  void addLoan({
+    required String yearsToPay,
+    required String downPayment,
+    required String agentAssisted,
+    required String date,
+    required String totalContractPrice,
+  }) {
     try {
       add(
         AddLoanEvent(
-          downPayment: num.parse(downPayment),
+          downPayment: Constants.defaultCurrencyFormat.parse(downPayment),
           yearsToPay: num.parse(yearsToPay),
           assistingAgent: agentAssisted,
+          totalContractPrice:
+              Constants.defaultCurrencyFormat.parse(totalContractPrice),
           date: date,
         ),
       );
@@ -298,9 +315,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     emit(LoanSuccessState(message: 'Successfully selected date'));
   }
 
-  num computeTCP({bool throwError = false}) {
+  num computeTCP({bool throwError = false, num? withCustomTCP}) {
     if (selectedLot == null || settings == null) {
       return 0;
+    }
+
+    if (withCustomTCP != null) {
+      return withCustomTCP;
     }
 
     final lotCategory = settings!.lotCategories.firstWhereOrNull(
@@ -320,7 +341,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     return selectedLot!.area * lotCategory.ratePerSquareMeter;
   }
 
-  num computeIncidentalFee({String? customIncidentalFeeRateStr}) {
+  num computeIncidentalFee({
+    String? customIncidentalFeeRateStr,
+    num? withCustomTCP,
+  }) {
     if (selectedLot == null || settings == null) {
       return 0;
     }
@@ -334,14 +358,16 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
       return 0;
     }
 
-    var tcp = computeTCP();
+    var tcp = computeTCP(
+      withCustomTCP: withCustomTCP,
+    );
 
     num? customIncidentalFeeRate;
 
     try {
       customIncidentalFeeRate = num.parse(customIncidentalFeeRateStr ?? '');
     } catch (err) {
-      printd('customIncidentalFeeRateStr parse exception: $err');
+      printd('WARN: customIncidentalFeeRateStr parse exception: $err');
     }
 
     final incidentalFeeRate =
@@ -350,11 +376,16 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     return tcp * (incidentalFeeRate / 100);
   }
 
-  num computeDownPaymentRate({String? customDownpaymentRateStr}) {
+  num computeDownPaymentRate({
+    String? customDownpaymentRateStr,
+    num? withCustomTCP,
+  }) {
     if (selectedLot == null || settings == null) {
       return 0;
     }
-    var tcp = computeTCP();
+    var tcp = computeTCP(
+      withCustomTCP: withCustomTCP,
+    );
 
     // TODO: uncomment if we're vattable
     // if (tcp >= settings!.vattableTCP) {
@@ -385,12 +416,16 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     return settings!.serviceFee;
   }
 
-  num? getVatAmount() {
+  num? getVatAmount({
+    num? withCustomTCP,
+  }) {
     if (settings == null) {
       return null;
     }
 
-    var tcp = computeTCP();
+    var tcp = computeTCP(
+      withCustomTCP: withCustomTCP,
+    );
 
     // TODO: uncomment if we're vattable
     // if (tcp >= settings!.vattableTCP) {
@@ -435,7 +470,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   void _calculateLoan(
       {required num totalContractPrice,
       required num downPayment,
-        required num incidentalFee,
+      required num incidentalFee,
       required num yearsToPay,
       required String lotCategoryKey,
       required DateTime date,
@@ -456,12 +491,13 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     }
     outstandingBalance -= totalDiscount;
     _outstandingBalance = outstandingBalance;
+    print('_outstandingBalance: $_outstandingBalance');
     var monthsToPay = yearsToPay * 12;
     final monthlyIncidentalFee = incidentalFee / monthsToPay;
     // final monthlyIncidentalFee = incidentalFee / monthsToPay;
     // printd('incidentalFee + serviceFee = ${incidentalFee + serviceFee}');
 
-    final loanMonthlyAmortization = _calculateMonthlyPayment(
+    final loanMonthlyAmortization = _calculateMonthlyPayment2(
       outstandingBalance: outstandingBalance,
       annualInterestRate: annualInterestRate,
       yearsToPay: yearsToPay,
@@ -577,7 +613,14 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
         throw Exception('Lot category not found');
       }
 
-      final totalContractPrice = computeTCP(throwError: true);
+      final expectedTcp = _selectedLot!.area * lotCategory.ratePerSquareMeter;
+
+      withCustomTCP = (event.totalContractPrice ?? 0) > expectedTcp;
+
+      final totalContractPrice = computeTCP(
+        throwError: true,
+        withCustomTCP: event.totalContractPrice,
+      );
       num vatValue = 0;
 
       // TODO: uncomment if we're vattable
@@ -597,7 +640,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
           event.incidentalFeeRate ?? settings!.incidentalFeeRate;
 
       printd('event.incidentalFeeRate: ${event.incidentalFeeRate}');
-      printd('incidentalFeeRate: ${incidentalFeeRate}');
+      printd('incidentalFeeRate: $incidentalFeeRate');
 
       final loanInterestRate =
           event.loanInterestRate ?? settings!.loanInterestRate;
@@ -729,7 +772,7 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
 
         if (_loans.isNotEmpty) {
           final schedules =
-          await loanScheduleRepository.next(reset: event.clearList);
+              await loanScheduleRepository.next(reset: event.clearList);
           _nextPageCalled = _nextPageCalled == null ? 0 : _nextPageCalled! + 1;
 
           if (schedules.length < Constants.loanScheduleQueryResultLimit) {
@@ -742,6 +785,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
             if (loan == null) {
               loan = await loanRepository.get(id: schedule.loanId);
               _loans[loan.id] = loan;
+            }
+
+            if (loan.deletedAt != null) {
+              continue;
             }
 
             final display = LoanDisplay(
@@ -940,14 +987,14 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
   }
 
   /// M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1].
-  //
-  // Here’s a breakdown of each of the variables:
-  //
-  //     M = Total monthly payment
-  //     P = The total amount of your loan
-  //     I = Your interest rate, as a monthly percentage
-  //     N = The total amount of months in your timeline for paying
-  //     off your mortgage
+  ///
+  /// Here’s a breakdown of each of the variables:
+  ///
+  ///     M = Total monthly payment
+  ///     P = The total amount of your loan
+  ///     I = Your interest rate, as a monthly percentage
+  ///     N = The total amount of months in your timeline for paying
+  ///     off your mortgage
   num _calculateMonthlyPayment({
     required num outstandingBalance,
     required num annualInterestRate,
@@ -971,5 +1018,31 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
     var monthly = outstandingBalance * divided;
 
     return monthly;
+  }
+
+  /// P = (Pv*R) / [1 - (1 + R)^(-n)]
+  ///
+  /// Here’s a breakdown of each of the variables:
+  ///
+  ///     P = Monthly Payment
+  ///     Pv = Present Value (starting value of the loan)
+  ///     APR = Annual Percentage Rate
+  ///     R = Periodic Interest Rate = APR/number of interest periods per year
+  ///     n = Total number of interest periods (interest periods per year * number of years)
+  ///
+  /// source: https://superuser.com/questions/871404/what-would-be-the-the-mathematical-equivalent-of-this-excel-formula-pmt
+  num _calculateMonthlyPayment2({
+    required num outstandingBalance,
+    required num annualInterestRate,
+    required num yearsToPay,
+  }) {
+    /// in 1 year, there are 12 months
+    final monthlyInterestRate = annualInterestRate / 12;
+    final monthsToPay = yearsToPay * 12;
+
+    num p = (outstandingBalance * monthlyInterestRate) /
+        (1 - pow(1 + monthlyInterestRate, -1 * monthsToPay));
+
+    return p;
   }
 }

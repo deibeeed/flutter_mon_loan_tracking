@@ -16,6 +16,8 @@ class LoanSchedule extends Equatable {
   final String loanId;
   final String id;
   final num createdAt;
+  @JsonKey(defaultValue: null)
+  final num? deletedAt;
 
   LoanSchedule({
     required this.date,
@@ -27,6 +29,7 @@ class LoanSchedule extends Equatable {
     required this.loanId,
     required this.id,
     required this.createdAt,
+    this.deletedAt,
   });
 
   factory LoanSchedule.create({
@@ -64,6 +67,7 @@ class LoanSchedule extends Equatable {
         loanId: loanSchedule.loanId,
         id: id,
         createdAt: loanSchedule.createdAt,
+        deletedAt: loanSchedule.deletedAt,
       );
 
   factory LoanSchedule.setLoanId({
@@ -80,6 +84,7 @@ class LoanSchedule extends Equatable {
         loanId: loanId,
         id: loanSchedule.id,
         createdAt: loanSchedule.createdAt,
+        deletedAt: loanSchedule.deletedAt,
       );
 
   factory LoanSchedule.fromJson(Map<String, dynamic> json) =>
@@ -99,5 +104,6 @@ class LoanSchedule extends Equatable {
         loanId,
         id,
         createdAt,
+        deletedAt,
       ];
 }
