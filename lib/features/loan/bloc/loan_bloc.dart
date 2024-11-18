@@ -787,6 +787,10 @@ class LoanBloc extends Bloc<LoanEvent, LoanState> {
               _loans[loan.id] = loan;
             }
 
+            if (loan.deletedAt != null) {
+              continue;
+            }
+
             final display = LoanDisplay(
                 loan: loan, schedule: schedule, lot: _mappedLots[loan.lotId]!);
             _allLoans.add(display);

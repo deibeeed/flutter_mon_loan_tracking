@@ -15,7 +15,12 @@ class LoanFirestoreService extends BaseFirestoreService<Loan> {
 
   @override
   Future<List<Loan>> all() async {
-    final doc = await root.get();
+    final doc = await root
+        .where(
+          'deletedAt',
+          isNull: true,
+        )
+        .get();
     final users = doc.docs
         .map((e) => Loan.fromJson(e.data() as Map<String, dynamic>))
         .toList();
