@@ -18,8 +18,8 @@ class AuthenticationScreen extends StatefulWidget {
 }
 
 class _AuthenticationScreenState extends State<AuthenticationScreen> {
-  final emailController = TextEditingController(text: 'deibeeed@test.co');
-  final passwordController = TextEditingController(text: 'Password1!');
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   @override
   void initState() {
